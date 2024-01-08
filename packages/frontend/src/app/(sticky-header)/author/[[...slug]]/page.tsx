@@ -1,8 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import axios from 'axios'
 import { notFound } from 'next/navigation'
-import errors from '@twreporter/errors'
 import PostList from '@/app/components/post-list'
 import Pagination from '@/app/components/pagination'
 import {
@@ -12,7 +10,7 @@ import {
   POST_PER_PAGE,
   POST_CONTENT_GQL,
 } from '@/app/constants'
-import { getPostSummaries, log, LogLevel } from '@/app/utils'
+import { getPostSummaries, sendGQLRequest, log, LogLevel } from '@/app/utils'
 import './page.scss'
 
 export const metadata: Metadata = {
@@ -45,50 +43,39 @@ export default async function Author({ params }: { params: { slug: any } }) {
   const currentPage = !params.slug?.[1] ? 1 : Number(params.slug[1])
 
   if (params.slug?.length > 2 || !slug || !(currentPage > 0)) {
-    log(LogLevel.INFO, 'Incorrect author routing!')
+    log(LogLevel.WARNING, 'Incorrect author routing!')
     notFound()
   }
 
-  let author, posts, postsCount
-  try {
-    const response = await axios.post(API_URL, {
-      query: authorGQL,
-      variables: {
-        authorWhere2: {
-          slug: slug,
-        },
-        orderBy: [
-          {
-            publishedDate: 'desc',
-          },
-        ],
-        take: POST_PER_PAGE,
-        skip: (currentPage - 1) * POST_PER_PAGE,
+  const response = await sendGQLRequest(API_URL, {
+    query: authorGQL,
+    variables: {
+      authorWhere2: {
+        slug: slug,
       },
-    })
-    author = response?.data?.data?.author
-    if (!author) {
-      log(LogLevel.INFO, 'Author not found!')
-      notFound()
-    }
-    posts = author.posts
-    postsCount = author.postsCount
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
+      orderBy: [
+        {
+          publishedDate: 'desc',
+        },
+      ],
+      take: POST_PER_PAGE,
+      skip: (currentPage - 1) * POST_PER_PAGE,
+    },
+  })
+  const author = response?.data?.data?.author
+  if (!author) {
+    log(LogLevel.WARNING, 'Author not found!')
     notFound()
   }
+  const posts = author.posts
+  const postsCount = author.postsCount
 
   const avatarURL = author.avatar?.resized?.tiny ?? DEFAULT_AVATAR
 
   const totalPages = Math.ceil(postsCount / POST_PER_PAGE)
   if (currentPage > totalPages) {
     log(
-      LogLevel.ERROR,
+      LogLevel.WARNING,
       `Request page(${currentPage}) exceeds total pages(${totalPages}!`
     )
     notFound()

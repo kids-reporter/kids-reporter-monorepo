@@ -1,7 +1,5 @@
 import { Metadata } from 'next'
-import axios from 'axios'
 import { notFound } from 'next/navigation'
-import errors from '@twreporter/errors'
 import PostList from '@/app/components/post-list'
 import Navigator from './navigator'
 import Pagination from '@/app/components/pagination'
@@ -12,7 +10,7 @@ import {
   POST_CONTENT_GQL,
   DEFAULT_THEME_COLOR,
 } from '@/app/constants'
-import { getPostSummaries, log, LogLevel } from '@/app/utils'
+import { getPostSummaries, sendGQLRequest, log, LogLevel } from '@/app/utils'
 import './page.scss'
 
 export const metadata: Metadata = {
@@ -91,7 +89,7 @@ const getImageFromCategory = (category: string) => {
 export default async function Category({ params }: { params: { path: any } }) {
   const path = params.path
   if (!path || !Array.isArray(path) || path.length === 0) {
-    log(LogLevel.INFO, `Incorrect category path! ${path}`)
+    log(LogLevel.WARNING, `Incorrect category path! ${path}`)
     notFound()
   }
 
@@ -155,81 +153,64 @@ export default async function Category({ params }: { params: { path: any } }) {
     subSubcategory = path[2]
     currentPage = Number(path[4])
   } else {
-    log(LogLevel.INFO, `Incorrect category path! ${path}`)
+    log(LogLevel.WARNING, `Incorrect category path! ${path}`)
     notFound()
   }
 
   // Fetch subcategories for navigation
   const navigationItems = []
-  try {
-    const subcategoriesRes = await axios.post(API_URL, {
-      query: subcategoriesGQL,
-      variables: {
-        where: {
-          slug: category,
-        },
+  const subcategoriesRes = await sendGQLRequest(API_URL, {
+    query: subcategoriesGQL,
+    variables: {
+      where: {
+        slug: category,
       },
-    })
-    const categoryData = subcategoriesRes?.data?.data?.category
-    if (!categoryData) {
-      log(LogLevel.INFO, 'Incorrect category!')
-      notFound()
-    }
-    theme = categoryData.themeColor || DEFAULT_THEME_COLOR
-    const subcategories = categoryData.subcategories?.map((sub: any) => {
-      return (
-        sub && {
-          name: sub.name,
-          path: `/category/${category}/${sub.slug}`,
-        }
-      )
-    })
-
-    navigationItems.push({ name: '所有文章', path: `/category/${category}` })
-    if (Array.isArray(subcategories) && subcategories.length > 0) {
-      navigationItems.push(...subcategories)
-    }
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
+    },
+  })
+  const categoryData = subcategoriesRes?.data?.data?.category
+  if (!categoryData) {
+    log(LogLevel.WARNING, 'Incorrect category!')
     notFound()
+  }
+  theme = categoryData.themeColor || DEFAULT_THEME_COLOR
+  const subcategories = categoryData.subcategories?.map((sub: any) => {
+    return (
+      sub && {
+        name: sub.name,
+        path: `/category/${category}/${sub.slug}`,
+      }
+    )
+  })
+
+  navigationItems.push({ name: '所有文章', path: `/category/${category}` })
+  if (Array.isArray(subcategories) && subcategories.length > 0) {
+    navigationItems.push(...subcategories)
   }
 
   // Fetch related posts of subSubcategory/subcategory/category
-  let postsRes
-  try {
-    let query, slug
-    if (subSubcategory) {
-      query = subSubcategoryPostsGQL
-      slug = subSubcategory
-    } else if (subcategory) {
-      query = subcategoryPostsGQL
-      slug = subcategory
-    } else {
-      query = categoryPostsGQL
-      slug = category
-    }
-    postsRes = await axios.post(API_URL, {
-      query: query,
-      variables: {
-        where: {
-          slug: slug,
-        },
-        take: POST_PER_PAGE,
-        skip: (currentPage - 1) * POST_PER_PAGE,
+  let query, slug
+  if (subSubcategory) {
+    query = subSubcategoryPostsGQL
+    slug = subSubcategory
+  } else if (subcategory) {
+    query = subcategoryPostsGQL
+    slug = subcategory
+  } else {
+    query = categoryPostsGQL
+    slug = category
+  }
+  const postsRes = await sendGQLRequest(API_URL, {
+    query: query,
+    variables: {
+      where: {
+        slug: slug,
       },
-    })
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
+      take: POST_PER_PAGE,
+      skip: (currentPage - 1) * POST_PER_PAGE,
+    },
+  })
+  if (!postsRes) {
+    log(LogLevel.WARNING, `Empty related posts!`)
     notFound()
   }
 
@@ -241,7 +222,7 @@ export default async function Category({ params }: { params: { path: any } }) {
       category !== targetCategory?.subcategory?.category?.slug
     ) {
       log(
-        LogLevel.ERROR,
+        LogLevel.WARNING,
         `Parent category mismatch! subSubcategory=${subSubcategory}, subcategory=${targetCategory?.subcategory?.slug}/${subcategory}, category=${targetCategory?.subcategory?.category?.slug}/${category}`
       )
       notFound()
@@ -250,7 +231,7 @@ export default async function Category({ params }: { params: { path: any } }) {
     targetCategory = postsRes?.data?.data?.subcategory
     if (category !== targetCategory?.category?.slug) {
       log(
-        LogLevel.ERROR,
+        LogLevel.WARNING,
         `Parent category mismatch! subcategory=${subcategory}, category=${targetCategory?.category?.slug}/${category}`
       )
       notFound()
@@ -260,7 +241,7 @@ export default async function Category({ params }: { params: { path: any } }) {
   }
 
   if (!targetCategory) {
-    log(LogLevel.INFO, 'Fetch targetCategory failed!')
+    log(LogLevel.WARNING, 'Fetch targetCategory failed!')
     notFound()
   }
 
@@ -270,7 +251,7 @@ export default async function Category({ params }: { params: { path: any } }) {
   const totalPages = Math.ceil(postsCount / POST_PER_PAGE)
   if (totalPages > 0 && currentPage > totalPages) {
     log(
-      LogLevel.ERROR,
+      LogLevel.WARNING,
       `Incorrect page! currentPage=${currentPage}, totalPages=${totalPages}`
     )
     notFound()

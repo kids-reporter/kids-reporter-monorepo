@@ -1,6 +1,4 @@
 import { Metadata } from 'next'
-import axios from 'axios'
-import errors from '@twreporter/errors'
 import {
   API_URL,
   KIDS_URL_ORIGIN,
@@ -11,7 +9,13 @@ import {
 import { PublishedDate, SubTitle } from './styled'
 import { Content } from './content'
 import { Credits } from './credits'
-import { getFormattedDate, getPostSummaries, log, LogLevel } from '@/app/utils'
+import {
+  getFormattedDate,
+  getPostSummaries,
+  sendGQLRequest,
+  log,
+  LogLevel,
+} from '@/app/utils'
 import { Leading } from './leading'
 import { RelatedPosts } from './related-posts'
 import { notFound } from 'next/navigation'
@@ -86,27 +90,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const slug = params.slug
 
-  let topicMeta
-  try {
-    const topicOGRes = await axios.post(API_URL, {
-      query: metaGQL,
-      variables: {
-        where: {
-          slug: slug,
-        },
+  const topicOGRes = await sendGQLRequest(API_URL, {
+    query: metaGQL,
+    variables: {
+      where: {
+        slug: slug,
       },
-    })
-    topicMeta = topicOGRes?.data?.data?.project
-    if (!topicMeta) {
-      log(LogLevel.INFO, `Post not found! ${params.slug}`)
-    }
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
+    },
+  })
+  const topicMeta = topicOGRes?.data?.data?.project
+  if (!topicMeta) {
+    log(LogLevel.WARNING, `Topic not found! ${params.slug}`)
   }
 
   return {
@@ -140,51 +134,19 @@ export default async function TopicPage({
     return notFound()
   }
 
-  let axiosRes
-  try {
-    // TODO: maybe we could try apollo-client pkg
-    axiosRes = await axios.post(API_URL, {
-      query,
-      variables: {
-        where: {
-          slug: params.slug,
-        },
+  // TODO: maybe we could try apollo-client pkg
+  const axiosRes = await sendGQLRequest(API_URL, {
+    query,
+    variables: {
+      where: {
+        slug: params.slug,
       },
-    })
-  } catch (err) {
-    // TODO: return 500 error page
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
-    return notFound()
-  }
-
-  const gqlErrors = axiosRes.data?.errors
-
-  if (gqlErrors) {
-    const annotatedErr = errors.helpers.wrap(
-      new Error('Errors occured while executing `GetAProject` query'),
-      'GraphQLError',
-      'Errors occured in rendering Project page',
-      { errors: gqlErrors, slug: params.slug }
-    )
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
-
-    // TODO: return 500 error page
-    return notFound()
-  }
-
+    },
+  })
   const project = axiosRes?.data?.data?.project
-
-  if (project === null) {
-    return notFound()
+  if (!project) {
+    log(LogLevel.WARNING, 'Empty topic!')
+    notFound()
   }
 
   const relatedPosts = getPostSummaries(project?.relatedPostsOrdered)

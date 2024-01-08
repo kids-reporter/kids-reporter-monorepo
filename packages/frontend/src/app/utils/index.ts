@@ -1,3 +1,5 @@
+import axios, { AxiosRequestConfig } from 'axios'
+import errors from '@twreporter/errors'
 import { Theme, ThemeColor } from '@/app/constants'
 import { PostSummary } from '@/app/components/types'
 import { DEFAULT_THEME_COLOR } from '@/app/constants'
@@ -41,6 +43,41 @@ export const getPostSummaries = (posts: any[]): PostSummary[] => {
         DEFAULT_THEME_COLOR,
     }
   })
+}
+
+export const sendGQLRequest = async (
+  url: string,
+  data?: any,
+  config?: AxiosRequestConfig<any> | undefined
+) => {
+  let response
+  try {
+    response = await axios.post(url, data, config)
+  } catch (err) {
+    const annotatedErr = errors.helpers.annotateAxiosError(err)
+    const msg = errors.helpers.printAll(annotatedErr, {
+      withStack: true,
+      withPayload: true,
+    })
+    log(LogLevel.ERROR, msg)
+  }
+
+  const gqlErrors = response?.data?.errors
+  if (gqlErrors) {
+    const annotatedErr = errors.helpers.wrap(
+      new Error(`Errors occured while executing GQL query: ${data}`),
+      'GraphQLError',
+      'Errors occured after axios request',
+      { errors: gqlErrors }
+    )
+    const msg = errors.helpers.printAll(annotatedErr, {
+      withStack: true,
+      withPayload: true,
+    })
+    log(LogLevel.ERROR, msg)
+  }
+
+  return response
 }
 
 export enum LogLevel {

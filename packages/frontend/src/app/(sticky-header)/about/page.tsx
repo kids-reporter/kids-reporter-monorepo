@@ -1,7 +1,5 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import axios from 'axios'
-import errors from '@twreporter/errors'
 import AuthorCard from '@/app/components/author-card'
 import {
   API_URL,
@@ -16,7 +14,7 @@ import {
   SUBSCRIBE_TITLE,
   AuthorRole,
 } from '@/app/constants'
-import { LogLevel, log } from '@/app/utils'
+import { sendGQLRequest } from '@/app/utils'
 import './page.scss'
 
 export const metadata: Metadata = {
@@ -151,25 +149,16 @@ const consultants = [
 export default async function About() {
   // Fetch memeber avatar
   for (const member of teamMembers) {
-    try {
-      const res = await axios.post(API_URL, {
-        query: authorGQL,
-        variables: {
-          where: {
-            slug: member.slug,
-          },
+    const res = await sendGQLRequest(API_URL, {
+      query: authorGQL,
+      variables: {
+        where: {
+          slug: member.slug,
         },
-      })
-      const avatar = res?.data?.data?.author?.avatar?.resized?.tiny
-      member.avatar = avatar ?? DEFAULT_AVATAR
-    } catch (err) {
-      const annotatedErr = errors.helpers.annotateAxiosError(err)
-      const msg = errors.helpers.printAll(annotatedErr, {
-        withStack: true,
-        withPayload: true,
-      })
-      log(LogLevel.ERROR, msg)
-    }
+      },
+    })
+    const avatar = res?.data?.data?.author?.avatar?.resized?.tiny
+    member.avatar = avatar ?? DEFAULT_AVATAR
   }
 
   const us = (

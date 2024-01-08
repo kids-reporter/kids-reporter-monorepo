@@ -1,7 +1,5 @@
 import { Metadata } from 'next'
-import axios from 'axios'
 import { notFound } from 'next/navigation'
-import errors from '@twreporter/errors'
 import PostList from '@/app/components/post-list'
 import Pagination from '@/app/components/pagination'
 import {
@@ -10,7 +8,7 @@ import {
   POST_PER_PAGE,
   POST_CONTENT_GQL,
 } from '@/app/constants'
-import { getPostSummaries, log, LogLevel } from '@/app/utils'
+import { getPostSummaries, sendGQLRequest, log, LogLevel } from '@/app/utils'
 import './page.scss'
 
 export const metadata: Metadata = {
@@ -36,49 +34,38 @@ export default async function Tag({ params }: { params: { slug: any } }) {
   const currentPage = !params.slug?.[1] ? 1 : Number(params.slug[1])
 
   if (params.slug?.length > 2 || !slug || !(currentPage > 0)) {
-    log(LogLevel.INFO, 'Incorrect tag routing!')
+    log(LogLevel.WARNING, 'Incorrect tag routing!')
     notFound()
   }
 
-  let tag, posts, postsCount
-  try {
-    const response = await axios.post(API_URL, {
-      query: tagGQL,
-      variables: {
-        where: {
-          slug: slug,
-        },
-        orderBy: [
-          {
-            publishedDate: 'desc',
-          },
-        ],
-        take: POST_PER_PAGE,
-        skip: (currentPage - 1) * POST_PER_PAGE,
+  const response = await sendGQLRequest(API_URL, {
+    query: tagGQL,
+    variables: {
+      where: {
+        slug: slug,
       },
-    })
+      orderBy: [
+        {
+          publishedDate: 'desc',
+        },
+      ],
+      take: POST_PER_PAGE,
+      skip: (currentPage - 1) * POST_PER_PAGE,
+    },
+  })
 
-    tag = response?.data?.data?.tag
-    if (!tag) {
-      log(LogLevel.INFO, 'Tag not found!')
-      notFound()
-    }
-    posts = tag.posts
-    postsCount = tag.postsCount
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
+  const tag = response?.data?.data?.tag
+  if (!tag) {
+    log(LogLevel.WARNING, 'Tag not found!')
     notFound()
   }
+  const posts = tag.posts
+  const postsCount = tag.postsCount
 
   const totalPages = Math.ceil(postsCount / POST_PER_PAGE)
   if (currentPage > totalPages) {
     log(
-      LogLevel.ERROR,
+      LogLevel.WARNING,
       `Request page(${currentPage}) exceeds total pages(${totalPages}!`
     )
     notFound()

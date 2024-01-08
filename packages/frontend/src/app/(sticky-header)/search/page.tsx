@@ -38,7 +38,7 @@ export default async function SearchPage({
       0,
       0
     )
-    log(LogLevel.ERROR, msg)
+    log(LogLevel.WARNING, msg)
     return (
       <SearchTitle>
         搜尋結果服務異常，請稍候再試。 若持續發生，煩請來信至

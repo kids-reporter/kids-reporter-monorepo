@@ -1,6 +1,4 @@
 import { Metadata } from 'next'
-import axios from 'axios'
-import errors from '@twreporter/errors'
 import MainHeader from '@/app/home/main-header'
 import MainSlider from '@/app/home/main-slider'
 import PostSelection from '@/app/home/post-selection'
@@ -10,14 +8,13 @@ import SearchAndTags from '@/app/home/search-and-tags'
 import MakeFriends from '@/app/home/make-friend'
 import CallToAction from '@/app/home/call-to-action'
 import GoToMainSite from '@/app/home/go-to-main-site'
-import { PostSummary } from './components/types'
 import {
   API_URL,
   GENERAL_DESCRIPTION,
   POST_CONTENT_GQL,
   Theme,
 } from '@/app/constants'
-import { getPostSummaries, log, LogLevel } from '@/app/utils'
+import { getPostSummaries, sendGQLRequest } from '@/app/utils'
 import './page.scss'
 
 export const revalidate = 300
@@ -158,83 +155,52 @@ const sortOrder = {
 }
 
 export default async function Home() {
-  let topics,
-    latestPosts: PostSummary[] = [],
-    featuredPosts: PostSummary[] = [],
-    sectionPostsArray: PostSummary[][] = [],
-    tags
-
   // 1. Fetch topics
-  try {
-    const topicsRes = await axios.post(API_URL, {
-      query: topicsGQL,
-      variables: {
-        orderBy: sortOrder,
-        take: topicsNum,
-      },
-    })
-    topics = topicsRes?.data?.data?.projects?.map((topic: any) => {
+  const topicsRes = await sendGQLRequest(API_URL, {
+    query: topicsGQL,
+    variables: {
+      orderBy: sortOrder,
+      take: topicsNum,
+    },
+  })
+  const topics =
+    topicsRes?.data?.data?.projects?.map((topic: any) => {
       return {
         url: `/topic/${topic.slug}`,
         image: topic?.heroImage?.resized?.medium ?? '',
         title: topic.title,
         subtitle: topic.subtitle,
       }
-    })
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
-  }
+    }) ?? []
 
   // 2. Fetch latest posts
-  try {
-    const latestPostsRes = await axios.post(API_URL, {
-      query: latestPostsGQL,
-      variables: {
-        orderBy: sortOrder,
-        take: latestPostsNum,
-      },
-    })
-    latestPosts = getPostSummaries(latestPostsRes?.data?.data?.posts)
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
-  }
+  const latestPostsRes = await sendGQLRequest(API_URL, {
+    query: latestPostsGQL,
+    variables: {
+      orderBy: sortOrder,
+      take: latestPostsNum,
+    },
+  })
+  const latestPosts = getPostSummaries(latestPostsRes?.data?.data?.posts) ?? []
 
   // 3. Fetch featured posts & tags
-  try {
-    const editorPicksRes = await axios.post(API_URL, {
-      query: editorPicksGQL,
-      variables: {
-        take: featuredPostsNum,
-      },
-    })
-    featuredPosts = getPostSummaries(
+  const editorPicksRes = await sendGQLRequest(API_URL, {
+    query: editorPicksGQL,
+    variables: {
+      take: featuredPostsNum,
+    },
+  })
+  const featuredPosts =
+    getPostSummaries(
       editorPicksRes?.data?.data?.editorPicksSettings?.[0]
         ?.editorPicksOfPostsOrdered
-    )
-    tags =
-      editorPicksRes?.data?.data?.editorPicksSettings?.[0]?.editorPicksOfTags
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
-  }
+    ) ?? []
+  const tags =
+    editorPicksRes?.data?.data?.editorPicksSettings?.[0]?.editorPicksOfTags
 
   // 4. Fetch posts for each section
-  try {
-    sectionPostsArray = await Promise.all(
+  const sectionPostsArray =
+    (await Promise.all(
       sections.map(async (section): Promise<any> => {
         // Get category/subcategory name from link.
         // ex: '/category/listening-news/' => split to ['category', 'listening-news'] => pop 'listening-news'
@@ -242,7 +208,7 @@ export default async function Home() {
           .replace(/(^\/)|(\/$)/g, '')
           .split('/')
         const isSubcategory = categoryTokens.length === 3
-        const res = await axios.post(API_URL, {
+        const res = await sendGQLRequest(API_URL, {
           query: isSubcategory ? subcategoryPostsGQL : categoryPostsGQL,
           variables: {
             where: {
@@ -256,15 +222,7 @@ export default async function Home() {
           : res?.data?.data?.category
         return getPostSummaries(category?.relatedPosts)
       })
-    )
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
-  }
+    )) ?? []
 
   return (
     <main>

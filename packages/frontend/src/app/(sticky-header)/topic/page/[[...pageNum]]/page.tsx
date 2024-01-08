@@ -1,8 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import axios from 'axios'
 import { notFound } from 'next/navigation'
-import errors from '@twreporter/errors'
 import PostSlider from '@/app/components/post-slider'
 import Pagination from '@/app/components/pagination'
 import {
@@ -13,7 +11,13 @@ import {
   TOPIC_PAGE_ROUTE,
   Theme,
 } from '@/app/constants'
-import { getFormattedDate, getPostSummaries, log, LogLevel } from '@/app/utils'
+import {
+  getFormattedDate,
+  getPostSummaries,
+  sendGQLRequest,
+  log,
+  LogLevel,
+} from '@/app/utils'
 import './page.scss'
 
 export const metadata: Metadata = {
@@ -98,49 +102,42 @@ export default async function Topic({
   params: { pageNum: string }
 }) {
   if (params.pageNum?.length > 1) {
-    log(LogLevel.INFO, `Incorrect routing path! ${params.pageNum}`)
+    log(LogLevel.WARNING, `Incorrect routing path! ${params.pageNum}`)
     notFound()
   }
 
   const currentPage = !params.pageNum ? 1 : Number(params.pageNum)
   if (!(currentPage > 0)) {
-    log(LogLevel.INFO, `Incorrect page! ${currentPage}`)
+    log(LogLevel.WARNING, `Incorrect page! ${currentPage}`)
     notFound()
   }
 
-  let topicsCount, topics, totalPages
-  try {
-    // Fetch projects of specific page
-    const projectsRes = await axios.post(API_URL, {
-      query: genTopicsGQL(currentPage === 1),
-      variables: {
-        orderBy: [
-          {
-            publishedDate: 'desc',
-          },
-        ],
-        take: POST_PER_PAGE,
-        skip: (currentPage - 1) * POST_PER_PAGE,
-      },
-    })
+  // Fetch projects of specific page
+  const projectsRes = await sendGQLRequest(API_URL, {
+    query: genTopicsGQL(currentPage === 1),
+    variables: {
+      orderBy: [
+        {
+          publishedDate: 'desc',
+        },
+      ],
+      take: POST_PER_PAGE,
+      skip: (currentPage - 1) * POST_PER_PAGE,
+    },
+  })
+  if (!projectsRes) {
+    log(LogLevel.WARNING, 'Emptyp topic response!')
+    notFound()
+  }
 
-    topics = projectsRes?.data?.data?.projects
-    topicsCount = projectsRes?.data?.data?.projectsCount
-    totalPages = Math.ceil(topicsCount / POST_PER_PAGE)
-    if (currentPage > totalPages) {
-      log(
-        LogLevel.ERROR,
-        `Request page(${currentPage}) exceeds total pages(${totalPages}!`
-      )
-      notFound()
-    }
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const msg = errors.helpers.printAll(annotatedErr, {
-      withStack: true,
-      withPayload: true,
-    })
-    log(LogLevel.ERROR, msg)
+  const topics = projectsRes?.data?.data?.projects
+  const topicsCount = projectsRes?.data?.data?.projectsCount
+  const totalPages = Math.ceil(topicsCount / POST_PER_PAGE)
+  if (currentPage > totalPages) {
+    log(
+      LogLevel.WARNING,
+      `Request page(${currentPage}) exceeds total pages(${totalPages}!`
+    )
     notFound()
   }
 

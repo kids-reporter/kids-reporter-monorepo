@@ -241,7 +241,7 @@ export async function GET(request: Request) {
       withPayload: true,
       withStack: true,
     })
-    log(LogLevel.ERROR, msg)
+    log(LogLevel.WARNING, msg)
 
     return NextResponse.json(
       {
