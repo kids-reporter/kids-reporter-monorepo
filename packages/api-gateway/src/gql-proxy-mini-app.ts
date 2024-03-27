@@ -4,11 +4,14 @@ import consts from './constants.js'
 import _errors from '@twreporter/errors'
 import express from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
+import { GoogleAuth } from 'google-auth-library'
 
 // @twreporter/errors is a cjs module, therefore, we need to use its default property
 const errors = _errors.default
 
 const statusCodes = consts.statusCodes
+
+const auth = new GoogleAuth()
 
 class TokenManager {
   // Singleton
@@ -18,16 +21,21 @@ class TokenManager {
   private apiEndpoint: string
   private token: string
   private expiredAt?: number // timestamp
+  private iapEnabled: boolean
+  private iapAud: string
 
   constructor(
     email: string,
     password: string,
-    apiEndpoint = 'http://localhost:3000/api/graphql'
+    apiEndpoint = 'http://localhost:3000/api/graphql',
+    iap?: { enabled: boolean; aud: string }
   ) {
     this.email = email
     this.password = password
     this.apiEndpoint = apiEndpoint
     this.token = ''
+    this.iapEnabled = iap?.enabled || false
+    this.iapAud = iap?.aud || ''
 
     if (TokenManager.instance) {
       return TokenManager.instance
@@ -92,6 +100,18 @@ class TokenManager {
     }
   }
 
+  async iapRequest(url: string, body: any): Promise<any> {
+    console.info(`request IAP ${url} with target audience ${this.iapAud}`)
+    const client = await auth.getIdTokenClient(this.iapAud)
+    const res = await client.request({
+      url,
+      headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+    return res
+  }
+
   async _fetchToken() {
     const gqlQuery = `
       mutation AuthenticateUserWithPassword($email: String!, $password: String!) {
@@ -106,18 +126,30 @@ class TokenManager {
       }
     `
 
-    let axiosRes
     // fetch token
-    try {
-      axiosRes = await axios.post(this.apiEndpoint, {
+    let axiosRes
+    if (this.iapEnabled) {
+      axiosRes = await this.iapRequest(this.apiEndpoint, {
         query: gqlQuery,
         variables: {
           email: this.email,
           password: this.password,
         },
+      }).catch((err) => {
+        throw errors.helpers.annotateAxiosError(err)
       })
-    } catch (err) {
-      throw errors.helpers.annotateAxiosError(err)
+    } else {
+      try {
+        axiosRes = await axios.post(this.apiEndpoint, {
+          query: gqlQuery,
+          variables: {
+            email: this.email,
+            password: this.password,
+          },
+        })
+      } catch (err) {
+        throw errors.helpers.annotateAxiosError(err)
+      }
     }
 
     const authenticationResult =
@@ -126,7 +158,6 @@ class TokenManager {
     if (errorMessage) {
       throw new Error(errorMessage)
     }
-
     const sessionToken = authenticationResult?.sessionToken
     if (!sessionToken) {
       throw new Error(
@@ -143,16 +174,19 @@ class TokenManager {
  *  This mini app aims to add 'keystonejs-session' cookie on incoming requests' header
  *  and proxy them to backed GraphQL API original server.
  */
-export function createGraphQLProxy({
-  headlessAccount,
-  apiOrigin,
-}: {
-  headlessAccount: {
-    email: string
-    password: string
-  }
-  apiOrigin: string
-}) {
+export function createGraphQLProxy(
+  {
+    headlessAccount,
+    apiOrigin,
+  }: {
+    headlessAccount: {
+      email: string
+      password: string
+    }
+    apiOrigin: string
+  },
+  iap?: { enabled: boolean; aud: string }
+) {
   // create express mini app
   const router = express.Router()
 
@@ -175,7 +209,8 @@ export function createGraphQLProxy({
         const tokenManager = new TokenManager(
           headlessAccount.email,
           headlessAccount.password,
-          apiOrigin + '/api/graphql'
+          apiOrigin + '/api/graphql',
+          iap
         )
         const token = await tokenManager.getToken()
         res.locals.sessionToken = token

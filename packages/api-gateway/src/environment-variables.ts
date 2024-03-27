@@ -1,5 +1,7 @@
 const {
   GCP_PROJECT_ID,
+  GCP_IAP_ENABLED,
+  GCP_IAP_AUD,
   CORS_ALLOW_ORIGINS,
   GQL_ORIGIN,
   GQL_HEADLESS_ACCOUNT_EMAIL,
@@ -27,6 +29,10 @@ const getAllowOrigins = (cors: string) => {
 const envVar = {
   gcp: {
     projectId: GCP_PROJECT_ID || 'kids-reporter',
+    iap: {
+      enabled: GCP_IAP_ENABLED === 'true',
+      aud: GCP_IAP_AUD || '',
+    },
   },
   apis: {
     gql: {

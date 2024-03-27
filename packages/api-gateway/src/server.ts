@@ -14,6 +14,7 @@ async function start() {
         headlessAccount: envVar.apis.gql.headlessAccount,
         apiOrigin: envVar.apis.gql.origin,
       },
+      iap: envVar.gcp.iap,
     })
     server = http.createServer(app).listen(port, () => {
       console.log(

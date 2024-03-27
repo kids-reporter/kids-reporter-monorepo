@@ -21,6 +21,7 @@ export function createApp({
   gcpProjectId = 'kids-reporter',
   corsAllowOrigin = [],
   gql,
+  iap,
 }: {
   gcpProjectId?: string
   corsAllowOrigin: string[] | string
@@ -30,6 +31,10 @@ export function createApp({
       password: string
     }
     apiOrigin: string
+  }
+  iap?: {
+    enabled: boolean
+    aud: string
   }
 }) {
   // create express app
@@ -45,7 +50,7 @@ export function createApp({
   app.use(middlewareCreator.createLoggerMw(gcpProjectId), cors(corsOpts))
 
   // mini app: weekly GraphQL API
-  app.use(createGraphQLProxy(gql))
+  app.use(createGraphQLProxy(gql, iap))
 
   /**
    *  Application level error handler
