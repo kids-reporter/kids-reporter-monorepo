@@ -1,8 +1,16 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
-import { ContentState, Editor, EditorState, convertFromRaw } from 'draft-js'
+import {
+  CompositeDecorator,
+  ContentState,
+  Editor,
+  EditorState,
+  convertFromRaw,
+} from 'draft-js'
 import blockRenderMaps from '../block-render-maps'
-import { decorator } from '../entity-decorators'
+import { linkDecorator } from './link-decorator'
+import { tocAnchorDecorator } from './toc-anchor'
+import { anchorDecorator } from './anchor'
 import { ENTITY, findEntitiesByType } from '../utils/entity'
 
 const AnnotationWrapper = styled.span`
@@ -72,7 +80,10 @@ function AnnotationBlock(props: {
     .getData()
 
   const contentState = convertFromRaw(rawContentState)
-  const editorState = EditorState.createWithContent(contentState, decorator)
+  const editorState = EditorState.createWithContent(
+    contentState,
+    new CompositeDecorator([linkDecorator, tocAnchorDecorator, anchorDecorator])
+  )
 
   return (
     <React.Fragment>
