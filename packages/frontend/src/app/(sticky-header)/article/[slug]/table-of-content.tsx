@@ -9,6 +9,7 @@ const zIndex = 1000
 const TOCContainer = styled.div`
   position: fixed;
   width: 90px;
+  top: 0;
   left: 0;
   transform: translateY(-50%);
   z-index: ${zIndex};
