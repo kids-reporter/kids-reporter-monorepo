@@ -36,6 +36,7 @@ type ImageBlockProps = {
       height: number
     }
     resized?: {
+      original: string
       small: string
       medium: string
       large: string
@@ -63,7 +64,7 @@ export function ImageBlock({ className = '', data }: ImageBlockProps) {
     <Figure className={className}>
       <Img
         alt={desc}
-        src={imageFile?.url}
+        src={resized?.original ?? resized?.medium}
         srcSet={imgSrcSetArr.join(',')}
         sizes="(min-width: 1200px) 1000px, 100vw"
         style={{ aspectRatio: aspectRatio }}
