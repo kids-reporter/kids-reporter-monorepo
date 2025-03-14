@@ -23,6 +23,10 @@ const {
   OPEN_AI_KEY,
   TWREPORTER_ID,
   SEARCH_API_KEY,
+  ALGOLIA_APP_ID,
+  ALGOLIA_API_KEY,
+  KIDS_WEBSITE_URL_ORIGIN,
+  ENABLE_ALGOLIA_FEATURE_TOGGLE,
 } = process.env
 
 enum DatabaseProvider {
@@ -94,6 +98,13 @@ const environmentVariables = {
   searchAPIKey: SEARCH_API_KEY || 'search-api-key',
   nodeEnv: NODE_ENV || 'development', // value could be 'development', 'production' or 'test'
   openAIKey: OPEN_AI_KEY || 'open-ai-key',
+  algolia: {
+    appID: ALGOLIA_APP_ID || '',
+    apiKey: ALGOLIA_API_KEY || '',
+  },
+  kidsWebsiteUrlOrigin:
+    KIDS_WEBSITE_URL_ORIGIN || 'https://kids.twreporter.org',
+  enableAlgoliaFeatureToggle: ENABLE_ALGOLIA_FEATURE_TOGGLE === 'true',
 }
 
 export default environmentVariables

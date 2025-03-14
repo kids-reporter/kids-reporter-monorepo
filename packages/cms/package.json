@@ -20,17 +20,18 @@
     "@keystone-6/core": "5.2.0",
     "@kids-reporter/cms-core": "1.0.16",
     "@types/react-beautiful-dnd": "^13.1.4",
+    "algoliasearch": "^5.20.4",
     "axios": "^1.6.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "draft-js": "^0.11.7",
     "express": "^4.17.1",
     "http-proxy-middleware": "^2.0.3",
     "jsonwebtoken": "^9.0.2",
     "otplib": "^12.0.1",
     "patch-package": "^6.4.7",
     "qrcode": "^1.5.3",
-    "react-beautiful-dnd": "^13.1.1",
-    "draft-js": "^0.11.7"
+    "react-beautiful-dnd": "^13.1.1"
   },
   "resolutions": {
     "**/next": "13.3.4",

@@ -22,6 +22,14 @@ import relationshipUtil, {
   OrderedRelationshipConfig,
 } from './utils/manual-order-relationship'
 import { slugConfig } from './config'
+import { RawDraftContentState } from 'draft-js'
+import { algoliasearch } from 'algoliasearch'
+import {
+  articleIndexName,
+  getArticleObjectID,
+  getAuthorObjectID,
+} from './utils/algolia'
+import errors from '@twreporter/errors'
 
 const subSubcategories: OrderedRelationshipConfig = {
   fieldName: 'subSubcategories',
@@ -712,8 +720,407 @@ const listConfigurations = list({
 
       return resolvedData
     },
+    afterOperation: async ({
+      operation,
+      item,
+      inputData,
+      originalItem,
+      context,
+    }) => {
+      if (!envVars.enableAlgoliaFeatureToggle) {
+        return
+      }
+
+      try {
+        const indexName = articleIndexName
+        const client = algoliasearch(
+          envVars.algolia.appID,
+          envVars.algolia.apiKey
+        )
+
+        const articleID = item
+          ? `article-${item.id.toString()}`
+          : `article-${originalItem.id.toString()}`
+
+        // Article is deleted or not published any more.
+        // Delete indexes on Algolia.
+        if (
+          operation === 'delete' ||
+          (item?.status !== 'published' && originalItem?.status === 'published')
+        ) {
+          try {
+            await client.deleteBy({
+              indexName,
+              deleteByParams: {
+                filters: `articleID:${articleID}`,
+              },
+            })
+          } catch (_error) {
+            const error = errors.helpers.wrap(
+              _error,
+              'Post.hooks.afterOperation error',
+              'Error to delete Algolia indexes.',
+              { articleID, indexName }
+            )
+            throw error
+          }
+
+          return
+        }
+
+        // There is no need to index the article.
+        if (item.status !== 'published') {
+          // `afterOperation` is done.
+          return
+        }
+
+        const _fieldNames = [
+          'slug',
+          'title',
+          'subtitle',
+          'publishedDate',
+          'ogDescription',
+          'status',
+          'authors',
+          'heroImage',
+        ]
+
+        const shouldPartialUpdate = _fieldNames.find((fieldName) => {
+          return Object.prototype.hasOwnProperty.call(inputData, fieldName)
+        })
+
+        if (!shouldPartialUpdate && !inputData?.brief && !inputData?.content) {
+          // Data is unchanged; skip updating the index.
+          // `afterOperation` is done
+          return
+        }
+
+        let res
+
+        try {
+          res = await client.search({
+            requests: [
+              {
+                indexName,
+                query: '',
+                // @TODO we need to handle pagination if needed
+                hitsPerPage: 1000,
+                filters: `articleID:${articleID}`,
+              },
+            ],
+          })
+        } catch (_error) {
+          const error = errors.helpers.wrap(
+            _error,
+            'Post.hooks.afterOperation error',
+            'Error to search records in Algolia.',
+            { indexName, articleID }
+          )
+          throw error
+        }
+
+        // @ts-ignore Not sure why `res.results` is `SearchForFacetValuesResponse` type, rather than `SearchResponse` type
+        const hits = res.results?.[0]?.hits
+
+        const shouldReindexOrBuildIndexFromScratch =
+          hits?.length === 0 || inputData.brief || inputData.content
+
+        const authors = await getAuthors(item.id.toString(), context)
+        const heroImageSrc = await getHeroImage(item.id.toString(), context)
+
+        if (shouldReindexOrBuildIndexFromScratch) {
+          if (hits?.length > 0) {
+            // Delete old indexes
+            await client.deleteBy({
+              indexName,
+              deleteByParams: {
+                filters: `articleID:${articleID}`,
+              },
+            })
+          }
+
+          // Create records from `item`.
+          const newRecord = prepareArticleRecord(item)
+          newRecord.authorIDs = authors?.map((author) =>
+            getAuthorObjectID(author.id)
+          )
+          newRecord.authorNames = authors?.map((author) => author.name)
+          newRecord.imgSrc = heroImageSrc
+          const { contentChunks, ...restAttributes } = newRecord
+
+          // Algolia enforces a 10KB limit per record.
+          // Split content into smaller chunks to prevent exceeding this limit.
+          const objects = contentChunks?.map((chunk, index) => {
+            return {
+              objectID: getArticleObjectID(
+                item.id.toString(),
+                index.toString().padStart(3, '0')
+              ),
+              articleID: `article-${item.id.toString()}`,
+              type: 'article',
+              content: chunk,
+              ...restAttributes,
+            }
+          })
+
+          try {
+            if (objects) {
+              await client.saveObjects({
+                indexName,
+                objects,
+              })
+            }
+          } catch (_error) {
+            const error = errors.helpers.wrap(
+              _error,
+              'Post.hooks.afterOperation error',
+              'Error to save objects into Algolia.',
+              { articleID, indexName, objects }
+            )
+            throw error
+          }
+        }
+
+        // Update only the modified fields of previously indexed records.
+        const partialUpdate = prepareArticleRecord(inputData)
+        if (inputData.authors) {
+          partialUpdate.authorIDs = authors?.map((author) =>
+            getAuthorObjectID(author.id)
+          )
+          partialUpdate.authorNames = authors?.map((author) => author.name)
+        }
+        if (inputData.heroImage) {
+          partialUpdate.imgSrc = heroImageSrc
+        }
+        const { contentChunks, ...restUpdates } = partialUpdate // eslint-disable-line
+        const objects = hits?.map((hit: { objectID: string }) => {
+          return {
+            objectID: hit.objectID,
+            ...restUpdates,
+          }
+        })
+        try {
+          await client.partialUpdateObjects({
+            indexName,
+            objects,
+          })
+        } catch (_error) {
+          const error = errors.helpers.wrap(
+            _error,
+            'Post.hooks.afterOperation error',
+            'Error to partial update indexes in Algolia.',
+            { articleID, indexName, objects }
+          )
+          throw error
+        }
+
+        // `afterOperation` is done
+        return
+      } catch (error) {
+        console.log(
+          JSON.stringify({
+            severity: 'ERROR',
+            message: errors.helpers.printAll(error, {
+              withStack: true,
+              withPayload: true,
+            }),
+          })
+        )
+        throw error
+      }
+    },
   },
 })
+
+type ArticleRecord = {
+  url: string
+  title: string
+  subtitle?: string
+  desc?: string
+  publishedDate?: string
+  publishedTs?: number
+  contentChunks?: string[]
+  authorNames?: string[]
+  authorIDs?: string[]
+  imgSrc?: string
+}
+
+function prepareArticleRecord(
+  fromObject: Record<string, unknown>
+): ArticleRecord {
+  const url = `${envVars.kidsWebsiteUrlOrigin}/article/${fromObject.slug}`
+  const title = fromObject.title as string
+  const subtitle = fromObject.subtitle as string
+  const desc = fromObject.ogDescription as string
+  const publishedDate = fromObject.publishedDate as string
+  let publishedTs: number | undefined = undefined
+  if (publishedDate) {
+    publishedTs = Math.ceil(new Date(publishedDate as string).getTime() / 1000)
+  }
+
+  let contentText = ''
+
+  if (fromObject.brief) {
+    contentText = convertDraftToText(
+      (fromObject.brief as RawDraftContentState) || ''
+    )
+  }
+
+  if (fromObject.content) {
+    contentText += convertDraftToText(
+      (fromObject.content as RawDraftContentState) || ''
+    )
+  }
+
+  const contentChunks = splitText(contentText)
+
+  return {
+    url,
+    title,
+    subtitle,
+    desc,
+    publishedDate,
+    publishedTs,
+    contentChunks,
+  }
+}
+
+async function getAuthors(
+  postID: string,
+  context: KeystoneContext
+): Promise<{ id: string; name: string }[]> {
+  const { authors } = await context.query.Post.findOne({
+    where: {
+      id: postID,
+    },
+    query: 'authors { id, name }',
+  })
+
+  return authors
+}
+
+async function getHeroImage(
+  postID: string,
+  context: KeystoneContext
+): Promise<string> {
+  const { heroImage } = await context.query.Post.findOne({
+    where: {
+      id: postID,
+    },
+    query: 'heroImage { resized { medium }  }',
+  })
+
+  return heroImage?.resized?.medium || ''
+}
+
+// Extract texts from draftjs object.
+function convertDraftToText(draftRawData?: RawDraftContentState) {
+  const blocks = draftRawData?.blocks || []
+  const entityMap = draftRawData?.entityMap || {}
+
+  const contentText: string[] = []
+
+  blocks.forEach((block) => {
+    let text = block.text || ''
+
+    // convert inline entity, such as ANNOTATION entity
+    if (block.entityRanges && block.entityRanges.length > 0) {
+      //  + entity
+      let resultText = ''
+      let lastOffset = 0
+
+      block.entityRanges.forEach(({ offset, length, key }) => {
+        const entity = entityMap[key]
+        if (!entity) {
+          return
+        }
+
+        // Append plain text before the entity
+        resultText += text.slice(lastOffset, offset)
+
+        // Get the text covered by the entity
+        const entityText = text.slice(offset, offset + length)
+
+        if (entity.type === 'ANNOTATION') {
+          const rawContentState = entity.data?.rawContentState
+          const _text = convertDraftToText(rawContentState)
+          resultText += `${entityText} (${_text})`
+        } else {
+          // If it's an unknown entity type, keep the text as is
+          resultText += entityText
+        }
+
+        lastOffset = offset + length
+      })
+
+      // Move the cursor forward
+      resultText += text.slice(lastOffset)
+
+      text = resultText
+    }
+
+    // ----- Handle Atomic Blocks -----
+    if (block.type === 'atomic') {
+      const entityKey =
+        block.entityRanges.length > 0 ? block.entityRanges[0].key : null
+      const entity = entityKey !== null ? entityMap[entityKey] : null
+
+      if (entity) {
+        const entityType = entity.type.toUpperCase()
+
+        // Convert atomic blocks into plain text descriptions
+        switch (entityType) {
+          case 'INFOBOX': {
+            const rawContentState = entity.data?.rawContentState
+            text = convertDraftToText(rawContentState)
+            break
+          }
+          case 'BLOCKQUOTE': {
+            text = entity.data?.text
+            break
+          }
+        }
+      }
+    }
+
+    contentText.push(text)
+  })
+
+  return contentText.join('\n')
+}
+
+// split long text into different chunks
+function splitText(text: string, maxChars = 1500) {
+  // separate long text into paragraphs
+  const paragraphs = text
+    .split(/\n/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0)
+
+  const chunks: string[] = []
+  let currentChunk = ''
+
+  paragraphs.forEach((paragraph) => {
+    // if the length of currentChunk + paragraph is less than maxChars,
+    // and then concat currentChunk and paragraph
+    if ((currentChunk + paragraph).length <= maxChars) {
+      currentChunk = currentChunk + paragraph
+    } else {
+      // otherwise, push currentChunk into chunks
+      if (currentChunk) {
+        chunks.push(currentChunk)
+      }
+      currentChunk = paragraph
+    }
+  })
+
+  // push the last one currentChunk
+  if (currentChunk) {
+    chunks.push(currentChunk)
+  }
+
+  return chunks
+}
 
 /**
  * This function is used to resolve field `authorsJSON`.
