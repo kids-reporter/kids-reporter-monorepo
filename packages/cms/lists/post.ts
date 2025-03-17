@@ -840,7 +840,7 @@ const listConfigurations = list({
           }
 
           // Create records from `item`.
-          const newRecord = prepareArticleRecord(item)
+          const newRecord = prepareArticleRecord(item as FromObject)
           newRecord.authorIDs = authors?.map((author) =>
             getAuthorObjectID(author.id)
           )
@@ -933,8 +933,8 @@ const listConfigurations = list({
 })
 
 type ArticleRecord = {
-  url: string
-  title: string
+  url?: string
+  title?: string
   subtitle?: string
   desc?: string
   publishedDate?: string
@@ -945,31 +945,37 @@ type ArticleRecord = {
   imgSrc?: string
 }
 
-function prepareArticleRecord(
-  fromObject: Record<string, unknown>
-): ArticleRecord {
-  const url = `${envVars.kidsWebsiteUrlOrigin}/article/${fromObject.slug}`
-  const title = fromObject.title as string
-  const subtitle = fromObject.subtitle as string
-  const desc = fromObject.ogDescription as string
-  const publishedDate = fromObject.publishedDate as string
+type FromObject = {
+  slug?: string
+  title?: string
+  subtitle?: string
+  ogDescription?: string
+  publishedDate?: string
+  brief?: RawDraftContentState
+  content?: RawDraftContentState
+}
+
+function prepareArticleRecord(fromObject: FromObject): ArticleRecord {
+  const url = fromObject.slug
+    ? `${envVars.kidsWebsiteUrlOrigin}/article/${fromObject.slug}`
+    : undefined
+  const title = fromObject.title
+  const subtitle = fromObject.subtitle
+  const desc = fromObject.ogDescription
+  const publishedDate = fromObject.publishedDate
   let publishedTs: number | undefined = undefined
   if (publishedDate) {
-    publishedTs = Math.ceil(new Date(publishedDate as string).getTime() / 1000)
+    publishedTs = Math.ceil(new Date(publishedDate).getTime() / 1000)
   }
 
   let contentText = ''
 
   if (fromObject.brief) {
-    contentText = convertDraftToText(
-      (fromObject.brief as RawDraftContentState) || ''
-    )
+    contentText = convertDraftToText(fromObject.brief || '')
   }
 
   if (fromObject.content) {
-    contentText += convertDraftToText(
-      (fromObject.content as RawDraftContentState) || ''
-    )
+    contentText += convertDraftToText(fromObject.content || '')
   }
 
   const contentChunks = splitText(contentText)
