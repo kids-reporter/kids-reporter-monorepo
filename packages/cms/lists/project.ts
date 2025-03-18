@@ -1,4 +1,5 @@
 import envVars from '../environment-variables'
+import { RawDraftContentState } from 'draft-js'
 import { KeystoneContext } from '@keystone-6/core/types'
 import {
   customFields,
@@ -21,6 +22,14 @@ import relationshipUtil, {
   OrderedRelationshipConfig,
 } from './utils/manual-order-relationship'
 import { slugConfig } from './config'
+import { algoliasearch } from 'algoliasearch'
+import {
+  topicIndexName,
+  getTopicObjectID,
+  convertDraftToText,
+  splitText,
+} from './utils/algolia'
+import errors from '@twreporter/errors'
 
 const relatedPosts: OrderedRelationshipConfig = {
   fieldName: 'relatedPosts',
@@ -251,7 +260,278 @@ const listConfigurations = list({
       })
       return resolvedData
     },
+    afterOperation: async ({
+      inputData,
+      item,
+      operation,
+      originalItem,
+      context,
+    }) => {
+      if (!envVars.enableAlgoliaFeatureToggle) {
+        return
+      }
+
+      try {
+        const indexName = topicIndexName
+        const client = algoliasearch(
+          envVars.algolia.appID,
+          envVars.algolia.apiKey
+        )
+
+        const topicID = item
+          ? `topic-${item.id.toString()}`
+          : `topic-${originalItem.id.toString()}`
+
+        // Topic is deleted or not published any more.
+        // Delete indexes on Algolia.
+        if (
+          operation === 'delete' ||
+          (item?.status !== 'published' && originalItem?.status === 'published')
+        ) {
+          try {
+            await client.deleteBy({
+              indexName,
+              deleteByParams: {
+                filters: `topicID:${topicID}`,
+              },
+            })
+          } catch (_error) {
+            const error = errors.helpers.wrap(
+              _error,
+              'Project.hooks.afterOperation error',
+              'Error to delete Algolia indexes.',
+              { topicID, indexName }
+            )
+            throw error
+          }
+
+          return
+        }
+
+        // There is no need to index the topic.
+        if (item.status !== 'published') {
+          // `afterOperation` is done.
+          return
+        }
+
+        const _fieldNames = [
+          'slug',
+          'title',
+          'subtitle',
+          'publishedDate',
+          'ogDescription',
+          'status',
+          'heroImage',
+        ]
+
+        const shouldPartialUpdate = _fieldNames.find((fieldName) => {
+          return Object.prototype.hasOwnProperty.call(inputData, fieldName)
+        })
+
+        if (
+          !shouldPartialUpdate &&
+          !inputData?.content &&
+          !inputData?.credits
+        ) {
+          // Data is unchanged; skip updating the index.
+          // `afterOperation` is done
+          return
+        }
+
+        let res
+
+        try {
+          res = await client.search({
+            requests: [
+              {
+                indexName,
+                query: '',
+                // @TODO we need to handle pagination if needed
+                hitsPerPage: 1000,
+                filters: `topicID:${topicID}`,
+              },
+            ],
+          })
+        } catch (_error) {
+          const error = errors.helpers.wrap(
+            _error,
+            'Project.hooks.afterOperation error',
+            'Error to search records in Algolia.',
+            { indexName, topicID }
+          )
+          throw error
+        }
+
+        // @ts-ignore Not sure why `res.results` is `SearchForFacetValuesResponse` type, rather than `SearchResponse` type
+        const hits = res.results?.[0]?.hits
+
+        const shouldReindexOrBuildIndexFromScratch =
+          hits?.length === 0 || inputData.credits || inputData.content
+
+        const heroImageSrc = await getHeroImage(item.id.toString(), context)
+
+        if (shouldReindexOrBuildIndexFromScratch) {
+          if (hits?.length > 0) {
+            // Delete old indexes
+            await client.deleteBy({
+              indexName,
+              deleteByParams: {
+                filters: `topicID:${topicID}`,
+              },
+            })
+          }
+
+          // Create records from `item`.
+          const newRecord = prepareTopicRecord(item as FromObject)
+          newRecord.imgSrc = heroImageSrc
+          const { contentChunks, ...restAttributes } = newRecord
+
+          // Algolia enforces a 10KB limit per record.
+          // Split content into smaller chunks to prevent exceeding this limit.
+          const objects = contentChunks?.map((chunk, index) => {
+            return {
+              objectID: getTopicObjectID(
+                item.id.toString(),
+                (index + 1).toString().padStart(3, '0')
+              ),
+              topicID: `topic-${item.id.toString()}`,
+              content: chunk,
+              ...restAttributes,
+            }
+          })
+
+          try {
+            if (objects) {
+              await client.saveObjects({
+                indexName,
+                objects,
+              })
+            }
+          } catch (_error) {
+            const error = errors.helpers.wrap(
+              _error,
+              'Project.hooks.afterOperation error',
+              'Error to save objects into Algolia.',
+              { topicID, indexName, objects }
+            )
+            throw error
+          }
+        }
+
+        // Update only the modified fields of previously indexed records.
+        const partialUpdate = prepareTopicRecord(inputData)
+        if (inputData.heroImage) {
+          partialUpdate.imgSrc = heroImageSrc
+        }
+        const { contentChunks, ...restUpdates } = partialUpdate // eslint-disable-line
+        const objects = hits?.map((hit: { objectID: string }) => {
+          return {
+            objectID: hit.objectID,
+            ...restUpdates,
+          }
+        })
+        try {
+          await client.partialUpdateObjects({
+            indexName,
+            objects,
+          })
+        } catch (_error) {
+          const error = errors.helpers.wrap(
+            _error,
+            'Project.hooks.afterOperation error',
+            'Error to partial update indexes in Algolia.',
+            { topicID, indexName, objects }
+          )
+          throw error
+        }
+
+        // `afterOperation` is done
+        return
+      } catch (error) {
+        console.log(
+          JSON.stringify({
+            severity: 'ERROR',
+            message: errors.helpers.printAll(error, {
+              withStack: true,
+              withPayload: true,
+            }),
+          })
+        )
+        throw error
+      }
+    },
   },
 })
+
+async function getHeroImage(
+  itemID: string,
+  context: KeystoneContext
+): Promise<string> {
+  const { heroImage } = await context.query.Project.findOne({
+    where: {
+      id: itemID,
+    },
+    query: 'heroImage { resized { medium }  }',
+  })
+
+  return heroImage?.resized?.medium || ''
+}
+
+type TopicRecord = {
+  url?: string
+  title?: string
+  subtitle?: string
+  desc?: string
+  publishedDate?: string
+  publishedTs?: number
+  contentChunks?: string[]
+  imgSrc?: string
+}
+
+type FromObject = {
+  slug?: string
+  title?: string
+  subtitle?: string
+  ogDescription?: string
+  publishedDate?: string
+  content?: RawDraftContentState
+  credits?: RawDraftContentState
+}
+
+function prepareTopicRecord(fromObject: FromObject): TopicRecord {
+  const url = fromObject.slug
+    ? `${envVars.kidsWebsiteUrlOrigin}/topic/${fromObject.slug}`
+    : undefined
+  const title = fromObject.title
+  const subtitle = fromObject.subtitle
+  const desc = fromObject.ogDescription
+  const publishedDate = fromObject.publishedDate
+  let publishedTs: number | undefined = undefined
+  if (publishedDate) {
+    publishedTs = Math.ceil(new Date(publishedDate).getTime() / 1000)
+  }
+
+  let contentText = ''
+
+  if (fromObject.content) {
+    contentText += convertDraftToText(fromObject.content || '')
+  }
+
+  if (fromObject.credits) {
+    contentText = convertDraftToText(fromObject.credits || '')
+  }
+
+  const contentChunks = splitText(contentText)
+
+  return {
+    url,
+    title,
+    subtitle,
+    desc,
+    publishedDate,
+    publishedTs,
+    contentChunks,
+  }
+}
 
 export default listConfigurations
