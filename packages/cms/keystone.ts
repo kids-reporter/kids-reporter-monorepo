@@ -4,12 +4,14 @@ import { config } from '@keystone-6/core'
 import { listDefinition as lists } from './lists'
 import appConfig from './config'
 import envVar from './environment-variables'
+import jwt from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
 import { createAuth } from '@keystone-6/auth'
 import { statelessSessions } from '@keystone-6/core/session'
 import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache'
 import { createPreviewMiniApp } from './express-mini-apps/preview/app'
 import { twoFactorAuth } from './express-mini-apps/two-factor-auth'
+import type { TypedKeystoneContext } from './types/context'
 
 const { withAuth } = createAuth({
   listKey: 'User',
@@ -138,9 +140,85 @@ export default withAuth(
           return next()
         }
 
+        /**
+         * Middleware: Verify JWT and provision member if needed.
+         *
+         * 1. Check if the request contains an Authorization header with the format `Bearer <token>`.
+         * 2. Verify the JWT using HS256 and the configured secret.
+         * 3. Ensure the decoded token contains a valid `user_id`.
+         * 4. Query the local database for an existing member record with the given `user_id`.
+         *    - If not found, create a new member record using `email` and `user_id` from the token.
+         * 5. Attach the member data to the session context for downstream resolvers/middleware.
+         *
+         * Note: This middleware only runs when an Authorization header is present.
+         */
+        const jwtVerifyAndProvisionMember = async (
+          req: Request,
+          res: Response,
+          next: NextFunction
+        ) => {
+          const context: TypedKeystoneContext = await commonContext.withRequest(
+            req,
+            res
+          )
+          const auth = req.headers.authorization || ''
+          const token = auth.startsWith('Bearer ') ? auth.slice(7) : ''
+          if (token) {
+            const decoded = jwt.verify(token, envVar.twreporterJWTSecret, {
+              algorithms: ['HS256'],
+              ignoreNotBefore: true,
+            }) as jwt.JwtPayload
+
+            if (!decoded || !decoded.user_id) {
+              return res.status(401).json({
+                status: 'fail',
+                data: 'Unauthorized due to invalid access token.',
+              })
+            }
+
+            try {
+              let member = await context.prisma.member.findUnique({
+                where: {
+                  twreporter_user_id: `${decoded.user_id}`,
+                },
+                select: {
+                  id: true,
+                  twreporter_user_id: true,
+                },
+              })
+
+              if (!member) {
+                const data = {
+                  email: decoded.email,
+                  twreporter_user_id: `${decoded.user_id}`,
+                }
+                member = await context.prisma.member.create({
+                  data,
+                  select: {
+                    id: true,
+                    twreporter_user_id: true,
+                  },
+                })
+
+                context.session.data.member = member
+              }
+            } catch (err) {
+              // @TODO error reporting
+              console.error(err)
+            }
+          }
+
+          return next()
+        }
+
         // enable cors and authentication middlewares
         app.options('/api/graphql', authenticationMw, corsMiddleware)
-        app.post('/api/graphql', authenticationMw, corsMiddleware)
+        app.post(
+          '/api/graphql',
+          authenticationMw,
+          jwtVerifyAndProvisionMember,
+          corsMiddleware
+        )
 
         // enable 2FA middleware and related routes
         twoFactorAuth(app, commonContext)

@@ -2,6 +2,7 @@ import Author from './author'
 import CallBaodaozai from './call-baodaozai'
 import Category from './category'
 import EditorPicksSetting from './editor-picks-setting'
+import Member from './member'
 import OnlineUser from './online-user'
 import PDF from './pdf'
 import Photo from './photo'
@@ -33,4 +34,5 @@ export const listDefinition = {
   SVG,
   CallBaodaozai,
   OnlineUser,
+  Member,
 }

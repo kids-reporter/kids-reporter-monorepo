@@ -23,6 +23,7 @@ const {
   OPEN_AI_KEY,
   TWREPORTER_ID,
   SEARCH_API_KEY,
+  TWREPORTER_JWT_SECRET,
 } = process.env
 
 enum DatabaseProvider {
@@ -94,6 +95,7 @@ const environmentVariables = {
   searchAPIKey: SEARCH_API_KEY || 'search-api-key',
   nodeEnv: NODE_ENV || 'development', // value could be 'development', 'production' or 'test'
   openAIKey: OPEN_AI_KEY || 'open-ai-key',
+  twreporterJWTSecret: TWREPORTER_JWT_SECRET || '',
 }
 
 export default environmentVariables
