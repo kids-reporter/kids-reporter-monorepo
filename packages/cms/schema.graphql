@@ -1629,6 +1629,62 @@ input OnlineUserCreateInput {
   updatedAt: DateTime
 }
 
+type Member {
+  id: ID!
+  name: String
+  email: String
+  twreporter_user_id: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input MemberWhereUniqueInput {
+  id: ID
+  twreporter_user_id: String
+}
+
+input MemberWhereInput {
+  AND: [MemberWhereInput!]
+  OR: [MemberWhereInput!]
+  NOT: [MemberWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  email: StringFilter
+  twreporter_user_id: StringFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input MemberOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  email: OrderDirection
+  twreporter_user_id: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input MemberUpdateInput {
+  name: String
+  email: String
+  twreporter_user_id: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input MemberUpdateArgs {
+  where: MemberWhereUniqueInput!
+  data: MemberUpdateInput!
+}
+
+input MemberCreateInput {
+  name: String
+  email: String
+  twreporter_user_id: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -1737,6 +1793,12 @@ type Mutation {
   updateOnlineUsers(data: [OnlineUserUpdateArgs!]!): [OnlineUser]
   deleteOnlineUser(where: OnlineUserWhereUniqueInput!): OnlineUser
   deleteOnlineUsers(where: [OnlineUserWhereUniqueInput!]!): [OnlineUser]
+  createMember(data: MemberCreateInput!): Member
+  createMembers(data: [MemberCreateInput!]!): [Member]
+  updateMember(where: MemberWhereUniqueInput!, data: MemberUpdateInput!): Member
+  updateMembers(data: [MemberUpdateArgs!]!): [Member]
+  deleteMember(where: MemberWhereUniqueInput!): Member
+  deleteMembers(where: [MemberWhereUniqueInput!]!): [Member]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -1812,6 +1874,9 @@ type Query {
   onlineUsers(where: OnlineUserWhereInput! = {}, orderBy: [OnlineUserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: OnlineUserWhereUniqueInput): [OnlineUser!]
   onlineUser(where: OnlineUserWhereUniqueInput!): OnlineUser
   onlineUsersCount(where: OnlineUserWhereInput! = {}): Int
+  members(where: MemberWhereInput! = {}, orderBy: [MemberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MemberWhereUniqueInput): [Member!]
+  member(where: MemberWhereUniqueInput!): Member
+  membersCount(where: MemberWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }

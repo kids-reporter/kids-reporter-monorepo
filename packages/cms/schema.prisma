@@ -331,3 +331,14 @@ model OnlineUser {
   @@index([canonicalPath])
   @@index([lastOnlineAt])
 }
+
+model Member {
+  id                 String    @id @default(cuid())
+  name               String    @default("")
+  email              String    @default("")
+  twreporter_user_id String    @unique @default("")
+  createdAt          DateTime? @default(now())
+  updatedAt          DateTime? @updatedAt
+
+  @@index([email])
+}
