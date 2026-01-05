@@ -9,7 +9,7 @@ import Skeleton from 'react-loading-skeleton'
 
 import { Theme } from '@/constants'
 
-import { useArticleContext } from './article-context'
+import { useArticleContext } from './context'
 
 const textColor = '#575757'
 

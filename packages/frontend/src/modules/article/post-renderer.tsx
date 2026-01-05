@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 import { STICKY_HEADER_HEIGHT, Theme } from '@/constants'
 
-import { useArticleContext } from './article-context'
+import { useArticleContext } from './context'
 
 type PostProp = {
   post: any

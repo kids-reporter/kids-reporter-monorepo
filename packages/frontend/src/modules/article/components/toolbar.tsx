@@ -3,7 +3,7 @@ import { cn, ScrollLevel, useScrollLevel } from '@kids-reporter/routing-ui'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { useArticleContext } from '@/app/(sticky-header)/_components/article/article-context'
+import { useArticleContext } from '@/modules/article/context'
 import { FontSizeLevel } from '@/constants'
 import useClickOutside from '@/hooks/use-click-outside'
 import {

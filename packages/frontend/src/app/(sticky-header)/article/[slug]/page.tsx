@@ -9,10 +9,10 @@ import {
   KIDS_URL_ORIGIN,
   OG_SUFFIX,
 } from '@/constants'
+import Article from '@/modules/article'
 import TableOfContentSideMenu from '@/modules/article/components/table-of-content-side-menu'
+import parseTocIndexesFromEntityMap from '@/modules/article/utils/parse-toc-indexes-from-entity-map'
 import { log, LogLevel } from '@/utils'
-
-import Article from '../../_components/article/article'
 
 const topicRelatedPostsNum = 5
 const postEssayQuestionsTake = 3
@@ -94,19 +94,7 @@ export default async function PostPage({
     notFound()
   }
 
-  // Traverse entityMap to find indexes of TOC
-  const entityMap = post.content?.entityMap
-  const tocIndexes: { key: string; label: string }[] = []
-  Object.keys(entityMap)?.forEach((key) => {
-    const entity = entityMap[key]
-    const data = entity?.data
-    if (entity && entity.type === 'TOC_ANCHOR' && data?.anchorKey) {
-      tocIndexes.push({
-        key: data.anchorKey,
-        label: data.anchorLabel ?? '',
-      })
-    }
-  })
+  const tocIndexes = parseTocIndexesFromEntityMap(post.content?.entityMap)
 
   return (
     <main className="mx-auto flex max-w-(--breakpoint-2xl) flex-col items-center">

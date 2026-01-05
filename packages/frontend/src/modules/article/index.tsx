@@ -17,6 +17,7 @@ import {
   DEFAULT_AVATAR,
   DEFAULT_THEME_COLOR,
   FontSizeLevel,
+  Theme,
 } from '@/constants'
 import { BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT } from '@/constants/baodaozai-question-count'
 import Toolbar from '@/modules/article/components/toolbar'
@@ -33,36 +34,43 @@ import {
 import { getPostSummaries } from '@/utils'
 import getLoginUrl from '@/utils/get-login-url'
 
-import ArticleBaodaozaiEventTrigger from './article-baodaozai-event-trigger'
-import { ArticleContext } from './article-context'
 import Brief, { AuthorGroup } from './brief'
 import CallToAction from './call-to-action'
+import ArticleBaodaozaiEventTrigger from './components/article-baodaozai-event-trigger'
+import RelatedArticles from './components/related-articles'
+import StartReadingBaodaozaiEventTrigger from './components/start-reading-baodaozai-event-trigger'
+import { ArticleContext } from './context'
 import HeroImage from './hero-image'
 import useBatchSubmitAnswers from './hooks/use-batch-submit-answers'
 import ImageModal from './image-modal'
 import { NewsReading } from './news-reading'
 import PostRenderer from './post-renderer'
 import PublishedDate from './published-date'
-import RelatedArticles from './related-articles'
-import StartReadingBaodaozaiEventTrigger from './start-reading-baodaozai-event-trigger'
 import SubSubcategory from './subSubcategory'
 import Title from './title'
 
-const getPostContents = (post: any) => {
+const getPostContents = (post: NonNullable<GetPostQuery['post']>) => {
   // Assemble authors for brief
-  const authorsJSON = post?.authorsJSON
+  const authorsJSON = post?.authorsJSON as {
+    id: string
+    name: string
+    role: string
+    type: 'link' | 'string'
+  }[]
   const authorsInBrief: AuthorGroup[] = []
   let currentAuthorRole = '',
     currentAuthors: { name: string; link: string }[] = []
-  authorsJSON?.forEach((authorJSON: any, index: number) => {
-    const author = post?.authors?.find((a: any) => a?.id === authorJSON?.id)
+
+  authorsJSON?.forEach((authorJSON, index) => {
+    const author = post?.authors?.find((a) => a?.id === authorJSON?.id)
+    const authName = author ? (author.name ?? '') : authorJSON.name
     const authorObj = author
       ? {
-          name: author.name,
+          name: authName,
           link: `/author/${author.slug}`,
         }
       : {
-          name: authorJSON.name,
+          name: authName,
           link: '',
         }
     if (index === 0 || authorJSON.role === authorsJSON[index - 1]?.role) {
@@ -81,23 +89,26 @@ const getPostContents = (post: any) => {
 
   // Assemble ordered authors for AuthorCard
   type AuthorWithLink = Author & { link: string }
-  const authors: AuthorWithLink[] = post?.authors?.map((author: any) => {
-    const authorJSON = authorsJSON.find(
-      (authorJSON: any) => authorJSON.id === author?.id
-    )
-    const avatarURL = author?.avatar?.resized?.tiny
-    return author && authorJSON
-      ? {
-          slug: author.slug,
-          name: author.name,
-          avatar: avatarURL ?? DEFAULT_AVATAR,
-          bio: author.bio,
-          role: authorJSON.role,
-          link:
-            authorJSON.type === 'link' ? `/author/${author.slug}` : undefined,
+  const authors: AuthorWithLink[] =
+    post?.authors
+      ?.map((author) => {
+        const authorJSON = authorsJSON.find(
+          (authorJSON) => authorJSON.id === author?.id
+        )
+        if (!authorJSON) {
+          return undefined
         }
-      : undefined
-  })
+        const avatarURL = author?.avatar?.resized?.tiny
+        return {
+          slug: author.slug,
+          name: author.name ?? '',
+          avatar: avatarURL ?? DEFAULT_AVATAR,
+          bio: author.bio ?? '',
+          role: authorJSON.role as AuthorRole,
+          link: authorJSON.type === 'link' ? `/author/${author.slug}` : '',
+        }
+      })
+      .filter((author) => author !== undefined) ?? []
 
   // Sort authors by AUTHOR_ROLES_IN_ORDER
   const orderedAuthors = authors
@@ -118,11 +129,14 @@ const getPostContents = (post: any) => {
   const topic = post?.projects?.[0]
 
   // Related posts data: related posts or topic's related post
-  let relatedPosts: any[] = []
-  if (post?.relatedPostsOrdered?.length > 0) {
-    relatedPosts = getPostSummaries(post.relatedPostsOrdered)
-  } else if (topic?.relatedPosts?.length > 0) {
-    relatedPosts = getPostSummaries(topic.relatedPosts)
+  let relatedPosts: ReturnType<typeof getPostSummaries> = []
+  if (
+    post?.relatedPostsOrdered?.length &&
+    post?.relatedPostsOrdered?.length > 0
+  ) {
+    relatedPosts = getPostSummaries(post.relatedPostsOrdered ?? [])
+  } else if (topic?.relatedPosts?.length && topic?.relatedPosts?.length > 0) {
+    relatedPosts = getPostSummaries(topic?.relatedPosts ?? [])
   }
 
   // Main project data
@@ -138,7 +152,7 @@ const getPostContents = (post: any) => {
     category?.slug && subcategory?.slug && subSubcategory?.slug
       ? `/category/${category.slug}/${subcategory.slug}/${subSubcategory.slug}`
       : ''
-  const theme = category?.themeColor || DEFAULT_THEME_COLOR
+  const theme = (category?.themeColor || DEFAULT_THEME_COLOR) as Theme
 
   const twReporterRelatedPosts: PostSummary[] =
     post?.TWReporterRelatedPostsJSON?.map(
@@ -238,7 +252,7 @@ const Article = ({
         <div className="post-date-category">
           <PublishedDate date={post.publishedDate ?? ''} />
           <SubSubcategory
-            text={subSubcategory?.name}
+            text={subSubcategory?.name ?? ''}
             link={subSubcategoryURL}
           />
         </div>

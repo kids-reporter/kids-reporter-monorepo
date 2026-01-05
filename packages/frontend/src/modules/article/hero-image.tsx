@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { DEBOUNCE_THRESHOLD, FALLBACK_IMG } from '@/constants'
 import { breakpoints } from '@/utils/media-query'
 
-import { useArticleContext } from './article-context'
+import { useArticleContext } from './context'
 
 const ImageWithFallback = dynamic(
   () => import('@/components/image-with-fallback'),
