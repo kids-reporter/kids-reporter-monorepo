@@ -11,7 +11,7 @@ declare module 'styled-components' {
     themeColor?: ThemeColorEnum
     fontSizeLevel?: FontSizeLevel
     offsetTop?: number
-    handleImgModalOpen?: (
+    onImageModalOpen?: (
       imgProps: React.ImgHTMLAttributes<HTMLImageElement>
     ) => void
   }

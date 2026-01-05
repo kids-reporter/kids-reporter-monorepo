@@ -67,7 +67,7 @@ function ImageLinkBlockInner({ className = '', data }: ImageLinkBlockProps) {
         $isDesktopAndAbove={isDesktopAndAbove}
         onClick={() =>
           isDesktopAndAbove &&
-          (theme as any)?.handleImgModalOpen?.(commonImgProps)
+          (theme as any)?.onImageModalOpen?.(commonImgProps)
         }
       />
       <Editor

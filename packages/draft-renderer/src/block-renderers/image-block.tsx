@@ -93,7 +93,7 @@ function ImageBlockInner({ className = '', data }: ImageBlockProps) {
         $isDesktopAndAbove={isDesktopAndAbove}
         onClick={() =>
           isDesktopAndAbove &&
-          (theme as any)?.handleImgModalOpen?.(commonImgProps)
+          (theme as any)?.onImageModalOpen?.(commonImgProps)
         }
       />
       {desc && <FigureCaption>{desc}</FigureCaption>}
