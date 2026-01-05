@@ -219,14 +219,14 @@ const Article = ({
   const [imgProps, setImgProps] = useState<
     React.ImgHTMLAttributes<HTMLImageElement>
   >({})
-  const handleImgModalOpen = (
+  const onImageModalOpen = (
     imgProps: React.ImgHTMLAttributes<HTMLImageElement>
   ) => {
     setIsImgModalOpen(true)
     setImgProps(imgProps)
     document.body.classList.add('no-scroll')
   }
-  const handleImgModalClose = () => {
+  const onImageModalClose = () => {
     setIsImgModalOpen(false)
     setImgProps({})
     document.body.classList.remove('no-scroll')
@@ -403,8 +403,8 @@ const Article = ({
           value={{
             fontSize,
             onFontSizeChange,
-            handleImgModalOpen,
-            handleImgModalClose,
+            onImageModalOpen,
+            onImageModalClose,
           }}
         >
           <Toolbar topicURL={topicURL ?? '#'} postSlug={slug} />
@@ -412,14 +412,14 @@ const Article = ({
           <ImageModal
             isOpen={isImgModalOpen}
             imgProps={imgProps}
-            handleImgModalClose={handleImgModalClose}
+            onImageModalClose={onImageModalClose}
           />
           <StartReadingBaodaozaiEventTrigger content={post?.opening ?? ''} />
           {post?.heroImage && post?.heroCaption && (
             <HeroImage
               image={post?.heroImage}
               caption={post?.heroCaption ?? ''}
-              handleImgModalOpen={handleImgModalOpen}
+              onImageModalOpen={onImageModalOpen}
             />
           )}
           {postHeader}

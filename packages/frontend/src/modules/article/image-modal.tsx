@@ -38,9 +38,9 @@ const CrossIconPosCss = (position: CrossIconPos) => {
 export const ImageModal = (props: {
   isOpen: boolean
   imgProps: React.ImgHTMLAttributes<HTMLImageElement>
-  handleImgModalClose: () => void
+  onImageModalClose: () => void
 }) => {
-  const { isOpen, imgProps, handleImgModalClose } = props
+  const { isOpen, imgProps, onImageModalClose } = props
   const imgRef = useRef<HTMLImageElement>(null)
   const [crossIconPos, setCrossIconPos] = useState(CrossIconPos.INSIDE)
 
@@ -72,13 +72,13 @@ export const ImageModal = (props: {
 
   const handleWindowResize = debounce(() => {
     if (window.innerWidth <= breakpoints.desktop) {
-      handleImgModalClose?.()
+      onImageModalClose?.()
     }
   }, DEBOUNCE_THRESHOLD)
 
   const handleESCPress = debounce((e) => {
     if (e.key === 'Escape') {
-      handleImgModalClose?.()
+      onImageModalClose?.()
     }
   }, DEBOUNCE_THRESHOLD)
 
@@ -104,7 +104,7 @@ export const ImageModal = (props: {
         ...CrossIconPosCss(crossIconPos),
         filter: 'drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.8))',
       }}
-      onClick={handleImgModalClose}
+      onClick={onImageModalClose}
     >
       <svg
         className="h-full w-full"
@@ -127,7 +127,7 @@ export const ImageModal = (props: {
       <div
         className="fixed top-0 left-0 hidden h-screen w-screen items-center justify-center bg-black/50 lg:flex lg:flex-col"
         style={{ zIndex: Z_INDEX_TOP + 1 }}
-        onClick={handleImgModalClose}
+        onClick={onImageModalClose}
       >
         <div className="relative">
           <img

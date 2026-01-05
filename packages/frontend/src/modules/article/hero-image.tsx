@@ -18,14 +18,14 @@ type HeroImageProp = {
     NonNullable<NonNullable<GetPostQuery['post']>['heroImage']>
   >
   caption: string
-  handleImgModalOpen: (
+  onImageModalOpen: (
     imgProps: React.ImgHTMLAttributes<HTMLImageElement>
   ) => void
 }
 
 export const HeroImage = (props: HeroImageProp) => {
   const { image, caption } = props
-  const { handleImgModalOpen } = useArticleContext()
+  const { onImageModalOpen } = useArticleContext()
   const [isDesktopAndAbove, setIsDesktopAndAbove] = useState(false)
 
   const handleWindowResize = debounce(() => {
@@ -67,7 +67,7 @@ export const HeroImage = (props: HeroImageProp) => {
             loading="eager"
             fetchPriority="high"
             onClick={() =>
-              isDesktopAndAbove && handleImgModalOpen(commonImgProps)
+              isDesktopAndAbove && onImageModalOpen(commonImgProps)
             }
           />
         </div>

@@ -5,17 +5,17 @@ import { FontSizeLevel } from '@/constants'
 type Article = {
   fontSize: FontSizeLevel
   onFontSizeChange: () => void
-  handleImgModalOpen: (
+  onImageModalOpen: (
     imgProps: React.ImgHTMLAttributes<HTMLImageElement>
   ) => void
-  handleImgModalClose: () => void
+  onImageModalClose: () => void
 }
 
 export const ArticleContext = createContext<Article>({
   fontSize: FontSizeLevel.NORMAL,
   onFontSizeChange: () => undefined,
-  handleImgModalOpen: () => undefined,
-  handleImgModalClose: () => undefined,
+  onImageModalOpen: () => undefined,
+  onImageModalClose: () => undefined,
 })
 
 export const useArticleContext = () => useContext(ArticleContext)

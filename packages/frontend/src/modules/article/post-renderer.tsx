@@ -24,14 +24,14 @@ const SkeletonContainer = styled.div`
 export const PostRenderer = (props: PostProp) => {
   const content = props.post?.content
   const theme = props.theme
-  const { fontSize, handleImgModalOpen } = useArticleContext()
+  const { fontSize, onImageModalOpen } = useArticleContext()
 
   return content && theme ? (
     <ArticleBodyDraftRenderer
       rawContentState={content}
       themeColor={theme}
       fontSizeLevel={fontSize}
-      handleImgModalOpen={handleImgModalOpen}
+      onImageModalOpen={onImageModalOpen}
       initiallyScrollTo={
         typeof window !== 'undefined' ? window.location.hash : undefined
       }
