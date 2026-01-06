@@ -17,13 +17,13 @@ import { tocAnchorDecorator } from './toc-anchor'
 const AnnotationWrapper = styled.span`
   display: inline-block;
   cursor: pointer;
-  color: #27b5f7;
+  color: #27b3f5;
 `
 
 const AnnotationBody = styled.div`
   color: #494949;
   margin-bottom: 10px;
-  border-top: 2px solid #27b5f7;
+  border-top: 2px solid #27b3f5;
   background-color: #fff;
   padding: 25px 25px;
 `
@@ -41,7 +41,7 @@ const ArrowIcon = styled.span<{ $showContent: boolean }>`
   top: -1px;
 
   &::before {
-    background-color: #27b5f7;
+    background-color: #27b3f5;
     content: '';
     width: 2px;
     height: 6.5px;
@@ -55,7 +55,7 @@ const ArrowIcon = styled.span<{ $showContent: boolean }>`
   }
 
   &::after {
-    background-color: #27b5f7;
+    background-color: #27b3f5;
     content: '';
     width: 2px;
     height: 6.5px;

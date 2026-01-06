@@ -8,12 +8,6 @@ import { mediaQuery } from '../utils/media-query'
 export const Paragraph = styled.div`
   width: 100%;
   max-width: 700px;
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '22px' : '18px'};
-  font-weight: 400;
-  color: #3a4f66;
-  letter-spacing: 0.9px;
-  line-height: 2;
   margin: 0 auto;
 
   ${mediaQuery.smallOnly} {
@@ -21,15 +15,12 @@ export const Paragraph = styled.div`
     padding-right: 15px;
   }
 
-  > div[data-block='true'] {
+  > div[data-block='true']:not(:last-child) {
     margin-bottom: 27px;
   }
 `
 
 export const Heading = styled.div`
-  font-weight: 700;
-  line-height: 1.5;
-  color: #232323;
   width: 100%;
   max-width: 700px;
   margin: 45px auto 20px auto;
@@ -38,28 +29,7 @@ export const Heading = styled.div`
   h3,
   h4,
   h5 {
-    letter-spacing: 1.5px;
     margin: 0;
-  }
-
-  h2 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '39px' : '35px'};
-  }
-
-  h3 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '34px' : '30px'};
-  }
-
-  h4 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '29px' : '25px'};
-  }
-
-  h5 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '24px' : '20px'};
   }
 
   ${mediaQuery.smallOnly} {
@@ -72,11 +42,7 @@ export const List = styled.ol`
   width: 100%;
   max-width: 700px;
   margin: 0 auto 27px auto;
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '22px' : '18px'};
-  line-height: 2;
-  letter-spacing: 0.9px;
-  color: #3a4f66;
+
   padding-left: 2rem;
 
   > li {

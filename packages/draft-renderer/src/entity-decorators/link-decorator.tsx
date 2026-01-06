@@ -6,7 +6,7 @@ import { ENTITY, findEntitiesByType } from '../utils/entity'
 
 const LinkWrapper = styled.a`
   text-decoration: underline;
-  color: #27b5f7;
+  color: #27b3f5;
   transition: color 0.1s ease-in;
   cursor: pointer;
 

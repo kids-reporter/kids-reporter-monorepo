@@ -1,15 +1,19 @@
 'use client'
 
 import { GetPostQuery } from '__generated__/operations/content.generated'
-import { ScrollLevel, useScrollLevel } from '@kids-reporter/routing-ui'
+import {
+  HeaderPostTitleSetter,
+  ScrollLevel,
+  useScrollLevel,
+} from '@kids-reporter/routing-ui'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
 
 import AuthorCard from '@/components/author-card'
-import DividerLegacy from '@/components/divider-legacy'
 import Tags from '@/components/tags'
 import { FontSizeLevel } from '@/constants'
 import { BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT } from '@/constants/baodaozai-question-count'
+import { SeparateIcon } from '@/icons'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import {
   BaodaozaiActionSetter,
@@ -22,9 +26,9 @@ import {
 } from '@/services/call-baodaozai'
 import getLoginUrl from '@/utils/get-login-url'
 
-import Brief from './brief'
 import CallToAction from './call-to-action'
 import ArticleBaodaozaiEventTrigger from './components/article-baodaozai-event-trigger'
+import ArticleSummary from './components/article-summary'
 import RelatedArticles from './components/related-articles'
 import StartReadingBaodaozaiEventTrigger from './components/start-reading-baodaozai-event-trigger'
 import TableOfContentSideMenu from './components/table-of-content-side-menu'
@@ -53,6 +57,8 @@ const ArticleModule = ({
     orderedAuthors,
     relatedPosts,
     twReporterRelatedPosts,
+    subSubcategory,
+    subSubcategoryURL,
   } = parsePostToContent(post)
 
   const [fontSize, setFontSize] = useState<FontSizeLevel>(FontSizeLevel.NORMAL)
@@ -269,12 +275,15 @@ const ArticleModule = ({
               disabled={!isScrollingDown}
               startReadingContent={post?.opening ?? ''}
             />
-            <Brief
+            <ArticleSummary
+              subSubcategoryName={subSubcategory?.name ?? ''}
+              subSubcategoryURL={subSubcategoryURL ?? ''}
+              publishedDate={post?.publishedDate ?? ''}
               content={post?.brief}
               authors={authorsInBrief}
-              theme={theme}
+              fontSizeLevel={fontSize}
             />
-            <DividerLegacy />
+            <SeparateIcon />
             <div className="relative">
               <PostRenderer post={post} theme={theme} />
               {/* middle of the article content enters 50% of the viewport*/}

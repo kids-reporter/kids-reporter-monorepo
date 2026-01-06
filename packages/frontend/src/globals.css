@@ -81,10 +81,13 @@
   --font-size-p3: 12px;
   --font-size-p4: 10px;
 
+  --font-size-article: 18px;
+
   /* Typography - Line Heights */
   --line-height-tight: 1.25;
   --line-height-normal: 1.6;
   --line-height-relaxed: 1.75;
+  --line-height-article: 2.1;
 
   /* Spacing - Grid System */
   --spacing-grid-xs: 4px;
@@ -468,6 +471,22 @@
   letter-spacing: 0.5px;
 }
 
+@utility prose-article {
+  font-family: var(--font-family-noto);
+  font-size: var(--font-size-article);
+  font-weight: 500;
+  line-height: var(--line-height-article);
+  letter-spacing: 1.08px;
+}
+
+@utility prose-article-bold {
+  font-family: var(--font-family-noto);
+  font-size: var(--font-size-article);
+  font-weight: 700;
+  line-height: var(--line-height-article);
+  letter-spacing: 0.9px;
+}
+
 @utility font-swei {
   font-family: var(--font-family-swei);
   font-weight: 700;
@@ -503,4 +522,9 @@
 }
 @utility theme-blue {
   --theme-color: var(--color-blue-400);
+}
+
+::selection {
+  background-color: var(--color-red-400);
+  color: var(--color-neutral-white);
 }

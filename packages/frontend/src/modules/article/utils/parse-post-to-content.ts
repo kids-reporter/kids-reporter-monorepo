@@ -11,7 +11,7 @@ import {
 } from '@/constants'
 import { getPostSummaries } from '@/utils'
 
-import { AuthorGroup } from '../brief'
+import { AuthorGroup } from '../types'
 
 function parsePostToContent(post: NonNullable<GetPostQuery['post']>) {
   // Assemble authors for brief
