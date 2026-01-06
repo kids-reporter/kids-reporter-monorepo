@@ -1,4 +1,3 @@
-import { HeaderPostTitleSetter } from '@kids-reporter/routing-ui'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
@@ -9,9 +8,7 @@ import {
   KIDS_URL_ORIGIN,
   OG_SUFFIX,
 } from '@/constants'
-import Article from '@/modules/article'
-import TableOfContentSideMenu from '@/modules/article/components/table-of-content-side-menu'
-import parseTocIndexesFromEntityMap from '@/modules/article/utils/parse-toc-indexes-from-entity-map'
+import ArticleModule from '@/modules/article'
 import { log, LogLevel } from '@/utils'
 
 const topicRelatedPostsNum = 5
@@ -94,13 +91,9 @@ export default async function PostPage({
     notFound()
   }
 
-  const tocIndexes = parseTocIndexesFromEntityMap(post.content?.entityMap)
-
   return (
-    <main className="mx-auto flex max-w-(--breakpoint-2xl) flex-col items-center">
-      <HeaderPostTitleSetter postTitle={post?.title} />
-      {tocIndexes.length > 0 && <TableOfContentSideMenu indexes={tocIndexes} />}
-      {post && <Article post={post} slug={slug} />}
+    <main className="mx-auto flex flex-col items-center">
+      {post && <ArticleModule post={post} slug={slug} />}
     </main>
   )
 }

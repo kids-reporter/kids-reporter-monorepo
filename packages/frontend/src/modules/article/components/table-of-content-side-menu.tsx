@@ -161,7 +161,7 @@ function TableOfContentSideMenu({ indexes }: TableOfContentSideMenuProps) {
         aria-label={isExpanded ? '關閉目錄' : '開啟目錄'}
         aria-expanded={isExpanded}
         className={cn(
-          'fixed top-[80px] left-0 w-8 cursor-pointer transition-transform delay-100 duration-100 ease-in-out desktop:top-1/2 desktop:-translate-y-1/2',
+          'fixed top-[144px] left-0 w-8 cursor-pointer transition-transform delay-100 duration-100 ease-in-out desktop:top-1/2 desktop:-translate-y-1/2',
           isExpanded
             ? 'translate-x-[200px] desktop:translate-x-0'
             : 'translate-x-0'
