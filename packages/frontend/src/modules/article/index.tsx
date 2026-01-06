@@ -37,7 +37,7 @@ import Toolbar from './components/toolbar'
 import { ArticleContext } from './context'
 import useBatchSubmitAnswers from './hooks/use-batch-submit-answers'
 import ImageModal from './image-modal'
-import { NewsReading } from './news-reading'
+import NewsReading from './news-reading'
 import PostRenderer from './post-renderer'
 import parsePostToContent from './utils/parse-post-to-content'
 import parseTocIndexesFromEntityMap from './utils/parse-toc-indexes-from-entity-map'
@@ -241,7 +241,7 @@ const ArticleModule = ({
             onImageModalClose,
           }}
         >
-          <Toolbar topicURL={topicURL ?? '#'} postSlug={slug} />
+          <Toolbar topicURL={topicURL} postSlug={slug} />
           <div className="flex w-full max-w-300 flex-col items-center desktop:mx-auto desktop:px-12">
             <ImageModal
               isOpen={isImgModalOpen}
@@ -252,10 +252,14 @@ const ArticleModule = ({
             <StartReadingBaodaozaiEventTrigger content={post?.opening ?? ''} />
 
             <TitleHero
-              topicBreadcrumb={{
-                link: topicURL ?? '',
-                title: mainTopic?.title ?? '',
-              }}
+              topicBreadcrumb={
+                topicURL && mainTopic?.title
+                  ? {
+                      link: topicURL,
+                      title: mainTopic.title,
+                    }
+                  : undefined
+              }
               heroImageProps={{
                 image: post?.heroImage,
                 caption: post?.heroCaption ?? '',
