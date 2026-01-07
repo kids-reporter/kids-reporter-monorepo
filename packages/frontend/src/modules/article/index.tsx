@@ -29,6 +29,7 @@ import getLoginUrl from '@/utils/get-login-url'
 import CallToAction from './call-to-action'
 import ArticleBaodaozaiEventTrigger from './components/article-baodaozai-event-trigger'
 import ArticleSummary from './components/article-summary'
+import NewsReading from './components/news-reading'
 import RelatedArticles from './components/related-articles'
 import StartReadingBaodaozaiEventTrigger from './components/start-reading-baodaozai-event-trigger'
 import TableOfContentSideMenu from './components/table-of-content-side-menu'
@@ -37,7 +38,6 @@ import Toolbar from './components/toolbar'
 import { ArticleContext } from './context'
 import useBatchSubmitAnswers from './hooks/use-batch-submit-answers'
 import ImageModal from './image-modal'
-import NewsReading from './news-reading'
 import PostRenderer from './post-renderer'
 import parsePostToContent from './utils/parse-post-to-content'
 import parseTocIndexesFromEntityMap from './utils/parse-toc-indexes-from-entity-map'
@@ -50,7 +50,6 @@ const ArticleModule = ({
   slug: string
 }) => {
   const {
-    theme,
     topicURL,
     mainTopic,
     authorsInBrief,
@@ -288,8 +287,8 @@ const ArticleModule = ({
               fontSizeLevel={fontSize}
             />
             <SeparateIcon />
-            <div className="relative">
-              <PostRenderer post={post} theme={theme} />
+            <div className="relative w-full">
+              <PostRenderer content={post?.content ?? {}} />
               {/* middle of the article content enters 50% of the viewport*/}
               <div className="absolute top-[calc(50%+50vh)]">
                 <ArticleBaodaozaiEventTrigger
