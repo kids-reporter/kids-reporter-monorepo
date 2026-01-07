@@ -55,22 +55,27 @@ function HeroImage({
             aria-hidden="true"
           />
         )}
-        <ImageWithFallback
-          className={cn('max-w-full object-contain', isLoading && 'opacity-0')}
-          {...commonImgProps}
-          style={{
-            width: 'inherit',
-            height: 'auto',
-            aspectRatio: aspectRatio,
-            cursor: isDesktop ? 'zoom-in' : 'default',
-          }}
-          loading="eager"
-          fetchPriority="high"
-          onLoad={() => setIsLoading(false)}
-          onClick={
-            isDesktop ? () => onImageModalOpen(commonImgProps) : undefined
-          }
-        />
+        {image && (
+          <ImageWithFallback
+            className={cn(
+              'max-w-full object-contain',
+              isLoading && 'opacity-0'
+            )}
+            {...commonImgProps}
+            style={{
+              width: 'inherit',
+              height: 'auto',
+              aspectRatio: aspectRatio,
+              cursor: isDesktop ? 'zoom-in' : 'default',
+            }}
+            loading="eager"
+            fetchPriority="high"
+            onLoad={() => setIsLoading(false)}
+            onClick={
+              isDesktop ? () => onImageModalOpen(commonImgProps) : undefined
+            }
+          />
+        )}
       </div>
       <figcaption
         className={cn(

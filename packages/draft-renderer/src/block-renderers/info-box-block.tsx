@@ -175,9 +175,7 @@ const EditorContainer = styled.div`
   position: relative;
 `
 
-function convertFromRawWithoutUnstyledTrailingBlocks(
-  rawContentState: RawDraftContentState
-) {
+function convertFromRawTrimmed(rawContentState: RawDraftContentState) {
   const contentState = convertFromRaw(rawContentState)
   const originalBlocks = contentState.getBlocksAsArray()
 
@@ -212,8 +210,7 @@ function convertFromRawWithoutUnstyledTrailingBlocks(
 
 export function InfoBoxInArticleBody({ className, data }: InfoBoxBlockProps) {
   const { type, rawContentState, showBaodaozai = true } = data
-  const contentState =
-    convertFromRawWithoutUnstyledTrailingBlocks(rawContentState)
+  const contentState = convertFromRawTrimmed(rawContentState)
   const editorState = EditorState.createWithContent(contentState, decorator)
   let Component
   let blockRenderMap = blockRenderMaps.infoBox.default
