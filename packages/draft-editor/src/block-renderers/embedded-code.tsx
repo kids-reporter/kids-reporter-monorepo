@@ -26,12 +26,16 @@ function EmbeddedCode({
 }
 
 const StyledEmbeddedCode = styled(EmbeddedCode)`
-  max-width: 512px;
+  max-width: 584px;
   margin: 0 auto 30px auto;
   background-color: #fafbfc;
 
+  ${mediaQuery.desktopAbove} {
+    max-width: 608px;
+  }
+
   ${mediaQuery.largeOnly} {
-    max-width: 584px;
+    max-width: 680px;
   }
 `
 

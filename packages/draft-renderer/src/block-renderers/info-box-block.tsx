@@ -163,15 +163,19 @@ function BoxBorder({
 }
 
 const ArticleBodyContainer = styled.div`
-  max-width: 512px;
+  max-width: 584px;
   margin: 60px auto;
 
   ${mediaQuery.smallOnly} {
     width: 100%;
   }
 
+  ${mediaQuery.desktopAbove} {
+    max-width: 608px;
+  }
+
   ${mediaQuery.largeOnly} {
-    max-width: 584px;
+    max-width: 680px;
   }
 `
 

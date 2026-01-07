@@ -92,11 +92,15 @@ export function QuoteLeftBlockquote({ text }: { text: string }) {
 }
 
 const ArticleBodyContainer = styled.div`
-  max-width: 512px;
+  max-width: 584px;
   margin: 0 auto 27px auto;
 
+  ${mediaQuery.desktopAbove} {
+    max-width: 608px;
+  }
+
   ${mediaQuery.largeOnly} {
-    max-width: 584px;
+    max-width: 680px;
   }
 
   ${mediaQuery.smallOnly} {

@@ -241,7 +241,7 @@ const ArticleModule = ({
           }}
         >
           <Toolbar topicURL={topicURL} postSlug={slug} />
-          <div className="flex w-full max-w-300 flex-col items-center desktop:mx-auto desktop:px-12">
+          <div className="flex w-full max-w-256 flex-col items-center desktop:mx-auto desktop:px-12 hd:max-w-344">
             <ImageModal
               isOpen={isImgModalOpen}
               imgProps={imgProps}
