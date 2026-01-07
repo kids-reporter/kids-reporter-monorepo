@@ -7,8 +7,12 @@ import { mediaQuery } from '../utils/media-query'
 
 export const Paragraph = styled.div`
   width: 100%;
-  max-width: 700px;
+  max-width: 512px;
   margin: 0 auto;
+
+  ${mediaQuery.largeOnly} {
+    max-width: 584px;
+  }
 
   ${mediaQuery.smallOnly} {
     padding-left: 15px;
@@ -22,8 +26,12 @@ export const Paragraph = styled.div`
 
 export const Heading = styled.div`
   width: 100%;
-  max-width: 700px;
+  max-width: 512px;
   margin: 45px auto 20px auto;
+
+  ${mediaQuery.largeOnly} {
+    max-width: 584px;
+  }
 
   h2,
   h3,
@@ -40,8 +48,12 @@ export const Heading = styled.div`
 
 export const List = styled.ol`
   width: 100%;
-  max-width: 700px;
+  max-width: 512px;
   margin: 0 auto 27px auto;
+
+  ${mediaQuery.largeOnly} {
+    max-width: 584px;
+  }
 
   padding-left: 2rem;
 

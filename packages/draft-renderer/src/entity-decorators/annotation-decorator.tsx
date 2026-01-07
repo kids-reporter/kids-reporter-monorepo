@@ -21,19 +21,19 @@ const AnnotationWrapper = styled.span`
 `
 
 const AnnotationBody = styled.div`
-  color: #494949;
-  margin-bottom: 10px;
+  color: #575757;
+  margin: 12px 0;
   border-top: 2px solid #27b3f5;
-  background-color: #fff;
-  padding: 25px 25px;
+  background-color: #f8f8f8;
+  padding: 24px 24px;
 `
 
 const ArrowIcon = styled.span<{ $showContent: boolean }>`
   margin-left: 3px;
   display: inline-block;
   vertical-align: middle;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border-width: 1px;
   border-style: solid;
@@ -44,9 +44,9 @@ const ArrowIcon = styled.span<{ $showContent: boolean }>`
     background-color: #27b3f5;
     content: '';
     width: 2px;
-    height: 6.5px;
-    top: 5px;
-    right: 5px;
+    height: 8px;
+    top: 7.5px;
+    right: 7.5px;
     transform: ${(props) =>
       props.$showContent ? 'rotate(-45deg)' : 'rotate(45deg)'};
     display: block;
@@ -58,9 +58,9 @@ const ArrowIcon = styled.span<{ $showContent: boolean }>`
     background-color: #27b3f5;
     content: '';
     width: 2px;
-    height: 6.5px;
-    top: 5px;
-    left: 5px;
+    height: 8px;
+    top: 7.5px;
+    left: 7.5px;
     transform: ${(props) =>
       props.$showContent ? 'rotate(45deg)' : 'rotate(-45deg)'};
     display: block;

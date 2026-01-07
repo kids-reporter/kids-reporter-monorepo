@@ -117,7 +117,11 @@ const ArticleBodyContainer = styled.div<{ $alignment?: string }>`
       case 'paragraph-width':
         return `
           ${mediaQuery.mediumAbove} {
-            max-width: 700px;
+            max-width: 512px;
+          }
+
+          ${mediaQuery.largeOnly} {
+            max-width: 584px;
           }
         `
       case 'right':

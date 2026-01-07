@@ -23,7 +23,6 @@ const ParagraphForAnnotation = styled(Paragraph)`
   font-size: ${({ theme }) =>
     theme?.fontSizeLevel === 'large' ? '20px' : '16px'};
   font-weight: 400;
-  margin-bottom: 20px;
   color: #494949;
 `
 
