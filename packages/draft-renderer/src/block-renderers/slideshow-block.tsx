@@ -129,11 +129,6 @@ const IconButton = styled.div`
 
         stroke: white;
       }
-
-      & rect {
-        fill: #a3a3a3;
-        stroke: white;
-      }
     }
   }
 `
