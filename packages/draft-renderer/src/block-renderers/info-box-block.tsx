@@ -36,6 +36,7 @@ const containerStyles = css`
 
   ${mediaQuery.smallOnly} {
     padding: 24px;
+    margin: 0 24px;
   }
 
   ${mediaQuery.mediumOnly} {

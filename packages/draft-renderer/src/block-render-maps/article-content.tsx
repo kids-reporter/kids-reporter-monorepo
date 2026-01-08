@@ -15,12 +15,12 @@ export const Paragraph = styled.div`
   }
 
   ${mediaQuery.smallOnly} {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   > div[data-block='true']:not(:last-child) {
-    margin-bottom: 27px;
+    margin-bottom: 40px;
   }
 `
 
@@ -41,8 +41,8 @@ export const Heading = styled.div`
   }
 
   ${mediaQuery.smallOnly} {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 `
 
