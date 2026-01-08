@@ -8,6 +8,11 @@ import { FontSizeLevel } from '@/constants'
 import { AbstractDecoratorIcon, AbstractDecoratorIconLarge } from '@/icons'
 import { getFormattedDate } from '@/utils'
 
+import {
+  ARTICLE_FONT_SIZE_CLASSNAMES,
+  ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
+} from '../constants'
+
 type AuthorGroup = {
   title: string
   authors: {
@@ -50,7 +55,10 @@ function ArticleSummary({
       <div
         className={cn(
           'prose-article-bold text-neutral-700',
-          fontSizeLevel === FontSizeLevel.LARGE && 'text-[22.5px]'
+          ...ARTICLE_FONT_SIZE_CLASSNAMES,
+          fontSizeLevel === FontSizeLevel.LARGE && [
+            ...ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
+          ]
         )}
       >
         <ArticleIntroductionDraftRenderer rawContentState={content} />

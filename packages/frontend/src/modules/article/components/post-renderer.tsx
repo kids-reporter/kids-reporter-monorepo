@@ -7,7 +7,11 @@ import { RawDraftContentState } from 'draft-js'
 
 import { FontSizeLevel, STICKY_HEADER_HEIGHT } from '@/constants'
 
-import { useArticleContext } from './context'
+import {
+  ARTICLE_FONT_SIZE_CLASSNAMES,
+  ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
+} from '../constants'
+import { useArticleContext } from '../context'
 
 type PostProp = {
   content: RawDraftContentState
@@ -18,8 +22,11 @@ function PostRenderer({ content }: PostProp) {
   return (
     <div
       className={cn(
-        'prose-article',
-        fontSize === FontSizeLevel.LARGE && 'text-[22.5px]'
+        'prose-article text-neutral-900',
+        ...ARTICLE_FONT_SIZE_CLASSNAMES,
+        fontSize === FontSizeLevel.LARGE && [
+          ...ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
+        ]
       )}
     >
       <ArticleBodyDraftRenderer

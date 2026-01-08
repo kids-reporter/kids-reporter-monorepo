@@ -59,3 +59,19 @@ export const SHARE_ICONS = [
     },
   },
 ]
+
+export const ARTICLE_FONT_SIZE_CLASSNAMES = [
+  '[&_h2]:prose-h2-small desktop:[&_h2]:prose-h2-large',
+  '[&_h3]:prose-h3-small desktop:[&_h3]:prose-h3-large',
+  '[&_h4]:prose-h4-small desktop:[&_h4]:prose-h4-large',
+  '[&_h5]:prose-h5-small desktop:[&_h5]:prose-h5-large',
+  '[&_h6]:prose-h6-small desktop:[&_h6]:prose-h6-large',
+]
+
+export const ARTICLE_FONT_SIZE_CLASSNAMES_LARGE = [
+  '[&_h2]:text-[35px] desktop:[&_h2]:text-[50px]',
+  '[&_h3]:text-[30px] desktop:[&_h3]:text-[40px]',
+  '[&_h4]:text-[27.5px] desktop:[&_h4]:text-[35px]',
+  '[&_h5]:text-[25px] desktop:[&_h5]:text-[27.5px]',
+  '[&_h6]:text-[22.5px] desktop:[&_h6]:text-[22.5px]',
+]
