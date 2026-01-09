@@ -171,13 +171,16 @@ const SequenceNumberContainer = styled.div`
 
 const Desc = styled(Multimedia.Caption)`
   display: inline-block;
-  width: 340px;
   text-align: left;
 
   /* overwrite Multimedia.Caption styles */
   margin-bottom: 0;
 
   ${mediaQuery.smallOnly} {
+    width: 179px;
+  }
+
+  ${mediaQuery.mediumOnly} {
     width: 340px;
   }
 
