@@ -17,6 +17,7 @@ import {
 import React from 'react'
 
 import { atomicBlockRenderer } from './block-renderer-fn'
+import { FontStyler } from './block-renderers/styled'
 import {
   BlockStyleControls,
   CustomAnchorButton,
@@ -385,20 +386,22 @@ class RichTextEditor extends React.Component<
               }
             }}
           >
-            <Editor
-              blockRenderMap={blockRenderMap}
-              blockRendererFn={this.blockRendererFn}
-              customStyleFn={customStyleFn}
-              editorState={editorState}
-              handleKeyCommand={this.handleKeyCommand}
-              handleReturn={this.handleReturn}
-              keyBindingFn={this.mapKeyToEditorCommand}
-              onChange={this.onChange}
-              placeholder="Tell a story..."
-              ref={this.editorRef}
-              spellCheck={true}
-              readOnly={readOnly}
-            />
+            <FontStyler>
+              <Editor
+                blockRenderMap={blockRenderMap}
+                blockRendererFn={this.blockRendererFn}
+                customStyleFn={customStyleFn}
+                editorState={editorState}
+                handleKeyCommand={this.handleKeyCommand}
+                handleReturn={this.handleReturn}
+                keyBindingFn={this.mapKeyToEditorCommand}
+                onChange={this.onChange}
+                placeholder="Tell a story..."
+                ref={this.editorRef}
+                spellCheck={true}
+                readOnly={readOnly}
+              />
+            </FontStyler>
           </TextEditorWrapper>
         </DraftEditorWrapper>
       </DraftEditorContainer>

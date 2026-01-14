@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { FontStyler } from './block-renderers/styled'
 import buttonNames from './buttons/bt-names'
 import { editableAnchorDecorator } from './entity-decorators/anchor'
 import { editableAnnotationDecorator } from './entity-decorators/annotation'
@@ -12,15 +13,17 @@ import {
 
 const RichTextEditor = (props: RichTextEditorWithoutDecoratorProps) => {
   return (
-    <_RichTextEditor
-      decorators={[
-        editableAnnotationDecorator,
-        editableLinkDecorator,
-        editableTOCAnchorDecorator,
-        editableAnchorDecorator,
-      ]}
-      {...props}
-    />
+    <FontStyler>
+      <_RichTextEditor
+        decorators={[
+          editableAnnotationDecorator,
+          editableLinkDecorator,
+          editableTOCAnchorDecorator,
+          editableAnchorDecorator,
+        ]}
+        {...props}
+      />
+    </FontStyler>
   )
 }
 
