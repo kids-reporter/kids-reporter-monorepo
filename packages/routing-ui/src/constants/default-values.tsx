@@ -141,7 +141,7 @@ export const ADDITIONAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     label: '聯絡我們',
-    href: '/about#contact',
+    href: 'mailto:kidsnews@twreporter.org',
     subItems: [],
   },
   {
