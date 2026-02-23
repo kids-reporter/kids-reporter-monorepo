@@ -111,22 +111,11 @@ export const Atomic = styled.div`
   }
 
   ${mediaQuery.desktopAbove} {
-    div:has(+ div [data-image-block-caption-alignment='default'])
-      [data-image-block-caption-alignment='default'] {
-      position: relative !important;
-    }
-    div:has(+ div [data-image-block-caption-alignment='default'])
-      [data-image-slideshow-caption-alignment='default'] {
-      position: relative !important;
-    }
-
-    div:has(+ div [data-image-slideshow-caption-alignment='default'])
-      [data-image-block-caption-alignment='default'] {
-      position: relative !important;
-    }
-    div:has(+ div [data-image-slideshow-caption-alignment='default'])
-      [data-image-slideshow-caption-alignment='default'] {
-      position: relative !important;
+    > div:last-child figcaption[data-image-block-caption-alignment='default'] {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-right: 0px;
     }
   }
 `

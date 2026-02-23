@@ -159,7 +159,6 @@ const CaptionContainer = styled.div`
   ${mediaQuery.desktopAbove} {
     position: absolute;
     right: 0;
-    top: calc(100% - 76px);
   }
 `
 

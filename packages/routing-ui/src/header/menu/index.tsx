@@ -122,10 +122,6 @@ function Menu({
           </div>
 
           <div className="py-4 flex-1">
-            <HeaderMenuItem {...menuItems?.[0]} />
-
-            <Divider />
-
             {/* Categories */}
             <div className="py-2">
               <HeaderMenuItemGroup isMenuOpen={isOpen} menuItems={menuItems} />

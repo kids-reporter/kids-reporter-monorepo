@@ -1,6 +1,6 @@
 import { ContentState } from 'draft-js'
 import React from 'react'
-import styled, { ThemeProvider, useTheme } from 'styled-components'
+import styled, { ThemeProvider } from 'styled-components'
 
 import { ENTITY, findEntitiesByType } from '../utils/entity'
 
@@ -37,16 +37,17 @@ const LinkInner = (props: {
   children: React.ReactNode
 }) => {
   const { url } = props.contentState.getEntity(props.entityKey).getData()
-  const theme = useTheme()
 
   // Handling for internal/external links, internal links start with '#'
   const linkProps = url.match(/^#/)
     ? {
         onClick: () => {
           const anchor = document.querySelector(url) as HTMLElement
+          const elementPosition = anchor.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.scrollY - 64
           if (anchor) {
             window.scrollTo({
-              top: anchor.offsetTop - (theme as any)?.offsetTop,
+              top: offsetPosition,
               behavior: 'smooth',
             })
           }

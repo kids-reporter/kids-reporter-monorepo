@@ -21,7 +21,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     id: 'ding-zhen-huan',
     text: '從小六開始發現《少年報導者》，每一篇報導都具有意義，也讓我了解這個社會發生什麼事，充實了我小學的最後一年，如今我升上國中，要繼續把好看的內容分享給同學看。',
-    name: '丁馥孋',
+    name: '小讀者Tiffany',
     title: '國中生',
   },
   {

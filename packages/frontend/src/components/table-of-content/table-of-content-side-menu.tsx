@@ -25,6 +25,8 @@ type TableOfContentSideMenuProps = {
   scrollDownDistance?: number
   /** Aria-label for the nav element. */
   ariaLabel?: string
+  /** Manually trigger assign anchors. */
+  manuallyAssignAnchors?: boolean
 }
 
 function makeAnchorIndexKey(key: string) {
@@ -43,6 +45,7 @@ function TableOfContentSideMenu({
   anchorIdPrefix = DEFAULT_ANCHOR_ID_PREFIX,
   scrollDownDistance = DEFAULT_SCROLL_DOWN_DISTANCE,
   ariaLabel = '文章目錄',
+  manuallyAssignAnchors: triggerAssignAnchors = true,
 }: TableOfContentSideMenuProps) {
   const [currentActiveIndex, setCurrentActiveIndex] = useState<string | null>(
     makeAnchorKey(TABLE_OF_CONTENT_BACK_TO_TOP_KEY, anchorIdPrefix)
@@ -52,16 +55,18 @@ function TableOfContentSideMenu({
   const menuContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    anchorRefs.current = indexes
-      .map(({ key }) => {
-        const id = makeAnchorKey(key, anchorIdPrefix)
-        const element = document.querySelector(
-          `#${CSS.escape(id)}`
-        ) as HTMLElement | null
-        return element
-      })
-      .filter((anchor): anchor is HTMLElement => anchor !== null)
-  }, [indexes, anchorIdPrefix])
+    if (triggerAssignAnchors) {
+      anchorRefs.current = indexes
+        .map(({ key }) => {
+          const id = makeAnchorKey(key, anchorIdPrefix)
+          const element = document.querySelector(
+            `#${CSS.escape(id)}`
+          ) as HTMLElement | null
+          return element
+        })
+        .filter((anchor): anchor is HTMLElement => anchor !== null)
+    }
+  }, [indexes, anchorIdPrefix, triggerAssignAnchors])
 
   const handleClickAnchorIndex = useCallback(
     (key: string) => {
@@ -80,6 +85,7 @@ function TableOfContentSideMenu({
   )
 
   useEffect(() => {
+    if (!triggerAssignAnchors) return
     const anchors = anchorRefs.current
 
     if (anchors.length === 0) return
@@ -149,7 +155,7 @@ function TableOfContentSideMenu({
       observer.disconnect()
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [indexes, anchorIdPrefix])
+  }, [indexes, anchorIdPrefix, triggerAssignAnchors])
 
   const handleClickOutside = useCallback(() => {
     if (isExpanded) {

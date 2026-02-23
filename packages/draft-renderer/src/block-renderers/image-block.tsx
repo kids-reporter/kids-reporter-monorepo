@@ -63,18 +63,10 @@ const FigureCaption = styled.figcaption<{ $alignment?: string }>`
 
           ${mediaQuery.desktopAbove} {
             max-width: calc(100% - 640px);
-            position: absolute;
-            right: 0;
-            top: 100%;
-            margin-right: 0px;
           }
 
           ${mediaQuery.largeOnly} {
             max-width: 240px;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            margin-right: 0px;
           }
         `
       case 'paragraph-width':

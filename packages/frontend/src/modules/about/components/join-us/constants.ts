@@ -15,7 +15,7 @@ export const JOIN_US_CARDS: Card[] = [
     anchorId: 'call',
     title: '呼叫報導仔',
     description:
-      '2025年全新開發的閱讀探索新功能，有測驗、有互動、可留言，由小幫手「報導仔」協助下，閱讀文章效率加倍、趣味無限。',
+      '2026年全新開發的閱讀探索新功能，有測驗、有互動、可留言，由小幫手「報導仔」協助下，閱讀文章效率加倍、趣味無限。',
     buttonText: '了解更多',
     actionType: 'dialog',
     actionValue: '',
