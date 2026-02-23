@@ -1,0 +1,125 @@
+import { AuthorRole } from '@/constants'
+
+export const ABOUT_TOC_INDEXES: { key: string; label: string }[] = [
+  { key: 'explore', label: '內容特色' },
+  { key: 'products', label: '相關產品' },
+  { key: 'partner', label: '跨界合作' },
+  { key: 'voices', label: '讀者推薦' },
+  { key: 'join', label: '參與我們' },
+  { key: 'team', label: '團隊成員' },
+  { key: 'awards', label: '外界肯定' },
+  { key: 'support', label: '贊助我們' },
+]
+
+export const tellYouItems = [
+  { image: '/assets/images/about_tell_pic1.svg', desc: '重要的議題' },
+  { image: '/assets/images/about_tell_pic2.svg', desc: '多元的社會' },
+  { image: '/assets/images/about_tell_pic3.svg', desc: '國際的動態' },
+  { image: '/assets/images/about_tell_pic4.svg', desc: '豐富的知識' },
+  { image: '/assets/images/about_tell_pic5.svg', desc: '開放的思辨' },
+]
+
+export const teamMembers = [
+  {
+    id: 'jill718',
+    slug: 'jill718',
+    name: '楊惠君',
+    role: AuthorRole.REVIEWERS,
+    roleName: '總監',
+    avatar: '',
+    bio: '總監工作就是「總兼」，把大家的企畫統合。我也是一名記者，和團隊努力把重要的新聞事件，轉成豐富的報導，讓大家更認識這個世界和自己。',
+  },
+  {
+    id: 'shaowen',
+    slug: 'shaowen',
+    name: '邱紹雯',
+    role: AuthorRole.AUDITORS,
+    roleName: '主編',
+    avatar: '',
+    bio: '主編是協助稿件從企劃到編輯完成的主要橋樑。我也負責Podcast及教案，以多元呈現方式，將議題轉成孩子有興趣閱讀、老師家長能應用的教材。',
+  },
+  {
+    id: 'sofia-wei',
+    slug: 'sofia-wei',
+    name: '韋麗文',
+    role: AuthorRole.AUDITORS,
+    roleName: '主編',
+    avatar: '',
+    bio: '主編，是從世界的紋理中發掘新聞議題，帶領團隊深入挖掘故事，讓報導既有深度，也有溫度。引領議題的開局，讓對話持續延展，正是新聞工作的魅力。',
+  },
+  {
+    id: 'wang-wei-han',
+    slug: 'wang-wei-han',
+    name: '王崴漢',
+    role: AuthorRole.AUDITORS,
+    roleName: '記者',
+    avatar: '',
+    bio: '記者工作是在對的時機點，向社會拋出新的疑問，激發讀者對生命更深層、更深刻的思辨。期許自己能用文字及影像參與並記下具時代意義的重要現場。',
+  },
+  {
+    id: 'kl-wu',
+    slug: 'kl-wu',
+    name: '吳冠伶',
+    role: AuthorRole.EDITORS,
+    roleName: '編輯',
+    avatar: '',
+    bio: '將內容編織成篇，在網頁上呈現，幫助讀者易消化、好吸收，就是我身為編輯的任務。我也仔細核對資訊是否正確，讓大家可以安心服用我們的文章。',
+  },
+  {
+    id: 'hychen',
+    slug: 'hychen',
+    name: '黃禹禛',
+    role: AuthorRole.DESIGNERS,
+    roleName: '設計',
+    avatar: '',
+    bio: '在這裡所有圖表、插畫、圖文故事，大大小小的視覺元素，都是由設計師或插畫家完成。我希望透過圖像的力量，幫助讀者理解事件、開啟對世界的想像！',
+  },
+  {
+    id: 'baodaozai',
+    slug: 'baodaozai',
+    name: '報導仔',
+    role: AuthorRole.LITTLE_HELPER,
+    roleName: '小幫手',
+    avatar: '/assets/images/about/team-member-and-consultant/baodaozai.svg',
+    bio: '《報導者》2022年10月誕生的夥伴，在《少年報導者》擔任小幫手。天秤座的我重視平等、客觀，個性熱情、觀察力強。有人說我的樣子像大聲公，也有人說我像探照燈。',
+  },
+]
+
+export const consultants = [
+  {
+    id: 'chen-ming-lei',
+    slug: '',
+    name: '陳明蕾',
+    role: AuthorRole.CONSULTANTS,
+    roleName: '閱讀素養專家',
+    avatar: '/assets/images/consultant_陳明蕾.png',
+    bio: '清華大學台灣語言研究與教學研究所副教授，同時亦主持清大柯華葳教授閱讀研究中心。',
+  },
+  {
+    id: 'lin-mei-ling',
+    slug: '',
+    name: '林玫伶',
+    role: AuthorRole.CONSULTANTS,
+    roleName: '教育專家',
+    avatar: '/assets/images/consultant_林玫伶.png',
+    bio: '曾任台北市大橋、明德、士東、國語實驗國小校長，現為清華大學竹師教育學院客座助理教授、台灣閱讀文化基金會數位閱讀推廣顧問。',
+  },
+  {
+    id: 'huang-hui-ling',
+    slug: '',
+    name: '黃惠鈴',
+    role: AuthorRole.CONSULTANTS,
+    roleName: '兒童文學家',
+    avatar: '/assets/images/consultant_黃惠鈴.png',
+    bio: '曾在媒體與出版工作，曾獲出版與文學獎，出過一些書與繪本，現勤於創作與企劃、諮商，在大學兼任繪本與兒童文學課程。',
+  },
+  {
+    id: 'chen-rong-yu',
+    slug: '',
+    name: '陳榮裕',
+    role: AuthorRole.CONSULTANTS,
+    roleName: '資深媒體人',
+    avatar: '/assets/images/consultant_陳榮裕.png',
+    bio: '曾任中學及大專教職，並為資深教育路線記者。現為紀錄片工作者，兼任佛光大學傳播學系助理教授。',
+  },
+]

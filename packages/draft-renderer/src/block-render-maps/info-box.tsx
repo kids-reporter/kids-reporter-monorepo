@@ -86,10 +86,20 @@ const ParagraphForInfoBox = styled(Paragraph)`
   }
 `
 
+export const InfoBoxAtomic = styled(Atomic)`
+  & figcaption {
+    text-align: center;
+    border-bottom: none;
+    position: relative;
+    left: auto;
+    bottom: auto;
+    padding: 8px 0 0 0;
+  }
+`
 const _blockRenderMapForAnnotation = Immutable.Map({
   atomic: {
     element: 'div',
-    wrapper: <Atomic />,
+    wrapper: <InfoBoxAtomic />,
   },
   'header-four': {
     element: 'h4',

@@ -1,3 +1,4 @@
+// TODO: remove this component when migrating to the new author card
 import Link from 'next/link'
 
 import { AuthorRole, DEFAULT_AVATAR, Theme } from '@/constants'
@@ -19,6 +20,7 @@ const getTheme = (group: AuthorRole) => {
 }
 
 export type Author = {
+  id: string
   slug: string | undefined
   name: string
   avatar: string

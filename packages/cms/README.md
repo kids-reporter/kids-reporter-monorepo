@@ -130,10 +130,10 @@ Keystone 底層是透過 [Prisma](https://github.com/prisma/prisma)來管理資�
 4. Generate new migration file for schema changes
 
    ```bash
-   yarn keystone prisma migrate dev --name 'example_migration_name'
+   yarn db-migrate:dev --name ('{action}_in_{list_name}_list' | 'remove_{field_name}_from_{list_name}_list')
    ```
 
-   `example_migration_name` will be part of the file name of the migration file.
+   `{action}_in_{list_name}_list` or `remove_{field_name}_from_{list_name}_list` will be part of the file name of the migration file.
 
 5. (optional) Stop the Docker container for the database migration.
 

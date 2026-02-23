@@ -3,8 +3,6 @@ export { STATUS_CODES } from './status-codes'
 import envVars from '@/environment-variables'
 import { CategorySlug } from '@/types'
 
-export const INTERNAL_API_URL = envVars.internalGqlEndpoint
-export const API_URL = envVars.gqlEndpoint
 export const ACCESS_TOKEN_ENDPOINT = `${envVars.apiGatewayEndpoint}/auth/access-token`
 export const REST_GQL_ENDPOINT = `${envVars.apiGatewayEndpoint}/api/rest`
 export const INTERNAL_REST_GQL_ENDPOINT = `${envVars.internalApiGatewayEndpoint}/api/rest`
@@ -48,9 +46,9 @@ export enum Theme {
 }
 
 export enum ThemeColor {
-  YELLOW = '#F8C341',
-  BLUE = '#27B5F7',
-  RED = '#F76977',
+  YELLOW = '#f8c341',
+  BLUE = '#27b3f5',
+  RED = '#f76977',
 }
 
 export enum Color {
@@ -89,6 +87,7 @@ export enum AuthorRole {
   READERS = '讀報',
   DONATION_CONTACT = '捐書聯繫窗口',
   MARKETING = '行銷',
+  LITTLE_HELPER = '小幫手',
 }
 
 export const AUTHOR_ROLES_IN_ORDER = [
@@ -117,28 +116,6 @@ export const DEFAULT_AVATAR = '/assets/images/avatar_default.svg'
 
 export const POST_PER_PAGE = 9
 
-export const POST_CONTENT_GQL = `
-title
-slug
-ogDescription
-heroImage {
-  resized {
-    small
-  }
-}
-subSubcategoriesOrdered {
-  name
-  subcategory {
-    name
-    category {
-      slug
-      themeColor
-    }
-  }
-}
-publishedDate
-`
-
 export const SEARCH_PLACEHOLDER = '搜尋更多新聞、議題'
 
 export const ERROR_PAGE = '/error'
@@ -147,77 +124,7 @@ export const FALLBACK_IMG = '/assets/images/image_placeholder.png'
 
 export const DEBOUNCE_THRESHOLD = 100
 
-export const IS_LOGIN_ENABLED = true
-
 export const STICKY_HEADER_HEIGHT = 64
-
-export const POPULAR_KEYWORDS = ['氣候變遷', '選舉', '教育', '環境保護']
-
-export const SECTIONS = [
-  {
-    title: '時時刻刻',
-    image: 'topic_pic1.svg',
-    titleImg: 'topic_title1.svg',
-    link: '/category/news/times/',
-    theme: Theme.BLUE,
-  },
-  {
-    title: '真的假的',
-    image: 'topic_pic2.svg',
-    titleImg: 'topic_title2.svg',
-    link: '/category/news/knowledge/',
-    theme: Theme.BLUE,
-  },
-  {
-    title: '讀報新聞',
-    image: 'topic_pic3.svg',
-    titleImg: 'topic_title3.svg',
-    link: '/category/listening-news/',
-    theme: Theme.BLUE,
-  },
-  {
-    title: '他們的故事',
-    image: 'topic_pic4.svg',
-    titleImg: 'topic_title4.svg',
-    link: '/category/news/story/',
-    theme: Theme.RED,
-  },
-  {
-    title: '文化看世界',
-    image: 'topic_pic5.svg',
-    titleImg: 'topic_title5.svg',
-    link: '/category/news/explore/',
-    theme: Theme.RED,
-  },
-  {
-    title: '小讀者連線',
-    image: 'topic_pic7.svg',
-    titleImg: 'topic_title7.svg',
-    link: '/category/campus/joining/',
-    theme: Theme.YELLOW,
-  },
-  {
-    title: '圖解新聞',
-    image: 'topic_pic8.svg',
-    titleImg: 'topic_title8.svg',
-    link: '/category/storytelling/graphic-news/',
-    theme: Theme.YELLOW,
-  },
-  {
-    title: '上課好好玩',
-    image: 'topic_pic10.svg',
-    titleImg: 'topic_title10.svg',
-    link: '/category/campus/teaching/',
-    theme: Theme.YELLOW,
-  },
-  {
-    title: '火線新聞台',
-    image: 'topic_pic9.svg',
-    titleImg: 'topic_title9.svg',
-    link: '/category/storytelling/comic/',
-    theme: Theme.YELLOW,
-  },
-]
 
 export const CATEGORY_IMAGES: Record<CategorySlug, string> = {
   news: '/assets/images/category_news.svg',

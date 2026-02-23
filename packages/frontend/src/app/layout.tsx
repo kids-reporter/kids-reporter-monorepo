@@ -5,6 +5,7 @@ import { GoogleTagManager } from '@next/third-parties/google'
 import { Noto_Sans_TC } from 'next/font/google'
 import localFont from 'next/font/local'
 
+import { getPopularKeywords } from '@/api/popular-keywords'
 import Providers from '@/components/providers'
 import { Toaster } from '@/components/toaster'
 import FeatureIntroDialog from '@/services/feature-intro/components/feature-info-dialog'
@@ -27,11 +28,14 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const keywords = await getPopularKeywords()
   return (
     <html className={`${notoSansTC.variable} ${swei.variable}`}>
       <GoogleTagManager gtmId={GTM_ID} />
       <body>
-        <Providers>
+        <Providers
+          keywords={keywords?.map((keyword) => keyword?.name ?? '') ?? []}
+        >
           <FeatureIntroDialog />
           {children}
           <Footer />

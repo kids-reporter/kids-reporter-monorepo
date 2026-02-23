@@ -1,9 +1,10 @@
-import { SettingsIconSmall } from '../icons'
+import { MyReadingIconSmall, SettingsIconSmall } from '../icons'
 import { MenuItem } from '../types'
 
 export const SUBSCRIBE_URL =
   'https://twreporter.us14.list-manage.com/subscribe?u=4da5a7d3b98dbc9fdad009e7e&id=2154ac40c3'
 export const DONATE_URL = 'https://support.twreporter.org/'
+export const JOIN_US_URL = 'https://kids.twreporter.org/article/about-join-us'
 export const PRIVACY_POLICY = 'https://www.twreporter.org/a/privacy-policy'
 export const SEARCH_PLACEHOLDER = '搜尋更多新聞、議題'
 
@@ -77,11 +78,20 @@ export const MENU_ITEMS: MenuItem[] = [
   },
 ]
 
+export const MY_READING_URL = '/myreading'
 export const READING_SETTINGS_URL = '/custom'
 
 export const ADDITIONAL_MENU_ITEMS: MenuItem[] = [
   {
-    label: '閱讀探索設定',
+    label: '我的回答',
+    href: MY_READING_URL,
+    subItems: [],
+    showIcon: true,
+    icon: <MyReadingIconSmall />,
+    hideInFooter: true,
+  },
+  {
+    label: '閱讀設定',
     href: READING_SETTINGS_URL,
     subItems: [],
     showIcon: true,
@@ -89,22 +99,22 @@ export const ADDITIONAL_MENU_ITEMS: MenuItem[] = [
     hideInFooter: true,
   },
   {
-    label: '關於我們',
-    href: '/about',
-    subItems: [],
-  },
-  // TODO: add back when about us page is ready
-  // {
-  //   label: '呼叫報導仔',
-  //   href: '/about#callkidsreporter',
-  //   subItems: [],
-  // },
-  {
     label: '小讀者觀點大集合',
     href: '/idea-hub',
     subItems: [],
     hideInFooter: true,
   },
+  {
+    label: '關於我們',
+    href: '/about',
+    subItems: [],
+  },
+  {
+    label: '呼叫報導仔',
+    href: '/about#call',
+    subItems: [],
+  },
+
   {
     label: '我要投稿',
     href: 'https://forms.gle/49AEG8kFj7QWjgij8',

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
-import { getColorHex } from '../utils/index'
 import { mediaQuery } from '../utils/media-query'
 import Multimedia from './multimedia'
 
@@ -34,24 +33,24 @@ const mockup = {
   },
   desktop: {
     container: {
-      width: 752, // px
+      width: 768, // px
     },
     slide: {
-      width: 688, // px
-      height: 387, // px
+      width: 676, // px
+      height: 370, // px
       paddingRight: 4, // px
     },
     offset: {
-      left: 32, // px
+      left: 48, // px
     },
   },
   hd: {
     container: {
-      width: 1034, // px
+      width: 1000, // px
     },
     slide: {
-      width: 944, // px
-      height: 531, // px
+      width: 910, // px
+      height: 500, // px
       paddingRight: 4, // px
     },
     offset: {
@@ -86,174 +85,130 @@ const SlidesSection = styled.div`
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 2;
-
-  ${mediaQuery.smallOnly} {
-    order: 2;
-  }
 `
 
 const PrevNextSection = styled.div`
-  margin-top: 20px;
-
-  ${mediaQuery.smallOnly} {
-    order: 3;
-  }
-
-  ${mediaQuery.smallOnly} {
-    margin-left: 25px;
-  }
-
-  ${mediaQuery.mediumAbove} {
-    margin-left: 47px;
-  }
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0;
 `
 
-const PrevButton = styled.div`
+const IconButton = styled.div`
   cursor: pointer;
-  width: 59px;
-  height: 59px;
+  width: 56px;
+  height: 56px;
   display: inline-flex;
-  border: solid 1px;
 
   > svg {
     margin: auto;
-    width: 21px;
+    width: 56px;
+    height: 56px;
   }
 
   ${mediaQuery.largeOnly} {
-    width: 83px;
-    height: 83px;
+    width: 64px;
+    height: 64px;
 
     > svg {
-      width: 31px;
+      width: 64px;
+      height: 64px;
     }
   }
 
   &:hover {
     > svg {
-      transform: translateX(-5px);
-      transition: transform 0.3s ease;
+      & path:first-child {
+        fill: #a3a3a3;
+
+        stroke: #a3a3a3;
+      }
+      & path:last-child {
+        transition: stroke 0.3s ease;
+        fill: #a3a3a3;
+
+        stroke: white;
+      }
     }
   }
 `
 
-const NextButton = styled(PrevButton)`
-  border-left: none;
-
-  &:hover {
-    > svg {
-      transform: translateX(5px);
-    }
-  }
-`
-
-const ImageNumberCircle = styled.div`
-  display: inline-block;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  vertical-align: top;
-
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    width: 62px;
-    border-top: solid 1px;
-    transform: rotate(-45deg);
-    transform-origin: bottom left;
-    top: 67px;
-    left: 7px;
-  }
-
-  ${mediaQuery.smallOnly} {
-    order: 1;
-
-    /* align right */
-    margin-left: auto;
-    /* 10px is the border-right width of body */
-    margin-right: 10px;
-  }
-
-  ${mediaQuery.mediumAbove} {
-    margin-top: 6px;
-
-    /* align right */
-    margin-left: auto;
-  }
-
-  ${mediaQuery.largeOnly} {
-    margin-right: -18px;
-    width: 110px;
-    height: 110px;
-
-    &::after {
-      width: 89px;
-      top: 93px;
-      left: 10px;
-    }
-  }
+const ImageSequenceNumber = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `
 
 const ImageNumber = styled.span`
-  position: absolute;
-  top: 25px;
-  left: 9px;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 0.79;
-
-  ${mediaQuery.largeOnly} {
-    top: 35px;
-    left: 10px;
-  }
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: #232323;
 `
 
 const ImageTotal = styled(ImageNumber)`
-  top: 46px;
-  left: 36px;
+  /* Same styling as ImageNumber */
+`
 
-  ${mediaQuery.largeOnly} {
-    top: 71px;
-    left: 50px;
+const CaptionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 20px;
+  flex: 1;
+  ${mediaQuery.desktopAbove} {
+    position: absolute;
+    right: 0;
+    top: calc(100% - 76px);
   }
 `
 
+const SequenceNumberContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+
 const Desc = styled(Multimedia.Caption)`
-  align-self: flex-start;
   display: inline-block;
+  text-align: left;
 
   /* overwrite Multimedia.Caption styles */
   margin-bottom: 0;
 
   ${mediaQuery.smallOnly} {
-    order: 4;
-    padding-top: 15px;
+    width: auto;
+    max-width: 240px;
   }
 
-  ${mediaQuery.smallOnly} {
-    width: calc(180 / 355 * 100%);
+  ${mediaQuery.mediumOnly} {
+    width: 340px;
   }
 
-  ${mediaQuery.mediumAbove} {
-    padding-top: 30px;
+  ${mediaQuery.desktopAbove} {
+    width: 128px;
+  }
 
-    /* overwrite Multimedia.Caption styles */
-    float: none;
+  ${mediaQuery.largeOnly} {
+    width: 240px;
   }
 `
 
-const EmptyDesc = styled(Desc)`
-  &::after {
-    border-bottom: none;
+const EmptyDesc = styled.div`
+  width: 240px;
+  height: 0;
+  border-top: 2px solid #c6c6c6;
+  margin-top: 20px;
+
+  ${mediaQuery.smallOnly} {
+    width: 240px;
   }
 `
 
 const SlidesFlexBox = styled.div<{
-  isSliding: boolean
-  duration: number
-  translateXUint: number
+  $isSliding: boolean
+  $duration: number
+  $translateXUnit: number
 }>`
   position: absolute;
   top: 0;
@@ -262,32 +217,38 @@ const SlidesFlexBox = styled.div<{
   flex-wrap: nowrap;
   width: 100%;
   height: 100%;
-  ${({ isSliding, duration }) =>
-    isSliding ? `transition: transform ${duration}ms ease-in-out;` : ''}
+  ${({ $isSliding, $duration }) =>
+    $isSliding ? `transition: transform ${$duration}ms ease-in-out;` : ''}
 
-  ${({ translateXUint }) => {
-    const mobileTranslateX =
-      (getTranslateX(mockup.mobile, translateXUint) /
-        getContainerWidth(mockup.mobile)) *
-      100
-    const desktopTranslateX =
-      (getTranslateX(mockup.desktop, translateXUint) /
-        getContainerWidth(mockup.desktop)) *
-      100
-    const hdTranslateX =
-      (getTranslateX(mockup.hd, translateXUint) /
-        getContainerWidth(mockup.hd)) *
-      100
+  ${({ $translateXUnit }) => {
+    const mobileTranslateX = getTranslateX(mockup.mobile, $translateXUnit)
+    const mobileContainerWidth = getContainerWidth(mockup.mobile)
+    const mobilePercent = (mobileTranslateX / mobileContainerWidth) * 100
+
+    const tabletTranslateX = getTranslateX(mockup.tablet, $translateXUnit)
+    const tabletContainerWidth = getContainerWidth(mockup.tablet)
+    const tabletPercent = (tabletTranslateX / tabletContainerWidth) * 100
+
+    const desktopTranslateX = getTranslateX(mockup.desktop, $translateXUnit)
+    const desktopContainerWidth = getContainerWidth(mockup.desktop)
+    const desktopPercent = (desktopTranslateX / desktopContainerWidth) * 100
+
+    const hdTranslateX = getTranslateX(mockup.hd, $translateXUnit)
+    const hdContainerWidth = getContainerWidth(mockup.hd)
+    const hdPercent = (hdTranslateX / hdContainerWidth) * 100
 
     return `
       ${mediaQuery.smallOnly} {
-        transform: translateX(${mobileTranslateX}%);
+        transform: translateX(${mobilePercent}%);
       }
-      ${mediaQuery.mediumAndDesktopOnly} {
-        transform: translateX(${desktopTranslateX}%);
+      ${mediaQuery.mediumOnly} {
+        transform: translateX(${tabletPercent}%);
+      }
+      ${mediaQuery.desktopAbove} {
+        transform: translateX(${desktopPercent}%);
       }
       ${mediaQuery.largeOnly} {
-        transform: translateX(${hdTranslateX}%);
+        transform: translateX(${hdPercent}%);
       }
     `
   }}
@@ -304,7 +265,14 @@ const SlideFlexItem = styled.div`
       `calc(${mockup.mobile.slide.paddingRight} / ${getContainerWidth(mockup.mobile)}*100%)`};
   }
 
-  ${mediaQuery.mediumAndDesktopOnly} {
+  ${mediaQuery.mediumOnly} {
+    flex-basis: ${() =>
+      `calc(${getSlideWidth(mockup.tablet)} / ${getContainerWidth(mockup.tablet)}*100%)`};
+    padding-right: ${() =>
+      `calc(${mockup.tablet.slide.paddingRight} / ${getContainerWidth(mockup.tablet)}*100%)`};
+  }
+
+  ${mediaQuery.desktopAbove} {
     flex-basis: ${getSlideWidth(mockup.desktop)}px;
     padding-right: ${mockup.desktop.slide.paddingRight}px;
   }
@@ -316,35 +284,46 @@ const SlideFlexItem = styled.div`
 `
 
 const SlideshowFlexBox = styled.div`
-  ${PrevButton} {
-    border-color: #d8d8d8;
-  }
-  ${ImageNumberCircle} {
-    background-color: ${({ theme }) => getColorHex(theme?.themeColor)};
-    &::after {
-      border-color: #fff;
-    }
-  }
-  ${ImageNumber} {
-    color: #fff;
-  }
-
   width: 100%;
   margin: 0 auto;
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  position: relative;
+  flex-direction: column;
 
   ${mediaQuery.smallOnly} {
     width: 100%;
   }
 
-  ${mediaQuery.mediumAndDesktopOnly} {
+  ${mediaQuery.mediumOnly} {
+    width: 100%;
+  }
+
+  ${mediaQuery.desktopAbove} {
     width: ${mockup.desktop.container.width}px;
+    transform: translateX(80px);
   }
 
   ${mediaQuery.largeOnly} {
     width: ${mockup.hd.container.width}px;
+    transform: translateX(160px);
+  }
+`
+
+const NavigationAndCaptionRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 20px 32px 0px;
+  width: 100%;
+
+  ${mediaQuery.smallOnly} {
+    flex-direction: row;
+    gap: 40px;
+    padding: 16px 16px 0px;
+  }
+
+  ${mediaQuery.desktopAbove} {
+    padding: 16px 0 0 0;
   }
 `
 
@@ -373,18 +352,10 @@ function getTranslateX(deviceMockup: DeviceMockup, unit: number) {
   return translateX // px
 }
 
-/**
- * @param {DeviceMockup} deviceMockup
- * @return {number}
- */
 function getContainerWidth(deviceMockup: DeviceMockup) {
   return deviceMockup.container.width
 }
 
-/**
- * @param {DeviceMockup} deviceMockup
- * @return {number}
- */
 function getSlideWidth(deviceMockup: DeviceMockup) {
   return deviceMockup.slide.width + deviceMockup.slide.paddingRight
 }
@@ -413,6 +384,82 @@ type SlideshowBlockProps = {
     alignment?: string
     images: ImageEntity[]
   }
+}
+
+function NextArrowSvg() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="64"
+      height="64"
+      viewBox="0 0 64 64"
+      fill="none"
+    >
+      <g clipPath="url(#clip0_750_25274)">
+        <path
+          d="M32 1.50001C48.8447 1.50001 62.5 15.1553 62.5 32C62.5 48.8447 48.8447 62.5 32 62.5C15.1553 62.5 1.5 48.8447 1.5 32C1.5 15.1553 15.1553 1.50001 32 1.50001Z"
+          fill="white"
+          stroke="#C6C6C6"
+          strokeWidth="3"
+        />
+        <path
+          d="M28 44L39.8948 32L28 20"
+          stroke="#575757"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_750_25274">
+          <rect
+            width="64"
+            height="64"
+            fill="white"
+            transform="translate(64 64) rotate(180)"
+          />
+        </clipPath>
+      </defs>
+    </svg>
+  )
+}
+
+function PreArrowSvg() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="64"
+      height="64"
+      viewBox="0 0 64 64"
+      fill="none"
+    >
+      <g clipPath="url(#clip0_750_25269)">
+        <path
+          d="M32 1.50001C48.8447 1.50001 62.5 15.1553 62.5 32C62.5 48.8447 48.8447 62.5 32 62.5C15.1553 62.5 1.5 48.8447 1.5 32C1.5 15.1553 15.1553 1.50001 32 1.50001Z"
+          fill="white"
+          stroke="#C6C6C6"
+          strokeWidth="3"
+        />
+        <path
+          d="M36 44L24.1052 32L36 20"
+          stroke="#575757"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_750_25269">
+          <rect
+            width="64"
+            height="64"
+            fill="white"
+            transform="translate(64 64) rotate(180)"
+          />
+        </clipPath>
+      </defs>
+    </svg>
+  )
 }
 
 export function SlideshowBlock({ className = '', data }: SlideshowBlockProps) {
@@ -465,7 +512,12 @@ export function SlideshowBlock({ className = '', data }: SlideshowBlockProps) {
         // since the items of _images would have the same id,
         // hence, we append `index` on the key
         <SlideFlexItem key={`slide_${img.id}_${index}`}>
-          <div className="w-full h-full relative overflow-hidden">
+          <div
+            className="w-full h-full relative overflow-hidden"
+            style={{
+              backgroundColor: '#f8f8f8',
+            }}
+          >
             <img
               srcSet={imgSrcSetArr.join(',')}
               src={imgSrc}
@@ -519,65 +571,57 @@ export function SlideshowBlock({ className = '', data }: SlideshowBlockProps) {
     <SlideshowFlexBox className={appendedClassName}>
       <SlidesSection>
         <SlidesFlexBox
-          translateXUint={translateXUnit}
-          duration={duration}
-          isSliding={isSliding}
+          $translateXUnit={translateXUnit}
+          $duration={duration}
+          $isSliding={isSliding}
         >
           {slides}
         </SlidesFlexBox>
       </SlidesSection>
-      <PrevNextSection>
-        <PrevButton onClick={isSliding ? undefined : slideToPrev}>
-          <PreArrowSvg />
-        </PrevButton>
-        <NextButton onClick={isSliding ? undefined : slideToNext}>
-          <NextArrowSvg />
-        </NextButton>
-      </PrevNextSection>
-      <ImageNumberCircle>
-        <ImageNumber>{curSlideIndex + 1}</ImageNumber>
-        <ImageTotal>{total}</ImageTotal>
-      </ImageNumberCircle>
-      {desc ? <Desc>{desc}</Desc> : <EmptyDesc />}
+      <NavigationAndCaptionRow>
+        <PrevNextSection>
+          <IconButton onClick={isSliding ? undefined : slideToPrev}>
+            <PreArrowSvg />
+          </IconButton>
+          <IconButton onClick={isSliding ? undefined : slideToNext}>
+            <NextArrowSvg />
+          </IconButton>
+        </PrevNextSection>
+        <CaptionContainer data-image-slideshow-caption-alignment="default">
+          <SequenceNumberContainer>
+            <ImageSequenceNumber>
+              <ImageNumber>{curSlideIndex + 1}</ImageNumber>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="15"
+                height="13"
+                viewBox="0 0 15 13"
+                fill="none"
+              >
+                <path
+                  d="M0.703125 11.7031L14.1431 0.703125"
+                  stroke="#232323"
+                  strokeLinecap="square"
+                />
+              </svg>
+              <ImageTotal>{total}</ImageTotal>
+            </ImageSequenceNumber>
+            {desc ? <Desc>{desc}</Desc> : <EmptyDesc />}
+          </SequenceNumberContainer>
+        </CaptionContainer>
+      </NavigationAndCaptionRow>
     </SlideshowFlexBox>
   )
 }
 
-function NextArrowSvg() {
-  return (
-    <svg
-      viewBox="0 0 31 17"
-      width="31"
-      height="17"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M29.33 7.854H0v1h29.256l-7.11 7.148.708.705 8-8.042-.001-.707-8-7.958-.706.709 7.183 7.145z"
-        fill="gray"
-        fillRule="nonzero"
-      />
-    </svg>
-  )
-}
-
-function PreArrowSvg() {
-  return (
-    <svg
-      viewBox="0 0 31 17"
-      width="31"
-      height="17"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M2.17 8.5H31.5v1H2.244l7.11 7.147-.708.706-8-8.042.001-.707 8-7.958.706.708L2.17 8.5z"
-        fill="gray"
-      />
-    </svg>
-  )
-}
-
 const ArticleBodyContainer = styled.div`
-  margin: 0 auto 27px auto;
+  ${mediaQuery.smallOnly} {
+    margin: 0 auto 40px auto;
+  }
+
+  ${mediaQuery.mediumAbove} {
+    margin: 0 auto 60px auto;
+  }
 `
 
 export function SlideshowInArticleBody({

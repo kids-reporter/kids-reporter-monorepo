@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "dotenv -e .env.local -- keystone dev",
     "start": "keystone start",
+    "db-migrate:dev": "keystone prisma migrate dev",
     "db-migrate": "keystone prisma migrate deploy",
     "build": "keystone build",
     "lint:check": "eslint . --ext .ts,.tsx,.js,.jsx",
@@ -20,7 +21,7 @@
   "dependencies": {
     "@keystone-6/auth": "8.1.0",
     "@keystone-6/core": "6.5.1",
-    "@kids-reporter/cms-core": "1.0.20",
+    "@kids-reporter/cms-core": "^1.0.17",
     "@twreporter/errors": "^1.1.2",
     "@types/react-beautiful-dnd": "^13.1.4",
     "axios": "^1.6.2",
@@ -34,12 +35,14 @@
     "qrcode": "^1.5.3",
     "react": "18.3.1",
     "react-beautiful-dnd": "^13.1.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "sanitize-html": "^2.17.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/qrcode": "^1.5.5",
+    "@types/sanitize-html": "^2.16.0",
     "dotenv-cli": "^10.0.0",
     "patch-package": "^8.0.1",
     "typescript": "^5.9.2"

@@ -5,27 +5,144 @@ import styled, { ThemeProvider, useTheme } from 'styled-components'
 import { DEBOUNCE_THRESHOLD } from '../utils/constants'
 import { breakpoints, mediaQuery } from '../utils/media-query'
 
-const Figure = styled.figure`
+const Figure = styled.figure<{ $alignment?: string }>`
   width: 100%;
+  position: relative;
+
+  ${(props) => {
+    switch (props.$alignment) {
+      case 'default':
+        return `
+          ${mediaQuery.desktopAbove} {
+            transform: translateX(calc(50% - 304px));
+          }
+
+          ${mediaQuery.largeOnly} {
+            transform: translateX(160px);
+          }
+        `
+      default:
+        return ''
+    }
+  }}
 `
 
-const FigureCaption = styled.figcaption`
+const FigureCaption = styled.figcaption<{ $alignment?: string }>`
   width: fit-content;
   max-width: 100%;
   font-size: ${({ theme }) =>
     theme?.fontSizeLevel === 'large' ? '18px' : '14px'};
   margin-left: auto;
   margin-right: auto;
-  margin-top: 0.5em;
-  color: rgb(58, 79, 102);
+  color: #575757;
   letter-spacing: 0.7px;
   line-height: 28px;
   text-align: center;
+  padding: 16px 0 20px 0;
+  border-bottom: 2px solid #c6c6c6;
+
+  ${mediaQuery.mediumAbove} {
+    padding: 20px 0;
+  }
+
+  ${(props) => {
+    switch (props.$alignment) {
+      case 'default':
+        return `
+          text-align: left;
+          ${mediaQuery.smallOnly} {
+            max-width: 240px;
+            margin-right: 16px;
+          }
+
+          ${mediaQuery.mediumAbove} {
+            max-width: 340px;
+            margin-left: auto;
+            margin-right: 32px;
+          }
+
+          ${mediaQuery.desktopAbove} {
+            max-width: calc(100% - 640px);
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-right: 0px;
+          }
+
+          ${mediaQuery.largeOnly} {
+            max-width: 240px;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-right: 0px;
+          }
+        `
+      case 'paragraph-width':
+        return `
+          ${mediaQuery.smallOnly} {
+            width: 100%;
+            text-align: left;
+          }
+          ${mediaQuery.mediumAbove} {
+            width: 100%;
+            text-align: left;
+          }
+          ${mediaQuery.desktopAbove} {
+            position: absolute;
+            left: calc(100% + 32px);
+            width: 128px;
+            bottom: 0;
+            text-align: left;
+          }
+
+          ${mediaQuery.largeOnly} {
+            position: absolute;
+            left: calc(100% + 40px);
+            width: 240px;
+            bottom: 0;
+            text-align: left;
+          }
+        `
+      case 'right':
+        return `
+          text-align: left;
+          ${mediaQuery.smallOnly} {
+            max-width: 240px;
+            margin-right: 16px;
+          }
+
+          ${mediaQuery.mediumAbove} {
+            margin-left: 0px;
+            margin-right: 0px;
+          }
+
+          ${mediaQuery.desktopAbove} {
+            max-width: 128px;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-right: 0px;
+          }
+
+          ${mediaQuery.largeOnly} {
+            max-width: 240px;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-right: 0px;
+          }
+        `
+      default:
+        return ''
+    }
+  }}
 `
 
 const Img = styled.img<{ $isDesktopAndAbove: boolean }>`
   width: 100%;
-  object-fit: contain;
+  height: 100%;
+  display: block;
+  object-fit: cover;
   ${(props) => (props.$isDesktopAndAbove ? 'cursor: zoom-in;' : '')};
 `
 
@@ -85,7 +202,7 @@ function ImageBlockInner({ className = '', data }: ImageBlockProps) {
   }
 
   const imgBlock = (
-    <Figure className={className}>
+    <Figure className={className} $alignment={data.alignment}>
       <Img
         alt={desc}
         {...commonImgProps}
@@ -93,10 +210,18 @@ function ImageBlockInner({ className = '', data }: ImageBlockProps) {
         $isDesktopAndAbove={isDesktopAndAbove}
         onClick={() =>
           isDesktopAndAbove &&
-          (theme as any)?.handleImgModalOpen?.(commonImgProps)
+          (theme as any)?.onImageModalOpen?.(commonImgProps)
         }
       />
-      {desc && <FigureCaption>{desc}</FigureCaption>}
+      {desc && (
+        <FigureCaption
+          data-image-block-caption="true"
+          data-image-block-caption-alignment={data.alignment}
+          $alignment={data.alignment}
+        >
+          {desc}
+        </FigureCaption>
+      )}
     </Figure>
   )
 
@@ -119,8 +244,11 @@ const ArticleBodyContainer = styled.div<{ $alignment?: string }>`
     margin: 0;
   }
 
-  max-width: 72vw;
-  margin: 0 auto 27px auto;
+  margin: 0 auto 40px auto;
+
+  ${mediaQuery.mediumAbove} {
+    margin: 0 auto 60px auto;
+  }
 
   ${mediaQuery.smallOnly} {
     max-width: 100%;
@@ -132,10 +260,33 @@ const ArticleBodyContainer = styled.div<{ $alignment?: string }>`
 
   ${(props) => {
     switch (props.$alignment) {
+      case 'default':
+        return `
+          ${mediaQuery.desktopAbove} {
+            max-width: 768px;
+          }
+          ${mediaQuery.largeOnly} {
+            max-width: 1000px;
+          }
+
+        `
       case 'paragraph-width':
         return `
+          ${mediaQuery.smallOnly} {
+            max-width: 512px;
+            padding: 0 24px;
+          }
+
           ${mediaQuery.mediumAbove} {
-            max-width: 700px;
+            max-width: 584px;
+          }
+
+          ${mediaQuery.desktopAbove} {
+            max-width: 608px;
+          }
+
+          ${mediaQuery.largeOnly} {
+            max-width: 680px;
           }
         `
       case 'right':
@@ -143,15 +294,19 @@ const ArticleBodyContainer = styled.div<{ $alignment?: string }>`
           ${mediaQuery.mediumAbove} {
             width: 361px;
             float: right;
-            margin: 5px 0px 5px 27px;
+            margin: 0px 32px 20px 24px;
           }
-        `
-      case 'left':
-        return `
-          ${mediaQuery.mediumAbove} {
-            width: 361px;
-            float: left;
-            margin: 5px 27px 5px 0px;
+
+          ${mediaQuery.desktopAbove} {
+            width: 368px;
+            float: right;
+            margin: 0px 0px 0px 32px;
+          }
+
+          ${mediaQuery.largeOnly} {
+            width: 451px;
+            float: right;
+            margin: 0px 0px 0px 40px;
           }
         `
       default:
@@ -165,7 +320,11 @@ export function ImageInArticleBody({
   data,
 }: ImageBlockInArticleBodyProps) {
   return (
-    <ArticleBodyContainer $alignment={data.alignment} className={className}>
+    <ArticleBodyContainer
+      data-image-block-container="true"
+      $alignment={data.alignment}
+      className={className}
+    >
       <ImageBlock data={data} />
     </ArticleBodyContainer>
   )
@@ -175,6 +334,14 @@ export const InfoBoxContainer = styled.div<{ $alignment?: string }>`
   /* reset browser default styles */
   figure {
     margin: 20px 0;
+    transform: translateX(0);
+  }
+
+  figcaption {
+    width: fit-content;
+    max-width: none;
+    position: relative;
+    margin-right: auto;
   }
 
   ${mediaQuery.mediumAbove} {
@@ -185,18 +352,11 @@ export const InfoBoxContainer = styled.div<{ $alignment?: string }>`
 
   ${(props) => {
     switch (props.$alignment) {
-      case 'left': {
-        return `
-          width: 200px;
-          float: left;
-          margin: 5px 27px 5px 0px;
-        `
-      }
       case 'right': {
         return `
           width: 200px;
           float: right;
-          margin: 5px 0px 5px 27px;
+          margin: 20px 32px 20px 24px;
         `
       }
       case 'paragraph-width':

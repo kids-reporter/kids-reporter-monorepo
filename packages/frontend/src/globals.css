@@ -81,10 +81,13 @@
   --font-size-p3: 12px;
   --font-size-p4: 10px;
 
+  --font-size-article: 18px;
+
   /* Typography - Line Heights */
   --line-height-tight: 1.25;
   --line-height-normal: 1.6;
   --line-height-relaxed: 1.75;
+  --line-height-article: 2.1;
 
   /* Spacing - Grid System */
   --spacing-grid-xs: 4px;
@@ -124,6 +127,13 @@
   /* Header */
   --mobile-header-height: 64px;
   --desktop-header-height: 122px;
+
+  /* Z-Index scale (999–1003) – generic layer names */
+  --z-index-sticky: 999;
+  --z-index-bar: 1000;
+  --z-index-nav: 1001;
+  --z-index-overlay: 1002;
+  --z-index-modal: 1003;
 
   /* Custom Shadows */
   --shadow-custom: 0 0 24px 0 rgba(0, 0, 0, 0.1);
@@ -233,6 +243,27 @@
   body {
     max-width: 100vw;
     font-family: var(--fontFamily);
+    overflow-x: clip;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-neutral-500) var(--color-neutral-200);
+
+    &::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: transparent;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: transparent;
+    }
   }
 
   body {
@@ -263,6 +294,11 @@
 
   body.no-scroll {
     overflow: hidden;
+  }
+
+  /* Article table-of-content anchors: offset scroll position for sticky header on hash navigation */
+  [id^='toc-anchor-'] {
+    scroll-margin-top: var(--content-margin-top, 64px);
   }
 
   a {
@@ -468,6 +504,22 @@
   letter-spacing: 0.5px;
 }
 
+@utility prose-article {
+  font-family: var(--font-family-noto);
+  font-size: var(--font-size-article);
+  font-weight: 500;
+  line-height: var(--line-height-article);
+  letter-spacing: 1.08px;
+}
+
+@utility prose-article-bold {
+  font-family: var(--font-family-noto);
+  font-size: var(--font-size-article);
+  font-weight: 700;
+  line-height: var(--line-height-article);
+  letter-spacing: 0.9px;
+}
+
 @utility font-swei {
   font-family: var(--font-family-swei);
   font-weight: 700;
@@ -495,6 +547,11 @@
   }
 }
 
+@utility scrollbar-none {
+  scrollbar-width: 0;
+  scrollbar-color: transparent transparent;
+}
+
 @utility theme-red {
   --theme-color: var(--color-red-400);
 }
@@ -503,4 +560,30 @@
 }
 @utility theme-blue {
   --theme-color: var(--color-blue-400);
+}
+
+/* Z-Index utilities */
+@utility z-sticky {
+  z-index: var(--z-index-sticky);
+}
+@utility z-bar {
+  z-index: var(--z-index-bar);
+}
+@utility z-nav {
+  z-index: var(--z-index-nav);
+}
+@utility z-overlay {
+  z-index: var(--z-index-overlay);
+}
+@utility z-modal {
+  z-index: var(--z-index-modal);
+}
+
+::selection {
+  background-color: var(--color-red-400);
+  color: var(--color-neutral-white);
+}
+
+@utility scroll-margin-anchor {
+  scroll-margin-top: 64px;
 }

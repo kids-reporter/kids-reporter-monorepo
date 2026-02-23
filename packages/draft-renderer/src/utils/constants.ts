@@ -1,7 +1,7 @@
 export const colorHex = {
-  blue: '#27B5F7',
-  red: '#F76977',
-  yellow: '#F8C341',
+  blue: '#27b3f5',
+  red: '#f76977',
+  yellow: '#f8c341',
 }
 
 export const DEBOUNCE_THRESHOLD = 100

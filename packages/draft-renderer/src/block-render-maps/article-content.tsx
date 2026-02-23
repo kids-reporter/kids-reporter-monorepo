@@ -7,80 +7,93 @@ import { mediaQuery } from '../utils/media-query'
 
 export const Paragraph = styled.div`
   width: 100%;
-  max-width: 700px;
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '22px' : '18px'};
-  font-weight: 400;
-  color: #3a4f66;
-  letter-spacing: 0.9px;
-  line-height: 2;
+  max-width: 512px;
   margin: 0 auto;
 
+  ${mediaQuery.largeOnly} {
+    max-width: 584px;
+  }
+
   ${mediaQuery.smallOnly} {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   > div[data-block='true'] {
-    margin-bottom: 27px;
+    margin-bottom: 38px;
+  }
+
+  &:has(+ div:not([data-paragraph-block='true'])) {
+    margin-bottom: 40px;
+    ${mediaQuery.mediumAbove} {
+      margin-bottom: 60px;
+    }
   }
 `
 
 export const Heading = styled.div`
-  font-weight: 700;
-  line-height: 1.5;
-  color: #232323;
   width: 100%;
-  max-width: 700px;
-  margin: 45px auto 20px auto;
+  max-width: 512px;
+  margin: 0 auto 40px auto;
+
+  ${mediaQuery.smallOnly} {
+    margin-bottom: 24px;
+  }
+
+  ${mediaQuery.largeOnly} {
+    max-width: 584px;
+  }
 
   h2,
   h3,
   h4,
   h5 {
-    letter-spacing: 1.5px;
     margin: 0;
   }
 
-  h2 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '39px' : '35px'};
-  }
-
-  h3 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '34px' : '30px'};
-  }
-
-  h4 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '29px' : '25px'};
-  }
-
-  h5 {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '24px' : '20px'};
-  }
-
   ${mediaQuery.smallOnly} {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  /* when the next sibling div contains a blockquote */
+  & + div:has(blockquote) {
+    margin-top: 0px;
+    ${mediaQuery.desktopAbove} {
+      margin-top: 0px;
+    }
   }
 `
 
 export const List = styled.ol`
   width: 100%;
-  max-width: 700px;
-  margin: 0 auto 27px auto;
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '22px' : '18px'};
-  line-height: 2;
-  letter-spacing: 0.9px;
-  color: #3a4f66;
-  padding-left: 2rem;
+  max-width: 512px;
+  margin: 0 auto 38px auto;
+  list-style-position: inside;
+
+  > li > div {
+    display: inline;
+  }
+
+  ${mediaQuery.smallOnly} {
+    margin-bottom: 38px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  ${mediaQuery.largeOnly} {
+    max-width: 584px;
+  }
 
   > li {
     margin-bottom: 6px;
+  }
+
+  &:has(+ div:not([data-paragraph-block='true'])) {
+    margin-bottom: 40px;
+    ${mediaQuery.mediumAbove} {
+      margin-bottom: 60px;
+    }
   }
 `
 
@@ -89,11 +102,38 @@ export const Atomic = styled.div`
   > figure {
     margin: 0;
   }
+
+  &:has(blockquote) {
+    margin-top: -2px;
+    ${mediaQuery.mediumAbove} {
+      margin-top: -22px;
+    }
+  }
+
+  ${mediaQuery.desktopAbove} {
+    div:has(+ div [data-image-block-caption-alignment='default'])
+      [data-image-block-caption-alignment='default'] {
+      position: relative !important;
+    }
+    div:has(+ div [data-image-block-caption-alignment='default'])
+      [data-image-slideshow-caption-alignment='default'] {
+      position: relative !important;
+    }
+
+    div:has(+ div [data-image-slideshow-caption-alignment='default'])
+      [data-image-block-caption-alignment='default'] {
+      position: relative !important;
+    }
+    div:has(+ div [data-image-slideshow-caption-alignment='default'])
+      [data-image-slideshow-caption-alignment='default'] {
+      position: relative !important;
+    }
+  }
 `
 
 const _blockRenderMap = Immutable.Map({
   atomic: {
-    element: 'figure',
+    element: 'div',
     wrapper: <Atomic />,
   },
   'header-two': {
@@ -114,15 +154,15 @@ const _blockRenderMap = Immutable.Map({
   },
   'ordered-list-item': {
     element: 'li',
-    wrapper: <List />,
+    wrapper: <List data-paragraph-block="true" />,
   },
   'unordered-list-item': {
     element: 'li',
-    wrapper: <List as="ul" />,
+    wrapper: <List as="ul" data-paragraph-block="true" />,
   },
   unstyled: {
     element: 'div',
-    wrapper: <Paragraph />,
+    wrapper: <Paragraph data-paragraph-block="true" />,
   },
 })
 

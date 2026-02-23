@@ -1,7 +1,3 @@
-const internalGqlEndpoint =
-  process.env.INTERNAL_GQL_ENDPOINT || 'http://localhost:3001/api/graphql'
-const gqlEndpoint =
-  process.env.NEXT_PUBLIC_GQL_ENDPOINT || 'http://localhost:3001/api/graphql'
 const apiGatewayEndpoint =
   process.env.NEXT_PUBLIC_API_GATEWAY_ENDPOINT || 'http://localhost:3000'
 const internalApiGatewayEndpoint =
@@ -19,12 +15,14 @@ const loginWidgetUrl =
   process.env.NEXT_PUBLIC_LOGIN_WIDGET_URL ||
   'https://accounts.twreporter.org/signin-widget'
 
+const baodaozaiRiveFilePath =
+  process.env.NEXT_PUBLIC_BAODAOZAI_RIVE_FILE_PATH ||
+  'https://kids-storage.twreporter.org/baodaozai-db.riv'
+
 const nodeEnv = process.env.NODE_ENV
 
 const environmentVariables = {
   internalApiGatewayEndpoint,
-  internalGqlEndpoint,
-  gqlEndpoint,
   apiGatewayEndpoint,
   isProduction,
   searchAPIKey,
@@ -33,6 +31,7 @@ const environmentVariables = {
   loginUrl,
   loginWidgetUrl,
   nodeEnv,
+  baodaozaiRiveFilePath,
 }
 
 export default environmentVariables

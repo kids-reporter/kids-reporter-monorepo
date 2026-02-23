@@ -1,10 +1,8 @@
-// @ts-ignore `@twreporter/errors` does not have typescript definition file yet
-import _errors from '@twreporter/errors'
 import axios from 'axios'
 
+import { formatAxiosError } from '../utils/format-axios-error.js'
 import { appendSessionCookie, TokenManager } from './auth.js'
 
-const errors = _errors.default
 const CMS_REQUEST_TIMEOUT_MS = 10000
 
 export async function callCmsGraphql({
@@ -57,9 +55,9 @@ export async function callCmsGraphql({
         }
         return await doCall(refreshedHeaders)
       } catch (retryErr) {
-        throw errors.helpers.annotateAxiosError(retryErr)
+        throw formatAxiosError(retryErr)
       }
     }
-    throw errors.helpers.annotateAxiosError(err)
+    throw formatAxiosError(err)
   }
 }

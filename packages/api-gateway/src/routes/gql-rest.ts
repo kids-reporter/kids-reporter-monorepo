@@ -6,7 +6,7 @@ import { callCmsGraphql } from '../graphql/cms-client.js'
 import { operations } from '../graphql/operations.js'
 import { ensureRecord, parseVars } from '../graphql/operations/shared.js'
 import { logAndSend } from './gql-rest-logger.js'
-import { createMultipartProxy } from './gql-rest-multipart.js'
+import { createMemberAvatarUploadHandler } from './gql-rest-member-avatar-upload.js'
 import { clientGqlErrorCodes, errors, statusCodes } from './gql-rest-shared.js'
 
 export function createGqlRestRouter({
@@ -17,11 +17,14 @@ export function createGqlRestRouter({
   headlessAccount: { email: string; password: string }
 }) {
   const router = express.Router()
-  const multipartProxy = createMultipartProxy({ apiOrigin })
 
   // Dedicated handler for file uploads; keep it out of the JSON-oriented loop below.
   const createMemberAvatarOp = operations['create-member-avatar']
   if (createMemberAvatarOp) {
+    const multipartRewriteHandler = createMemberAvatarUploadHandler({
+      apiOrigin,
+    })
+
     router.post('/api/rest/create-member-avatar', async (req, res, next) => {
       const startAt = process.hrtime.bigint()
       const contentType = req.get('Content-Type') || ''
@@ -49,7 +52,7 @@ export function createGqlRestRouter({
         })
         res.locals.gqlRestStartAt = startAt
         res.locals.gqlRestAuthContext = authContext
-        return multipartProxy(req, res, next)
+        return multipartRewriteHandler(req, res, next)
       } catch (err) {
         const payload = {
           status: 'fail',
@@ -192,13 +195,18 @@ export function createGqlRestRouter({
             'GraphQLRestError',
             'Failed to call CMS GraphQL'
           )
-          console.log(
+          console.error(
             JSON.stringify({
               severity: 'ERROR',
-              message: errors.helpers.printAll(annotatedErr, {
-                withStack: true,
-                withPayload: true,
-              }),
+              message: errors.helpers.printAll(
+                annotatedErr,
+                {
+                  withStack: true,
+                  withPayload: true,
+                },
+                0,
+                0
+              ),
               ...res?.locals?.globalLogFields,
             })
           )

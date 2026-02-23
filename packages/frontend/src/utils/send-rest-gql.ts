@@ -4,7 +4,8 @@ import axios, { AxiosResponse } from 'axios'
 import { INTERNAL_REST_GQL_ENDPOINT, REST_GQL_ENDPOINT } from '@/constants'
 
 import { log, LogLevel } from './log'
-import { AXIOS_TIMEOUT } from './send-gql-request'
+
+export const AXIOS_TIMEOUT = 5000
 
 type GraphQLResponse<TData = Record<string, unknown>> = {
   data?: TData

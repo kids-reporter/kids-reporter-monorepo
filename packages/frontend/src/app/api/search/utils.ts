@@ -7,7 +7,7 @@ import { customsearch } from '@googleapis/customsearch'
 import { customsearch_v1 } from '@googleapis/customsearch/v1'
 import errors from '@twreporter/errors'
 
-import { CardProp } from '@/app/(sticky-header)/_components/search/card'
+import { CardProp } from '@/app/(general)/_components/search/card'
 import { ContentType, Theme } from '@/constants'
 import { log, LogLevel } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'

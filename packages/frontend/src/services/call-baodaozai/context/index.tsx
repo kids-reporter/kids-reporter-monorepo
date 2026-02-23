@@ -17,6 +17,8 @@ import {
   useState,
 } from 'react'
 
+import envVars from '@/environment-variables'
+
 import { DialogBoxProps } from '../components/dialog-box'
 import { BaodaozaiAction, BaodaozaiActionSetter } from '../types'
 import {
@@ -57,15 +59,13 @@ export type CallBaodaozaiState = {
 
 const CallBaodaozaiContext = createContext<CallBaodaozaiState | null>(null)
 
-const BAODAOZAI_SRC = '/baodaozai-db.riv'
-
 export function CallBaodaozaiProvider({
   children,
 }: {
   children: React.ReactNode
 }) {
   const { RiveComponent, rive } = useRive({
-    src: BAODAOZAI_SRC,
+    src: envVars.baodaozaiRiveFilePath,
     stateMachines: STATE_MACHINE_NAME,
     autoplay: true,
   })

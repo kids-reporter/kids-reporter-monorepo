@@ -7,7 +7,6 @@ import {
   blockRenderMapForInfoBoxWithHeaderBorder,
 } from './info-box'
 import { blockRenderMap as blockRenderMapForProjectContent } from './project-content'
-
 export default {
   annotation: blockRenderMapForAnnotation,
   // article page brief

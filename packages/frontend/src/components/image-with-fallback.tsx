@@ -7,10 +7,20 @@ export const ImageWithFallback = (
   return (
     <img
       {...props}
-      onError={({ currentTarget }) => {
+      src={props.src || FALLBACK_IMG}
+      onError={(e) => {
+        const currentTarget = e.currentTarget
+        if (
+          currentTarget.src === FALLBACK_IMG ||
+          currentTarget.src.endsWith(FALLBACK_IMG)
+        ) {
+          currentTarget.onerror = null
+          return
+        }
         currentTarget.onerror = null
         currentTarget.src = FALLBACK_IMG
         currentTarget.srcset = ''
+        props.onError?.(e)
       }}
     />
   )

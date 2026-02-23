@@ -63,7 +63,7 @@ const Arrow = styled.span<{ $isListOpen: boolean }>`
 
   width: 20px;
   height: 20px;
-  background-color: #27b5f7;
+  background-color: #27b3f5;
   border-radius: 50%;
   display: flex;
 

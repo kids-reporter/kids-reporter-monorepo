@@ -78,9 +78,16 @@ export const logResponse = (
     }
   }
 
+  const severity =
+    status >= statusCodes.internalServerError
+      ? 'ERROR'
+      : isSlow
+        ? 'WARNING'
+        : 'INFO'
+
   console.log(
     JSON.stringify({
-      severity: isSlow ? 'WARNING' : 'INFO',
+      severity,
       message: 'GraphQL REST response',
       status,
       elapsedMs,

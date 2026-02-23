@@ -19,7 +19,7 @@ function ArticleGrid({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2">
+      <div className="grid w-full grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-x-8 desktop:gap-x-12 hd:gap-x-14">
         {displayedArticles.map((article) => (
           <ArticleCard
             key={article.title}
@@ -35,7 +35,7 @@ function ArticleGrid({
             onClick={() => setShowMore(!showMore)}
             size={44}
           >
-            看更多
+            {'看更多'}
           </Button>
         </div>
       )}

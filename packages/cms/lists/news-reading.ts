@@ -1,6 +1,7 @@
 import { list } from '@keystone-6/core'
 import { integer, relationship, text, timestamp } from '@keystone-6/core/fields'
 import type { ListConfig } from '@keystone-6/core/types'
+import sanitizeHtml from 'sanitize-html'
 
 import {
   allowAllRoles,
@@ -14,7 +15,7 @@ const NewsReadingGroupItem: ListConfig<any> = list({
       validation: { isRequired: true },
     }),
     embedCode: text({
-      label: 'Sopotify Iframe Embed Code',
+      label: 'Spotify Iframe Embed Code',
       validation: { isRequired: true },
       ui: { displayMode: 'textarea' },
     }),
@@ -68,6 +69,38 @@ const NewsReadingGroupItem: ListConfig<any> = list({
     label: 'News-reading-group-item',
     singular: 'News-reading-group-item',
     plural: 'News-reading-group-items',
+  },
+  hooks: {
+    resolveInput: ({ resolvedData, operation }) => {
+      if (
+        (operation === 'create' || operation === 'update') &&
+        resolvedData.embedCode != null
+      ) {
+        resolvedData.embedCode = sanitizeHtml(resolvedData.embedCode, {
+          allowedTags: ['iframe'],
+          allowedAttributes: {
+            iframe: [
+              'align',
+              'allow',
+              'fetchpriority',
+              'frameborder',
+              'allowfullscreen',
+              'height',
+              'loading',
+              'name',
+              'referrerpolicy',
+              'fullscreen',
+              'src',
+              'style',
+              'title',
+              'width',
+            ],
+          },
+        })
+      }
+
+      return resolvedData
+    },
   },
   access: {
     operation: {

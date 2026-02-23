@@ -3,45 +3,19 @@ import {
   DeleteMemberAvatarMutation,
 } from '__generated__/operations/members.generated'
 import axios, { AxiosResponse } from 'axios'
-import { print } from 'graphql/language/printer'
 
 import { REST_GQL_ENDPOINT } from '@/constants'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
-
-import { CREATE_MEMBER_AVATAR_MUTATION } from './graphql/member-avatar'
 
 export const uploadMemberAvatar = async (
   file: File,
   accessToken: string,
   fileName?: string
 ) => {
-  // Use REST GQL upload endpoint; payload mirrors GraphQL multipart spec.
+  // Use REST GQL upload endpoint; gateway rebuilds GraphQL multipart payload.
   const formData = new FormData()
-
-  // Route uses the REST endpoint; payload still follows GraphQL multipart spec.
-  const newFileName =
-    fileName || file.name.replace(/\.[^/.]+$/, '') || 'memberAvatar'
-  const operations = {
-    query: print(CREATE_MEMBER_AVATAR_MUTATION),
-    operationName: 'CreateMemberAvatar',
-    variables: {
-      data: {
-        name: newFileName,
-        imageFile: {
-          upload: null,
-        },
-      },
-    },
-  }
-
-  // Map file index to variable path
-  const map = {
-    '1': ['variables.data.imageFile.upload'],
-  }
-
-  formData.append('operations', JSON.stringify(operations))
-  formData.append('map', JSON.stringify(map))
-  formData.append('1', file)
+  const uploadFileName = fileName || file.name || 'memberAvatar'
+  formData.append('file', file, uploadFileName)
 
   // Route to the REST handler that proxies multipart uploads to GraphQL.
   const response: AxiosResponse<{

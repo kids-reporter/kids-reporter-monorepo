@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 
-import { getColorHex } from '../utils/index'
 import { mediaQuery } from '../utils/media-query'
 
 const mockup = {
@@ -47,7 +46,7 @@ const mockup = {
 const Caption = styled.figcaption`
   color: #494949;
   &::after {
-    border-color: ${({ theme }) => getColorHex(theme?.themeColor)};
+    border-color: #c6c6c6;
   }
 
   line-height: 1.36;
@@ -56,6 +55,7 @@ const Caption = styled.figcaption`
   font-size: ${({ theme }) =>
     theme?.fontSizeLevel === 'large' ? '18px' : '14px'};
   margin-bottom: 30px;
+  padding: 0 0 20px 0;
 
   /* border-bottom of caption */
   &::after {
@@ -71,7 +71,6 @@ const Caption = styled.figcaption`
   ${mediaQuery.smallOnly} {
     position: relative;
     margin-left: auto;
-    padding: 15px 15px 15px 0;
     &:after {
       width: calc(100% - 15px);
     }
@@ -95,12 +94,10 @@ const Caption = styled.figcaption`
 
   ${mediaQuery.mediumAndDesktopOnly} {
     width: ${mockup.desktop.caption.width}px;
-    padding: 15px 0 15px 0;
   }
 
   ${mediaQuery.largeOnly} {
     width: ${mockup.hd.caption.width}px;
-    padding: 25px 0 20px 0;
   }
 `
 

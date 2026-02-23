@@ -22,7 +22,6 @@ export const ImageAlignOptions = [
     label: '與文章段落等寬',
     isDisabled: false,
   },
-  { value: ImageAlignment.LEFT, label: '靠左', isDisabled: false },
   { value: ImageAlignment.RIGHT, label: '靠右', isDisabled: false },
 ]
 

@@ -1,11 +1,13 @@
 import { GetPostsEssayAnswersWithLikesQuery } from '__generated__/operations/content.generated'
 import {
+  CategoryWhereUniqueInput,
   PostEssayAnswerOrderByInput,
   PostOrderByInput,
   PostWhereInput,
 } from '__generated__/types'
 import { InfiniteData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
+import { getCategoryPosts } from '@/api/category'
 import {
   getPostEssayQuestionsByPostSlug,
   getPostsEssayAnswersWithLikes,
@@ -100,3 +102,30 @@ usePostEssayQuestionsByPostSlugQuery.getQueryKey = ({
 }: {
   slug: string
 }) => [POST_ESSAY_QUESTIONS_BY_POST_SLUG_QUERY_KEY, slug]
+
+const CATEGORY_POSTS_QUERY_KEY = 'category-posts'
+
+export function useCategoryPostsQuery({
+  where,
+  take,
+  skip,
+}: {
+  where: CategoryWhereUniqueInput
+  take: number
+  skip: number
+}) {
+  return useQuery({
+    queryKey: useCategoryPostsQuery.getQueryKey({ where, take, skip }),
+    queryFn: () => getCategoryPosts({ where, take, skip }),
+  })
+}
+
+useCategoryPostsQuery.getQueryKey = ({
+  where,
+  take,
+  skip,
+}: {
+  where: CategoryWhereUniqueInput
+  take: number
+  skip: number
+}) => [CATEGORY_POSTS_QUERY_KEY, where, take, skip]

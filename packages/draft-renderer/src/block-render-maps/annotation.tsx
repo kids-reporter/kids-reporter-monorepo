@@ -3,10 +3,19 @@ import Immutable from 'immutable'
 import React from 'react'
 import styled from 'styled-components'
 
+import { mediaQuery } from '../utils/media-query'
 import { Atomic, Heading, List, Paragraph } from './article-content'
 
 const HeadingForAnnotation = styled(Heading)`
-  margin: 0 auto 27px auto;
+  margin: 0 auto 40px auto;
+
+  margin-bottom: 0px;
+
+  ${mediaQuery.smallOnly} {
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-bottom: 0px;
+  }
 `
 
 const ListForAnnotation = styled(List)`
@@ -16,6 +25,13 @@ const ListForAnnotation = styled(List)`
     font-size: ${({ theme }) =>
       theme?.fontSizeLevel === 'large' ? '20px' : '16px'};
   }
+  margin-bottom: 0px;
+
+  ${mediaQuery.smallOnly} {
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-bottom: 0px;
+  }
 `
 
 const ParagraphForAnnotation = styled(Paragraph)`
@@ -23,8 +39,19 @@ const ParagraphForAnnotation = styled(Paragraph)`
   font-size: ${({ theme }) =>
     theme?.fontSizeLevel === 'large' ? '20px' : '16px'};
   font-weight: 400;
-  margin-bottom: 20px;
   color: #494949;
+
+  > div[data-block='true'] {
+    margin-bottom: 0px;
+    ${mediaQuery.smallOnly} {
+      margin-bottom: 0px;
+    }
+  }
+
+  ${mediaQuery.smallOnly} {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
 `
 
 const _blockRenderMapForAnnotation = Immutable.Map({

@@ -58,7 +58,7 @@ function Custom() {
                   思辨題數量設定
                 </h2>
                 <p className="prose-p1 text-neutral-700">
-                  互動測驗共三題，系統會依你設定的思辨題數，自動分配選擇題與思辨題。
+                  互動測驗預設提供三題選擇題，系統會依你設定的思辨題數，自動添加思辨題數量。
                 </p>
               </div>
               <div className="flex items-center gap-6 rounded-2xl bg-white px-6 py-5">

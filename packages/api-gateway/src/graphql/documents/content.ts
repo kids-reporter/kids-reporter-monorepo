@@ -27,6 +27,15 @@ export const GET_EDITOR_PICKS_SETTINGS_QUERY = gql`
   }
 `
 
+export const GET_POPULAR_KEYWORDS_QUERY = gql`
+  query GetPopularKeywords {
+    popularKeywords(orderBy: [{ order: asc }]) {
+      name
+      order
+    }
+  }
+`
+
 export const GET_CALL_BAODAOZAI_INTRO_QUERY = gql`
   query GetCallBaodaozaiIntro($where: CallBaodaozaiIntroWhereUniqueInput!) {
     callBaodaozaiIntro(where: $where) {
@@ -587,6 +596,19 @@ export const GET_PROJECTS_FOR_SITEMAP_QUERY = gql`
     projects(where: $where) {
       slug
       publishedDate
+    }
+  }
+`
+
+export const GET_SUBCATEGORIES_QUERY = gql`
+  query GetSubcategories {
+    subcategories {
+      id
+      name
+      slug
+      category {
+        slug
+      }
     }
   }
 `

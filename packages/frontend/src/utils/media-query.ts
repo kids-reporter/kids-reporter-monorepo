@@ -1,6 +1,6 @@
 const breakpoints = {
-  small: 320,
-  medium: 760,
+  small: 375,
+  medium: 768,
   desktop: 1024, // TODO: unify breakpoints in twreporter/kids reporter
   large: 1440,
 }

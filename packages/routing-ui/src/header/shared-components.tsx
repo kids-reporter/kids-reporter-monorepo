@@ -8,7 +8,6 @@ import {
   HamburgerIcon,
   HamburgerIconSmall,
   SearchIcon,
-  SettingsIcon,
 } from '../icons'
 import type { MenuItem } from '../types'
 import { cn } from '../utils/cn'
@@ -196,13 +195,13 @@ export function ActionButtons({
   tags,
   searchPlaceholder,
   subscribeUrl,
-  readingSettingsUrl,
+  joinUsUrl,
 }: {
   hideCtaButtons?: boolean
   tags: string[]
   searchPlaceholder: string
   subscribeUrl: string
-  readingSettingsUrl: string
+  joinUsUrl: string
 }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
@@ -235,7 +234,7 @@ export function ActionButtons({
         {!hideCtaButtons && !isSearchOpen && (
           <div className="gap-4 flex items-center">
             <Button variant="secondary" size={32} asChild>
-              <a href="/about#post">投稿</a>
+              <a href={joinUsUrl}>加入我們</a>
             </Button>
             <Button variant="primary" size={32} asChild>
               <a href={subscribeUrl} target="_blank" rel="noopener noreferrer">
@@ -254,20 +253,13 @@ export function ActionButtons({
       </div>
 
       <button
-        className="w-8 h-8 mr-4 flex cursor-pointer items-center justify-center rounded-full text-neutral-600 transition-all duration-200 hover:text-neutral-800"
+        className="w-8 h-8 flex cursor-pointer items-center justify-center rounded-full text-neutral-600 transition-all duration-200 hover:text-neutral-800"
         aria-label="搜尋"
         onClick={() => setIsSearchOpen(!isSearchOpen)}
         ref={buttonRef}
       >
         {isSearchOpen ? <ClearIcon /> : <SearchIcon />}
       </button>
-      <a
-        className="w-8 h-8 flex items-center justify-center rounded-full text-neutral-600 transition-all duration-200 hover:text-neutral-800"
-        aria-label="設定"
-        href={readingSettingsUrl}
-      >
-        <SettingsIcon />
-      </a>
     </div>
   )
 }

@@ -8,7 +8,12 @@ import {
 } from '@keystone-6/core/fields'
 
 import config from '../config'
-import { allowAllRoles } from './utils/access-control-list'
+import type { ListType } from '../types/keystone-list-types'
+import {
+  allowAllRoles,
+  allowRoles,
+  RoleEnum,
+} from './utils/access-control-list'
 import { memberOwnedOperationAccess } from './utils/member-owned-access'
 
 const ALLOWED_IMAGE_TYPES = [
@@ -22,7 +27,7 @@ const ALLOWED_IMAGE_TYPES = [
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
 
 const operationAccessControl = memberOwnedOperationAccess
-export default list({
+export default list<ListType<'MemberAvatar'>>({
   fields: {
     name: text({
       label: '標題',
@@ -32,7 +37,7 @@ export default list({
       storage: 'images',
     }),
     member: relationship({
-      ref: 'Member',
+      ref: 'Member.avatar',
       many: false,
       label: 'Member',
     }),
@@ -72,7 +77,7 @@ export default list({
   access: {
     operation: {
       query: allowAllRoles(),
-      create: operationAccessControl,
+      create: allowRoles([RoleEnum.Member]),
       update: () => false,
       delete: operationAccessControl,
     },
@@ -83,11 +88,10 @@ export default list({
     },
   },
   hooks: {
-    validateInput: async ({ resolvedData, addValidationError, operation }) => {
+    validateInput: async ({ inputData, addValidationError, operation }) => {
       // Validate file upload on create and update
       if (operation === 'create' || operation === 'update') {
-        const imageFile = resolvedData.imageFile
-
+        const imageFile = inputData?.imageFile
         if (imageFile?.upload) {
           // Check file size
           const fileSize = imageFile.upload.size
@@ -106,6 +110,26 @@ export default list({
           }
         }
       }
+    },
+    resolveInput: async ({ resolvedData, context, operation }) => {
+      const sessionMemberId = context.session?.data?.memberId?.toString()
+
+      if (!sessionMemberId) {
+        throw new Error(
+          'You must be signed in as a member to upload a member avatar.'
+        )
+      }
+
+      if (operation === 'create') {
+        // connect the MemberAvatar record to the current member
+        resolvedData.member = {
+          connect: {
+            id: sessionMemberId,
+          },
+        }
+      }
+
+      return resolvedData
     },
   },
 })

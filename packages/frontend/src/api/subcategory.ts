@@ -1,4 +1,5 @@
 import {
+  GetSubcategoriesQuery,
   GetSubcategoryPostsQuery,
   GetSubcategoryPostsQueryVariables,
 } from '__generated__/operations/content.generated'
@@ -14,4 +15,12 @@ export const getSubcategoryPosts = async (
     variables,
   })
   return response?.data?.data?.subcategory
+}
+
+export const getSubcategories = async () => {
+  const response = await sendRestGqlRequest<GetSubcategoriesQuery>({
+    operation: 'subcategories',
+    method: 'GET',
+  })
+  return response?.data?.data?.subcategories
 }

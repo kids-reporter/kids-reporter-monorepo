@@ -1,4 +1,5 @@
 import { TextArea } from '@keystone-ui/fields'
+import { mediaQuery } from '@kids-reporter/draft-renderer/lib/utils/media-query'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 
@@ -25,9 +26,17 @@ function EmbeddedCode({
 }
 
 const StyledEmbeddedCode = styled(EmbeddedCode)`
-  max-width: 700px;
+  max-width: 584px;
   margin: 0 auto 30px auto;
   background-color: #fafbfc;
+
+  ${mediaQuery.desktopAbove} {
+    max-width: 608px;
+  }
+
+  ${mediaQuery.largeOnly} {
+    max-width: 680px;
+  }
 `
 
 const EditableBlock = styled(_EditableBlock)`
@@ -36,6 +45,7 @@ const EditableBlock = styled(_EditableBlock)`
       background-color: #f0f0f0;
       opacity: 0.3;
     }
+  }
 `
 
 export function EditableEmbeddedCode(

@@ -198,8 +198,6 @@ type Post {
   ogDescription: String
   ogImage: Photo
   aiDialog: JSON
-  multipleChoiceQuestionsJSON: JSON
-  essayQuestionsJSON: JSON
   opening: String
   postChoiceQuestions(where: PostChoiceQuestionWhereInput! = {}, orderBy: [PostChoiceQuestionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostChoiceQuestionWhereUniqueInput): [PostChoiceQuestion!]
   postChoiceQuestionsCount(where: PostChoiceQuestionWhereInput! = {}): Int
@@ -339,8 +337,6 @@ input PostUpdateInput {
   ogTitle: String
   ogDescription: String
   ogImage: PhotoRelateToOneForUpdateInput
-  multipleChoiceQuestionsJSON: JSON
-  essayQuestionsJSON: JSON
   opening: String
   postChoiceQuestions: PostChoiceQuestionRelateToManyForUpdateInput
   postEssayQuestions: PostEssayQuestionRelateToManyForUpdateInput
@@ -454,8 +450,6 @@ input PostCreateInput {
   ogTitle: String
   ogDescription: String
   ogImage: PhotoRelateToOneForCreateInput
-  multipleChoiceQuestionsJSON: JSON
-  essayQuestionsJSON: JSON
   opening: String
   postChoiceQuestions: PostChoiceQuestionRelateToManyForCreateInput
   postEssayQuestions: PostEssayQuestionRelateToManyForCreateInput
@@ -1635,70 +1629,6 @@ input SVGCreateInput {
   updatedAt: DateTime
 }
 
-type CallBaodaozai {
-  id: ID!
-  home: JSON
-  topics: JSON
-  topic: JSON
-  news: JSON
-  comics: JSON
-  lessons: JSON
-  podcasts: JSON
-  aboutUs: JSON
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input CallBaodaozaiWhereUniqueInput {
-  id: ID
-}
-
-input CallBaodaozaiWhereInput {
-  AND: [CallBaodaozaiWhereInput!]
-  OR: [CallBaodaozaiWhereInput!]
-  NOT: [CallBaodaozaiWhereInput!]
-  id: IDFilter
-  createdAt: DateTimeNullableFilter
-  updatedAt: DateTimeNullableFilter
-}
-
-input CallBaodaozaiOrderByInput {
-  id: OrderDirection
-  createdAt: OrderDirection
-  updatedAt: OrderDirection
-}
-
-input CallBaodaozaiUpdateInput {
-  home: JSON
-  topics: JSON
-  topic: JSON
-  news: JSON
-  comics: JSON
-  lessons: JSON
-  podcasts: JSON
-  aboutUs: JSON
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input CallBaodaozaiUpdateArgs {
-  where: CallBaodaozaiWhereUniqueInput!
-  data: CallBaodaozaiUpdateInput!
-}
-
-input CallBaodaozaiCreateInput {
-  home: JSON
-  topics: JSON
-  topic: JSON
-  news: JSON
-  comics: JSON
-  lessons: JSON
-  podcasts: JSON
-  aboutUs: JSON
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
 type OnlineUser {
   id: ID!
   user: User
@@ -1772,6 +1702,7 @@ type Member {
 input MemberWhereUniqueInput {
   id: ID
   twreporter_user_id: String
+  avatar: MemberAvatarWhereUniqueInput
 }
 
 input MemberWhereInput {
@@ -1862,6 +1793,7 @@ type MemberAvatar {
 
 input MemberAvatarWhereUniqueInput {
   id: ID
+  member: MemberWhereUniqueInput
 }
 
 input MemberAvatarWhereInput {
@@ -2275,6 +2207,56 @@ input PostEssayAnswerRelateToOneForCreateInput {
   connect: PostEssayAnswerWhereUniqueInput
 }
 
+type PopularKeyword {
+  id: ID!
+  name: String
+  order: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input PopularKeywordWhereUniqueInput {
+  id: ID
+}
+
+input PopularKeywordWhereInput {
+  AND: [PopularKeywordWhereInput!]
+  OR: [PopularKeywordWhereInput!]
+  NOT: [PopularKeywordWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  order: IntNullableFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input PopularKeywordOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  order: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input PopularKeywordUpdateInput {
+  name: String
+  order: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input PopularKeywordUpdateArgs {
+  where: PopularKeywordWhereUniqueInput!
+  data: PopularKeywordUpdateInput!
+}
+
+input PopularKeywordCreateInput {
+  name: String
+  order: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -2377,12 +2359,6 @@ type Mutation {
   updateSVGS(data: [SVGUpdateArgs!]!): [SVG]
   deleteSVG(where: SVGWhereUniqueInput!): SVG
   deleteSVGS(where: [SVGWhereUniqueInput!]!): [SVG]
-  createCallBaodaozai(data: CallBaodaozaiCreateInput!): CallBaodaozai
-  createCallBaodaozais(data: [CallBaodaozaiCreateInput!]!): [CallBaodaozai]
-  updateCallBaodaozai(where: CallBaodaozaiWhereUniqueInput!, data: CallBaodaozaiUpdateInput!): CallBaodaozai
-  updateCallBaodaozais(data: [CallBaodaozaiUpdateArgs!]!): [CallBaodaozai]
-  deleteCallBaodaozai(where: CallBaodaozaiWhereUniqueInput!): CallBaodaozai
-  deleteCallBaodaozais(where: [CallBaodaozaiWhereUniqueInput!]!): [CallBaodaozai]
   createOnlineUser(data: OnlineUserCreateInput!): OnlineUser
   createOnlineUsers(data: [OnlineUserCreateInput!]!): [OnlineUser]
   updateOnlineUser(where: OnlineUserWhereUniqueInput!, data: OnlineUserUpdateInput!): OnlineUser
@@ -2429,6 +2405,12 @@ type Mutation {
   createPostEssayAnswerLikes(data: [PostEssayAnswerLikeCreateInput!]!): [PostEssayAnswerLike]
   deletePostEssayAnswerLike(where: PostEssayAnswerLikeWhereUniqueInput!): PostEssayAnswerLike
   deletePostEssayAnswerLikes(where: [PostEssayAnswerLikeWhereUniqueInput!]!): [PostEssayAnswerLike]
+  createPopularKeyword(data: PopularKeywordCreateInput!): PopularKeyword
+  createPopularKeywords(data: [PopularKeywordCreateInput!]!): [PopularKeyword]
+  updatePopularKeyword(where: PopularKeywordWhereUniqueInput!, data: PopularKeywordUpdateInput!): PopularKeyword
+  updatePopularKeywords(data: [PopularKeywordUpdateArgs!]!): [PopularKeyword]
+  deletePopularKeyword(where: PopularKeywordWhereUniqueInput!): PopularKeyword
+  deletePopularKeywords(where: [PopularKeywordWhereUniqueInput!]!): [PopularKeyword]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -2502,9 +2484,6 @@ type Query {
   sVG(where: SVGWhereUniqueInput!): SVG
   sVGS(where: SVGWhereInput! = {}, orderBy: [SVGOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SVGWhereUniqueInput): [SVG!]
   sVGSCount(where: SVGWhereInput! = {}): Int
-  callBaodaozai(where: CallBaodaozaiWhereUniqueInput!): CallBaodaozai
-  callBaodaozais(where: CallBaodaozaiWhereInput! = {}, orderBy: [CallBaodaozaiOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: CallBaodaozaiWhereUniqueInput): [CallBaodaozai!]
-  callBaodaozaisCount(where: CallBaodaozaiWhereInput! = {}): Int
   onlineUser(where: OnlineUserWhereUniqueInput!): OnlineUser
   onlineUsers(where: OnlineUserWhereInput! = {}, orderBy: [OnlineUserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: OnlineUserWhereUniqueInput): [OnlineUser!]
   onlineUsersCount(where: OnlineUserWhereInput! = {}): Int
@@ -2529,6 +2508,9 @@ type Query {
   postEssayAnswerLike(where: PostEssayAnswerLikeWhereUniqueInput!): PostEssayAnswerLike
   postEssayAnswerLikes(where: PostEssayAnswerLikeWhereInput! = {}, orderBy: [PostEssayAnswerLikeOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostEssayAnswerLikeWhereUniqueInput): [PostEssayAnswerLike!]
   postEssayAnswerLikesCount(where: PostEssayAnswerLikeWhereInput! = {}): Int
+  popularKeyword(where: PopularKeywordWhereUniqueInput!): PopularKeyword
+  popularKeywords(where: PopularKeywordWhereInput! = {}, orderBy: [PopularKeywordOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PopularKeywordWhereUniqueInput): [PopularKeyword!]
+  popularKeywordsCount(where: PopularKeywordWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   searchTWReporterPosts(keywords: String!): [JSON]

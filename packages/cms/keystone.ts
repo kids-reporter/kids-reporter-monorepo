@@ -129,7 +129,7 @@ async function getSessionFromGoApiJwt({
   } catch (_err) {
     const err = _err instanceof Error ? _err : new Error(String(_err))
 
-    console.log(
+    console.error(
       JSON.stringify({
         severity: 'ERROR',
         context: {
@@ -204,7 +204,7 @@ const compositeSession: SessionStrategy<Session, TypeInfo> = {
       } catch (_err) {
         const err = _err instanceof Error ? _err : new Error(String(_err))
 
-        console.log(
+        console.error(
           JSON.stringify({
             severity: 'ERROR',
             context: {
@@ -306,9 +306,30 @@ const authConfig = withAuth(
     },
     server: {
       extendExpressApp: (app, commonContext) => {
-        // Health check endpoint
-        app.get('/health_check', (req, res) => {
-          res.status(200).json({ status: 'healthy' })
+        // Health check endpoint for Cloud Run readiness and liveness probes
+        app.get('/health', async (req, res) => {
+          try {
+            // Check database connectivity
+            await commonContext.prisma.$queryRaw`SELECT 1`
+            res.status(200).json({
+              status: 'success',
+              timestamp: new Date().toISOString(),
+            })
+          } catch (e) {
+            const err = e instanceof Error ? e : new Error(String(e))
+            // Log with stack trace for Error Reporting integration
+            console.log(
+              JSON.stringify({
+                severity: 'ERROR',
+                message: err.stack || err.message,
+              })
+            )
+            res.status(503).json({
+              status: 'error',
+              timestamp: new Date().toISOString(),
+              error: 'Database connection failed',
+            })
+          }
         })
 
         if (envVar.nodeEnv !== 'production') {

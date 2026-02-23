@@ -116,6 +116,13 @@
   /* Header */
   --mobile-header-height: 64px;
 
+  /* Z-Index scale (999–1003) – generic layer names */
+  --z-index-sticky: 999;
+  --z-index-bar: 1000;
+  --z-index-nav: 1001;
+  --z-index-overlay: 1002;
+  --z-index-modal: 1003;
+
   /* Legacy variables for backward compatibility */
   --fontFamily: var(--font-family-noto);
   --max-width: 1100px;
@@ -362,4 +369,21 @@
 }
 @utility theme-blue {
   --theme-color: var(--color-blue-400);
+}
+
+/* Z-Index utilities */
+@utility z-sticky {
+  z-index: var(--z-index-sticky);
+}
+@utility z-bar {
+  z-index: var(--z-index-bar);
+}
+@utility z-nav {
+  z-index: var(--z-index-nav);
+}
+@utility z-overlay {
+  z-index: var(--z-index-overlay);
+}
+@utility z-modal {
+  z-index: var(--z-index-modal);
 }

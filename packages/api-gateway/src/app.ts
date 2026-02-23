@@ -4,11 +4,11 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 
-import { createAuthMiniApp } from './auth-mini-app.js'
 import consts from './constants.js'
-import { createGraphQLProxy } from './gql-proxy-mini-app.js'
 import middlewareCreator from './middlewares/index.js'
+import { createAuthRouter } from './routes/auth.js'
 import { createGqlRestRouter } from './routes/gql-rest.js'
+import { createHealthRouter } from './routes/health.js'
 
 // @twreporter/errors is a cjs module, therefore, we need to use its default property
 const errors = _errors.default
@@ -18,8 +18,8 @@ const statusCodes = consts.statusCodes
  *  This function creates an express application.
  *  This application aims to
  *
- *  1. create GraphQLProxy mini app. The mini app proxy incoming requests
- *  to the backed API origin server.
+ *  1. Expose RESTful GraphQL routes to interact with the CMS.
+ *  2. Expose authentication routes for token exchange.
  */
 export function createApp({
   gcpProjectId = 'kids-reporter',
@@ -57,13 +57,14 @@ export function createApp({
   // Set the global JSON body limit to 1MB to support typical GraphQL payloads
   app.use(express.json({ limit: '1mb' }))
 
-  // RESTful GraphQL mini app
-  app.use(createGqlRestRouter(gql))
-  // mini app: GraphQL API
-  app.use(createGraphQLProxy(gql))
+  // Health check route
+  app.use(createHealthRouter())
 
-  // Auth mini app
-  app.use(createAuthMiniApp())
+  // RESTful GraphQL routes
+  app.use(createGqlRestRouter(gql))
+
+  // Auth routes
+  app.use(createAuthRouter())
 
   /**
    *  Application level error handler

@@ -8,7 +8,7 @@ const Hr = styled.hr`
   border-top: 3px solid ${({ theme }) => getColorHex(theme?.themeColor)};
   width: 385px;
   height: 3px;
-  margin: 40px auto 60px auto;
+  margin: 38px auto 38px auto;
 
   ${mediaQuery.smallOnly} {
     width: 55%;

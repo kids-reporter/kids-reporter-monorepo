@@ -8,11 +8,3 @@ export const CREATE_MEMBER_AVATAR_MUTATION = gql`
     }
   }
 `
-
-export const DELETE_MEMBER_AVATAR_MUTATION = gql`
-  mutation DeleteMemberAvatar($where: MemberAvatarWhereUniqueInput!) {
-    deleteMemberAvatar(where: $where) {
-      id
-    }
-  }
-`

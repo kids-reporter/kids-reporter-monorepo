@@ -188,7 +188,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
             }
 
             // GCP structured logging
-            console.log(
+            console.error(
               JSON.stringify({
                 severity: 'ERROR',
                 message: errorMessage,
@@ -327,7 +327,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
             }
 
             // GCP structured logging
-            console.log(
+            console.error(
               JSON.stringify({
                 severity: 'ERROR',
                 message: errorMessage,
@@ -561,7 +561,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
               })
             }
 
-            console.log(
+            console.error(
               JSON.stringify({
                 severity: 'ERROR',
                 message: errorMessage,
@@ -696,7 +696,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
               })
             }
 
-            console.log(
+            console.error(
               JSON.stringify({
                 severity: 'ERROR',
                 message: errorMessage,

@@ -94,7 +94,7 @@ export function twoFactorAuthRoute(
           'get2faSetup',
           'Failed to save tempSecret to user table'
         )
-        console.log(
+        console.error(
           JSON.stringify({
             severity: 'ERROR',
             message: errors.helpers.printAll(
@@ -189,7 +189,7 @@ export function twoFactorAuthRoute(
             'post2faSetup',
             'Failed to save 2fa setup to user table'
           )
-          console.log(
+          console.error(
             JSON.stringify({
               severity: 'ERROR',
               message: errors.helpers.printAll(
@@ -270,7 +270,7 @@ export function twoFactorAuthRoute(
             'post2faClear',
             'Failed to clear 2fa token in user table'
           )
-          console.log(
+          console.error(
             JSON.stringify({
               severity: 'ERROR',
               message: errors.helpers.printAll(

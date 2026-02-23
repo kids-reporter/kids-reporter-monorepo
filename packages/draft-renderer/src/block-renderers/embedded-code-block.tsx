@@ -101,10 +101,28 @@ export const EmbeddedCodeBlock = ({
 
 const ArticleBodyContainer = styled.div<{ $align?: string }>`
   max-width: ${(props) => (props.$align === 'image-width' ? '1000' : '700')}px;
-  margin: 0 auto 27px auto;
+  margin: 0 auto 60px auto;
 
   ${mediaQuery.smallOnly} {
     width: 100%;
+    margin: 0 auto;
+    max-width: min(512px, 100vw - 48px);
+    margin-bottom: 40px;
+  }
+
+  ${mediaQuery.mediumAbove} {
+    max-width: ${(props) =>
+      props.$align === 'image-width' ? '1000' : '584'}px;
+  }
+
+  ${mediaQuery.desktopAbove} {
+    max-width: ${(props) =>
+      props.$align === 'image-width' ? '1000' : '608'}px;
+  }
+
+  ${mediaQuery.largeOnly} {
+    max-width: ${(props) =>
+      props.$align === 'image-width' ? '1000' : '680'}px;
   }
 `
 

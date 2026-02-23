@@ -501,7 +501,7 @@ function QAModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-1002 flex scrollbar-thin items-end justify-center tablet:items-center">
+    <div className="fixed inset-0 z-modal flex scrollbar-thin items-end justify-center tablet:items-center">
       <div className="absolute inset-0 z-0 bg-neutral-black/20" />
       <div
         className={cn(

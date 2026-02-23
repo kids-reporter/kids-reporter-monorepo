@@ -1,5 +1,4 @@
 import Author from './author'
-import CallBaodaozai from './call-baodaozai'
 import CallBaodaozaiIntro from './call-baodaozai-intro'
 import Category from './category'
 import EditorPicksSetting from './editor-picks-setting'
@@ -9,6 +8,7 @@ import { NewsReadingGroup, NewsReadingGroupItem } from './news-reading'
 import OnlineUser from './online-user'
 import PDF from './pdf'
 import Photo from './photo'
+import PopularKeyword from './popular-keyword'
 import Post from './post'
 import PostChoiceAnswer from './post-choice-answer'
 import PostChoiceQuestion from './post-choice-question'
@@ -40,7 +40,6 @@ export const listDefinition = {
   EditorPicksSetting,
   PDF,
   SVG,
-  CallBaodaozai,
   OnlineUser,
   Member,
   MemberAvatar,
@@ -49,4 +48,5 @@ export const listDefinition = {
   PostEssayAnswer,
   PostEssayQuestion,
   PostEssayAnswerLike,
+  PopularKeyword,
 }

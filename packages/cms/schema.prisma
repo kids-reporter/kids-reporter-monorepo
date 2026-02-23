@@ -57,8 +57,6 @@ model Post {
   ogDescription                              String               @default("")
   ogImage                                    Photo?               @relation("Post_ogImage", fields: [ogImageId], references: [id])
   ogImageId                                  Int?                 @map("ogImage")
-  multipleChoiceQuestionsJSON                Json?                @default("[]")
-  essayQuestionsJSON                         Json?                @default("[]")
   opening                                    String               @default("")
   postChoiceQuestions                        PostChoiceQuestion[] @relation("PostChoiceQuestion_post")
   postEssayQuestions                         PostEssayQuestion[]  @relation("PostEssayQuestion_post")
@@ -316,20 +314,6 @@ model SVG {
   updatedAt        DateTime? @updatedAt
 }
 
-model CallBaodaozai {
-  id        Int       @id @default(autoincrement())
-  home      Json?
-  topics    Json?
-  topic     Json?
-  news      Json?
-  comics    Json?
-  lessons   Json?
-  podcasts  Json?
-  aboutUs   Json?
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
-}
-
 model OnlineUser {
   id            String    @id @default(cuid())
   user          User?     @relation("OnlineUser_user", fields: [userId], references: [id])
@@ -355,16 +339,14 @@ model Member {
   showBaodaozai                   Boolean               @default(true)
   essayQuestionCount              Int?                  @default(1)
   avatar                          MemberAvatar?         @relation("Member_avatar", fields: [avatarId], references: [id])
-  avatarId                        Int?                  @map("avatar")
+  avatarId                        Int?                  @unique @map("avatar")
   createdAt                       DateTime?             @default(now())
   updatedAt                       DateTime?             @updatedAt
-  from_MemberAvatar_member        MemberAvatar[]        @relation("MemberAvatar_member")
   from_PostChoiceAnswer_member    PostChoiceAnswer[]    @relation("PostChoiceAnswer_member")
   from_PostEssayAnswer_member     PostEssayAnswer[]     @relation("PostEssayAnswer_member")
   from_PostEssayAnswerLike_member PostEssayAnswerLike[] @relation("PostEssayAnswerLike_member")
 
   @@index([email])
-  @@index([avatarId])
 }
 
 model MemberAvatar {
@@ -375,13 +357,9 @@ model MemberAvatar {
   imageFile_width     Int?
   imageFile_height    Int?
   imageFile_extension String?
-  member              Member?   @relation("MemberAvatar_member", fields: [memberId], references: [id])
-  memberId            String?   @map("member")
+  member              Member?   @relation("Member_avatar")
   createdAt           DateTime? @default(now())
   updatedAt           DateTime? @updatedAt
-  from_Member_avatar  Member[]  @relation("Member_avatar")
-
-  @@index([memberId])
 }
 
 model PostChoiceAnswer {
@@ -457,6 +435,14 @@ model PostEssayAnswerLike {
 
   @@index([answerId])
   @@index([memberId])
+}
+
+model PopularKeyword {
+  id        Int       @id @default(autoincrement())
+  name      String    @default("")
+  order     Int?      @default(0)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 enum CallBaodaozaiIntroPageType {

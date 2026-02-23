@@ -80,10 +80,9 @@ function Account() {
       try {
         const avatarUrlFieldState = getFieldState('avatarUrl')
         const isAvatarDirty = avatarUrlFieldState?.isDirty
-        let avatarId: string | undefined
         if (isAvatarDirty && avatarFileRef.current) {
           // upload new avatar first
-          const newAvatar = await uploadMemberAvatar({
+          await uploadMemberAvatar({
             file: avatarFileRef.current,
             fileName: data.name ?? '',
           })
@@ -93,15 +92,11 @@ function Account() {
           if (oldAvatarId) {
             await deleteMemberAvatar(oldAvatarId)
           }
-          avatarId = newAvatar?.id
           avatarFileRef.current = null
         }
 
         await updateMemberProfile({
           data: {
-            ...(isAvatarDirty
-              ? { avatar: { connect: { id: avatarId ?? '' } } }
-              : {}),
             name: data.name ?? '',
             nickname: data.nickname ?? '',
             contactEmail: data.contactEmail ?? '',

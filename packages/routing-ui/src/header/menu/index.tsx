@@ -77,7 +77,7 @@ function Menu({
       {/* Overlay */}
       <div
         className={cn(
-          'inset-0 fixed z-1001 bg-neutral-500/50 transition-opacity duration-300',
+          'inset-0 fixed z-overlay bg-neutral-500/50 transition-opacity duration-300',
           isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
         )}
         onClick={onClose}
@@ -86,7 +86,7 @@ function Menu({
       {/* Menu */}
       <div
         className={cn(
-          'top-0 left-0 tablet:w-80 bg-white shadow-2xl ease-in-out tablet:pt-0 fixed z-1001 h-full scrollbar-thin w-full transform pt-(--mobile-header-height) transition-transform duration-300',
+          'top-0 left-0 tablet:w-80 bg-white shadow-2xl ease-in-out tablet:pt-0 fixed z-overlay h-full scrollbar-thin w-full transform pt-(--mobile-header-height) transition-transform duration-300',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -133,9 +133,14 @@ function Menu({
 
             <Divider />
 
-            {/* Reading Settings */}
+            {/* My Reading */}
             <HeaderMenuItem
               {...additionalMenuItems?.[0]}
+              contentClassName="text-neutral-600 [&_span]:[font-family:var(--font-family-noto)] [&_span]:[font-size:var(--font-size-p2)] [&_span]:[font-weight:500] [&_span]:[line-height:var(--line-height-normal)] [&_span]:[letter-spacing:var(--letter-spacing-wide)] hover:text-neutral-900"
+            />
+            {/* Reading Settings */}
+            <HeaderMenuItem
+              {...additionalMenuItems?.[1]}
               contentClassName="text-neutral-600 [&_span]:[font-family:var(--font-family-noto)] [&_span]:[font-size:var(--font-size-p2)] [&_span]:[font-weight:500] [&_span]:[line-height:var(--line-height-normal)] [&_span]:[letter-spacing:var(--letter-spacing-wide)] hover:text-neutral-900"
             />
 
@@ -143,9 +148,9 @@ function Menu({
 
             {/* About Us Section */}
             <div className="py-2">
-              {additionalMenuItems.slice(1).map((item, index) => (
+              {additionalMenuItems.slice(2).map((item) => (
                 <HeaderMenuItem
-                  key={index}
+                  key={item.label}
                   label={item.label}
                   href={item.href}
                   external={item.external}

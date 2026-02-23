@@ -21,7 +21,7 @@ function IdeaHub() {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-300 flex-col items-center px-6 py-10 tablet:px-8 tablet:py-12 desktop:px-12 desktop:py-18 hd:px-14 hd:py-24">
+      <div className="mx-auto flex w-full max-w-300 flex-col items-center px-6 pt-10 tablet:px-8 tablet:pt-12 desktop:px-12 desktop:pt-18 hd:px-14 hd:pt-24">
         <div className="mb-4 flex items-center gap-2 desktop:mb-6">
           <div className="flex size-11 items-center justify-center desktop:size-16">
             <IdeaHubIcon className="desktop:hidden" />

@@ -1,11 +1,9 @@
-// @ts-ignore `@twreporter/errors` does not have typescript definition file yet
-import _errors from '@twreporter/errors'
 import axios from 'axios'
 import express from 'express'
 
-const TOKEN_EXPIRY_MS = 3600 * 1000 // 1 hour
+import { formatAxiosError } from '../utils/format-axios-error.js'
 
-const errors = _errors.default
+const TOKEN_EXPIRY_MS = 3600 * 1000 // 1 hour
 
 export class TokenManager {
   // Singleton
@@ -88,7 +86,7 @@ export class TokenManager {
         },
       })
     } catch (err) {
-      throw errors.helpers.annotateAxiosError(err)
+      throw formatAxiosError(err)
     }
 
     const authenticationResult =
