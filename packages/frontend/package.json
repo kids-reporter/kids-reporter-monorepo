@@ -19,7 +19,7 @@
     "@googleapis/customsearch": "^1.0.4",
     "@hookform/resolvers": "^5.2.2",
     "@kids-reporter/draft-renderer": "^1.0.13",
-    "@kids-reporter/routing-ui": "0.1.13",
+    "@kids-reporter/routing-ui": "0.1.15",
     "@next/third-parties": "^14.1.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-dialog": "^1.1.15",

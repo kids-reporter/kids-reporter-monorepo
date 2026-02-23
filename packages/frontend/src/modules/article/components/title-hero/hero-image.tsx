@@ -41,7 +41,7 @@ function HeroImage({
   return (
     <figure className="mx-auto pt-10 hd:w-[1058px]">
       <div
-        className="relative inline-flex w-full overflow-hidden hd:!aspect-video"
+        className="relative inline-flex w-full overflow-hidden"
         style={{
           aspectRatio: aspectRatio,
         }}

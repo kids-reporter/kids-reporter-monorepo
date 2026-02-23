@@ -8,7 +8,7 @@ import {
   useScrollLevel,
 } from '@kids-reporter/routing-ui'
 import { useRouter } from 'next/navigation'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { TableOfContentSideMenu } from '@/components/table-of-content'
 import { FontSizeLevel } from '@/constants'
@@ -219,11 +219,20 @@ const ArticleModule = ({
 
   const isDesktop = useMediaQuery('(min-width: 1024px)')
 
+  const [isMounted, setIsMounted] = useState(false)
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
   return (
     <>
       <BaodaozaiVisibilitySetter show={showBaodaozai} />
       <HeaderPostTitleSetter postTitle={post?.title} />
-      {tocIndexes.length > 0 && <TableOfContentSideMenu indexes={tocIndexes} />}
+      {tocIndexes.length > 0 && (
+        <TableOfContentSideMenu
+          indexes={tocIndexes}
+          manuallyAssignAnchors={isMounted}
+        />
+      )}
       <div className="relative w-screen">
         <ArticleContext.Provider
           value={{
@@ -285,7 +294,10 @@ const ArticleModule = ({
               <SeparateIcon />
             </div>
             <div className="relative w-full">
-              <PostRenderer content={post?.content ?? {}} />
+              <PostRenderer
+                content={post?.content ?? { blocks: [], entityMap: {} }}
+                shouldMount={isMounted}
+              />
               <div className="absolute top-[calc(25%+50vh)]">
                 <ArticleBaodaozaiEventTrigger
                   id="change-encourage-reading"

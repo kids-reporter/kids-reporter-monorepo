@@ -141,7 +141,7 @@ export const ADDITIONAL_MENU_ITEMS: MenuItem[] = [
   },
   {
     label: '聯絡我們',
-    href: '/about#mail',
+    href: '/about#contact',
     subItems: [],
   },
   {

@@ -4,7 +4,6 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { ArticleBodyDraftRenderer } from '@kids-reporter/draft-renderer'
 import { cn } from '@kids-reporter/routing-ui'
 import { RawDraftContentState } from 'draft-js'
-import { useEffect, useState } from 'react'
 
 import { FontSizeLevel, STICKY_HEADER_HEIGHT } from '@/constants'
 
@@ -28,14 +27,12 @@ function trimEmptyBlocks(raw: RawDraftContentState): RawDraftContentState {
 
 type PostProp = {
   content: RawDraftContentState
+  shouldMount?: boolean
 }
 
-function PostRenderer({ content }: PostProp) {
+function PostRenderer({ content, shouldMount }: PostProp) {
   const { onImageModalOpen, fontSize } = useArticleContext()
-  const [isMounted, setIsMounted] = useState(false)
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+
   return (
     <div
       className={cn(
@@ -46,7 +43,7 @@ function PostRenderer({ content }: PostProp) {
         ]
       )}
     >
-      {isMounted && (
+      {shouldMount && (
         <ArticleBodyDraftRenderer
           rawContentState={trimEmptyBlocks(content)}
           onImageModalOpen={onImageModalOpen}
