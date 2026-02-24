@@ -41,4 +41,11 @@ export const COLLABORATIONS: Collaboration[] = [
       '與罕病基金會合作舉辦小記者體驗營，讓孩子們透過採訪與交流，走進罕病同學的日常，搭起理解的橋梁，壯大非營利組織的社會力量。',
     image: 'rare_disease_foundation.png',
   },
+  {
+    id: 'factlink_digital_literacy_laboratory',
+    title: 'FactLink數位素養實驗室',
+    description:
+      '與FactLink合作調查、剖析AI與資訊社會關鍵議題，推出「AI使用手冊」專欄，推廣全民數位識讀，強化未來公民資訊防衛力。',
+    image: 'factlink_digital_literacy_laboratory.png',
+  },
 ]
