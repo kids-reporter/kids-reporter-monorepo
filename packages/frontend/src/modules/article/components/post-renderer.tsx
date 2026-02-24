@@ -12,18 +12,7 @@ import {
   ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
 } from '../constants'
 import { useArticleContext } from '../context'
-
-function trimEmptyBlocks(raw: RawDraftContentState): RawDraftContentState {
-  const { blocks, entityMap } = raw
-  if (blocks.length === 0) return raw
-
-  const filtered = blocks.filter(
-    (block) => !(block.type === 'unstyled' && block.text.trim() === '')
-  )
-  if (filtered.length === blocks.length) return raw
-
-  return { blocks: filtered, entityMap }
-}
+import trimEmptyBlocks from '../utils/trim-empty-blocks'
 
 type PostProp = {
   content: RawDraftContentState

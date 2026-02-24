@@ -44,6 +44,7 @@ import useBatchSubmitAnswers from './hooks/use-batch-submit-answers'
 import { Keyword } from './types'
 import parsePostToContent from './utils/parse-post-to-content'
 import parseTocIndexesFromEntityMap from './utils/parse-toc-indexes-from-entity-map'
+import trimEmptyBlocks from './utils/trim-empty-blocks'
 
 const ArticleModule = ({
   post,
@@ -223,6 +224,11 @@ const ArticleModule = ({
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  const trimmedBrief = useMemo(() => {
+    return trimEmptyBlocks(post?.brief ?? { blocks: [], entityMap: {} })
+  }, [post?.brief])
+
   return (
     <>
       <BaodaozaiVisibilitySetter show={showBaodaozai} />
@@ -282,17 +288,24 @@ const ArticleModule = ({
               disabled={!isScrollingDown}
               startReadingContent={post?.opening ?? ''}
             />
-            <ArticleSummary
-              subSubcategoryName={subSubcategory?.name ?? ''}
-              subSubcategoryURL={subSubcategoryURL ?? ''}
-              publishedDate={post?.publishedDate ?? ''}
-              content={post?.brief}
-              authors={authorsInBrief}
-              fontSizeLevel={fontSize}
-            />
-            <div className="mb-10">
-              <SeparateIcon />
-            </div>
+            {trimmedBrief.blocks.length > 0 ? (
+              <>
+                <ArticleSummary
+                  subSubcategoryName={subSubcategory?.name ?? ''}
+                  subSubcategoryURL={subSubcategoryURL ?? ''}
+                  publishedDate={post?.publishedDate ?? ''}
+                  content={trimmedBrief}
+                  authors={authorsInBrief}
+                  fontSizeLevel={fontSize}
+                />
+                <div className="mb-10">
+                  <SeparateIcon />
+                </div>
+              </>
+            ) : (
+              <div className="mb-10 tablet:mb-15"></div>
+            )}
+
             <div className="relative w-full">
               <PostRenderer
                 content={post?.content ?? { blocks: [], entityMap: {} }}
