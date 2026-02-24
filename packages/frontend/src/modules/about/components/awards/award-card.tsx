@@ -34,7 +34,13 @@ function AwardCard({ card }: AwardCardProps) {
                 ? href.slice(KIDS_URL_ORIGIN.length) || '/'
                 : href
               return (
-                <Link key={part.value} href={path} className="underline">
+                <Link
+                  key={part.value}
+                  href={path}
+                  className="underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   {part.value}
                 </Link>
               )
