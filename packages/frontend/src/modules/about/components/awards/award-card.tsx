@@ -58,7 +58,7 @@ function AwardCard({ card }: AwardCardProps) {
             )
           })}
         </p>
-        <p className="prose-p2 text-neutral-700">團隊：{card.team}</p>
+        <p className="prose-p2 text-neutral-700">{card.team}</p>
       </div>
     </div>
   )
