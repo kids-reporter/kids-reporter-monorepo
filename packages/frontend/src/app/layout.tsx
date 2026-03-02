@@ -14,7 +14,7 @@ const GTM_ID = 'GTM-T37WZJ44'
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ['latin'],
-  weight: ['500', '700'],
+  weight: ['400', '500', '700'],
   variable: '--font-noto-sans-tc',
 })
 

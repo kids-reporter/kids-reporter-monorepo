@@ -26,7 +26,7 @@ export const AWARDS_BY_YEAR: AwardsByYear[] = [
     cards: [
       {
         id: '2025-card1',
-        title: '第24屆卓越新聞獎【不分媒體類—藝術與文化新聞獎】',
+        title: '第24屆卓越新聞獎【不分媒體類—藝術與文化新聞獎】入圍',
         workParts: [
           {
             type: 'link',
