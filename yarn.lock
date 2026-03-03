@@ -5030,7 +5030,7 @@ __metadata:
     "@keystone-ui/button": "npm:^7.0.2"
     "@keystone-ui/fields": "npm:^7.2.0"
     "@keystone-ui/modals": "npm:^6.0.3"
-    "@kids-reporter/draft-editor": "npm:^1.0.29"
+    "@kids-reporter/draft-editor": "npm:^1.0.30"
     "@twreporter/errors": "npm:^1.1.1"
     axios: "npm:^0.26.0"
     draft-convert: "npm:^2.1.12"
@@ -5094,7 +5094,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kids-reporter/draft-editor@npm:^1.0.29, @kids-reporter/draft-editor@workspace:packages/draft-editor":
+"@kids-reporter/draft-editor@npm:^1.0.30, @kids-reporter/draft-editor@workspace:packages/draft-editor":
   version: 0.0.0-use.local
   resolution: "@kids-reporter/draft-editor@workspace:packages/draft-editor"
   dependencies:
@@ -5107,7 +5107,7 @@ __metadata:
     "@keystone-ui/button": "npm:^7.0.2"
     "@keystone-ui/fields": "npm:^7.2.0"
     "@keystone-ui/modals": "npm:^6.0.3"
-    "@kids-reporter/draft-renderer": "npm:^1.0.25"
+    "@kids-reporter/draft-renderer": "npm:^1.0.26"
     "@twreporter/errors": "npm:^1.1.2"
     axios: "npm:^1.12.2"
     babel-loader: "npm:^8.3.0"
@@ -5126,7 +5126,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kids-reporter/draft-renderer@npm:^1.0.13, @kids-reporter/draft-renderer@npm:^1.0.25, @kids-reporter/draft-renderer@workspace:packages/draft-renderer":
+"@kids-reporter/draft-renderer@npm:^1.0.13, @kids-reporter/draft-renderer@npm:^1.0.26, @kids-reporter/draft-renderer@workspace:packages/draft-renderer":
   version: 0.0.0-use.local
   resolution: "@kids-reporter/draft-renderer@workspace:packages/draft-renderer"
   dependencies:

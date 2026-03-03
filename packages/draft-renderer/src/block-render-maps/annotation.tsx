@@ -19,12 +19,8 @@ const HeadingForAnnotation = styled(Heading)`
 `
 
 const ListForAnnotation = styled(List)`
-  color: #494949;
+  color: #575757;
 
-  li {
-    font-size: ${({ theme }) =>
-      theme?.fontSizeLevel === 'large' ? '20px' : '16px'};
-  }
   margin-bottom: 0px;
 
   ${mediaQuery.smallOnly} {
@@ -35,11 +31,7 @@ const ListForAnnotation = styled(List)`
 `
 
 const ParagraphForAnnotation = styled(Paragraph)`
-  /* overwrite css */
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '20px' : '16px'};
-  font-weight: 400;
-  color: #494949;
+  color: #575757;
 
   > div[data-block='true'] {
     margin-bottom: 0px;

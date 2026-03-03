@@ -41,13 +41,10 @@ const Figure = styled.figure<{ $alignment?: string }>`
 const FigureCaption = styled.figcaption<{ $alignment?: string }>`
   width: 100%;
   max-width: 100%;
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '18px' : '14px'};
   margin-left: auto;
   margin-right: auto;
   color: #575757;
   letter-spacing: 0.7px;
-  line-height: 28px;
   text-align: left;
   padding: 16px 0 20px 0;
   border-bottom: 2px solid #c6c6c6;

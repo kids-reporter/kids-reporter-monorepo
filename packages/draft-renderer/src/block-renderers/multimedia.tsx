@@ -44,16 +44,12 @@ const mockup = {
 }
 
 const Caption = styled.figcaption`
-  color: #494949;
+  color: #575757;
   &::after {
     border-color: #c6c6c6;
   }
 
-  line-height: 1.36;
   letter-spacing: 0.5px;
-  font-weight: normal;
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '18px' : '14px'};
   margin-bottom: 30px;
   padding: 0 0 20px 0;
 
