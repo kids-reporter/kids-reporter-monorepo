@@ -56,6 +56,8 @@ export const SHARE_ICONS = [
   },
 ]
 
+export const ARTICLE_LARGE_FONT_BASE_CLASSNAME = 'text-[22.5px]'
+
 export const ARTICLE_FONT_SIZE_CLASSNAMES = [
   '[&_h2]:prose-h2-small desktop:[&_h2]:prose-h2-large',
   '[&_h3]:prose-h3-small desktop:[&_h3]:prose-h3-large',

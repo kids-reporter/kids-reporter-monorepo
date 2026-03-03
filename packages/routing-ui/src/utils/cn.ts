@@ -1,11 +1,10 @@
 import { ClassValue, clsx } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 
-const twMerge = extendTailwindMerge({
+const twMerge = extendTailwindMerge<'prose-typography'>({
   extend: {
     classGroups: {
-      // Add custom prose classes in font-size group since we follow the design system
-      'font-size': [
+      'prose-typography': [
         'prose-p1',
         'prose-p1-bold',
         'prose-p2',
