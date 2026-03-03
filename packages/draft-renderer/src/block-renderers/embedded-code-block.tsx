@@ -15,12 +15,9 @@ export const Block = styled.div`
   }
 `
 
-export const Caption = styled.div`
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '18px' : '14px'};
+export const Caption = styled.p`
   padding: 10px 0 0 0;
   margin-top: 5px;
-  line-height: 28px;
   text-align: center;
   color: var(--paletteColor3, #808080);
 `

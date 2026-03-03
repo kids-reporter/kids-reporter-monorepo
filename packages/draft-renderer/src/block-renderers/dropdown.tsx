@@ -30,10 +30,6 @@ const DropdownOption = styled.li`
 const Container = styled.div`
   width: 100%;
   overflow: hidden;
-
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1.5;
 `
 
 const InputBlock = styled.div`
@@ -45,7 +41,6 @@ const InputBlock = styled.div`
 
 const Input = styled.input`
   background: #ffffff;
-  font-size: 18px;
   padding: 12px 0;
   outline: none;
   border: none;
@@ -53,7 +48,6 @@ const Input = styled.input`
 
 const Label = styled.span`
   margin-left: 10px;
-  font-size: 14px;
   cursor: pointer;
 `
 

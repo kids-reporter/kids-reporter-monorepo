@@ -143,6 +143,7 @@ const ImageNumber = styled.span`
   font-size: 18px;
   font-weight: 700;
   line-height: 1.6;
+  letter-spacing: 0.9px;
   color: #232323;
 `
 

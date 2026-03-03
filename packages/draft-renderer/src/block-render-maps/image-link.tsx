@@ -7,9 +7,6 @@ import { mediaQuery } from '../utils/media-query'
 import { Atomic, Paragraph } from './article-content'
 
 const ParagraphForImageLink = styled(Paragraph)`
-  /* overwrite css */
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '18px' : '14px'};
   margin: 0;
   text-align: left;
   max-width: 100%;

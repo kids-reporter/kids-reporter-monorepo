@@ -12,6 +12,7 @@ import { getFormattedDate } from '@/utils'
 import {
   ARTICLE_FONT_SIZE_CLASSNAMES,
   ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
+  ARTICLE_LARGE_FONT_BASE_CLASSNAME,
 } from '../constants'
 
 type AuthorGroup = {
@@ -62,6 +63,7 @@ function ArticleSummary({
           'mx-[-24px] prose-article-bold text-neutral-700 tablet:mx-0',
           ...ARTICLE_FONT_SIZE_CLASSNAMES,
           fontSizeLevel === FontSizeLevel.LARGE && [
+            ARTICLE_LARGE_FONT_BASE_CLASSNAME,
             ...ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
           ]
         )}

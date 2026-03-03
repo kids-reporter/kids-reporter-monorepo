@@ -39,12 +39,9 @@ const QuoteLeftContainer = styled.blockquote`
 const QuoteText = styled.p`
   margin: 0;
   word-break: break-word;
-  font-size: ${({ theme }) =>
-    theme?.fontSizeLevel === 'large' ? '22px' : '18px'};
   font-weight: 700;
   letter-spacing: 0.9px;
-  line-height: 2;
-  color: #232323;
+  font-size: inherit;
 `
 
 const SvgBlock = styled.div`

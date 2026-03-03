@@ -10,6 +10,7 @@ import { FontSizeLevel, STICKY_HEADER_HEIGHT } from '@/constants'
 import {
   ARTICLE_FONT_SIZE_CLASSNAMES,
   ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
+  ARTICLE_LARGE_FONT_BASE_CLASSNAME,
 } from '../constants'
 import { useArticleContext } from '../context'
 import trimEmptyBlocks from '../utils/trim-empty-blocks'
@@ -28,6 +29,7 @@ function PostRenderer({ content, shouldMount }: PostProp) {
         'mb-10 prose-article text-neutral-900 tablet:mb-15',
         ...ARTICLE_FONT_SIZE_CLASSNAMES,
         fontSize === FontSizeLevel.LARGE && [
+          ARTICLE_LARGE_FONT_BASE_CLASSNAME,
           ...ARTICLE_FONT_SIZE_CLASSNAMES_LARGE,
         ]
       )}
