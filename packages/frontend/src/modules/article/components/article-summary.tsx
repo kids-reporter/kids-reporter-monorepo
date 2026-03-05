@@ -76,12 +76,12 @@ function ArticleSummary({
       <Divider className="bg-neutral-400" />
 
       {authors.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="flex max-w-128 flex-col gap-2 desktop:max-w-146">
           {authors.map((authorGroup) => (
-            <div key={authorGroup.title} className="flex items-center gap-1">
+            <div key={authorGroup.title} className="flex items-start gap-1">
               <span
                 className={cn(
-                  'prose-p2 text-neutral-600',
+                  'prose-p2 text-nowrap text-neutral-600',
                   fontSizeLevel === FontSizeLevel.LARGE && 'text-[17.5px]'
                 )}
               >
@@ -93,7 +93,7 @@ function ArticleSummary({
                 height="13"
                 viewBox="0 0 15 13"
                 fill="none"
-                className="text-neutral-900"
+                className="mt-1.5 shrink-0 text-neutral-900"
               >
                 <path
                   d="M0.703828 11.7031L14.1438 0.703125"
@@ -107,23 +107,41 @@ function ArticleSummary({
                   fontSizeLevel === FontSizeLevel.LARGE && 'text-[17.5px]'
                 )}
               >
-                {authorGroup.authors.map((author, authorIndex) => (
-                  <span key={author.name}>
-                    {author.link ? (
-                      <Link
-                        href={author.link}
-                        className="transition-colors duration-200 hover:underline"
-                      >
-                        {author.name}
-                      </Link>
-                    ) : (
-                      author.name
-                    )}
-                    {authorIndex < authorGroup.authors.length - 1 && (
-                      <span>、</span>
-                    )}
-                  </span>
-                ))}
+                {authorGroup.authors
+                  .reduce(
+                    (acc, author) => {
+                      const splittedAuthorName = author.name.split('、')
+                      if (splittedAuthorName.length > 1) {
+                        acc.push(
+                          ...splittedAuthorName.map((name) => ({
+                            name,
+                            link: author.link,
+                          }))
+                        )
+                      } else {
+                        acc.push(author)
+                      }
+                      return acc
+                    },
+                    [] as { name: string; link: string }[]
+                  )
+                  .map((author, authorIndex, splittedAuthors) => {
+                    return (
+                      <span key={author.name}>
+                        {author.link ? (
+                          <Link
+                            href={author.link}
+                            className="transition-colors duration-200 hover:underline"
+                          >
+                            {author.name}
+                          </Link>
+                        ) : (
+                          author.name
+                        )}
+                        {authorIndex < splittedAuthors.length - 1 && '、'}
+                      </span>
+                    )
+                  })}
               </div>
             </div>
           ))}
