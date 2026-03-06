@@ -19,7 +19,6 @@ export const config = {
     keyFilename: process.env.KEY_FILENAME || '',
   },
 
-  // scheduled-post
   cronjobAccount: {
     email: process.env.CRONJOB_ACCOUNT_EMAIL,
     password: process.env.CRONJOB_ACCOUNT_PASSWORD,

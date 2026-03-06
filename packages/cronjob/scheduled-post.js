@@ -1,7 +1,12 @@
 import axios from 'axios'
 
 import { config } from './configs.js'
-import { errorHandling, errors, TokenManager } from './utils.js'
+import {
+  errorHandling,
+  errors,
+  formatAxiosError,
+  TokenManager,
+} from './utils.js'
 
 // fetch keystone session cookie token
 const tokenManager = new TokenManager(
@@ -43,7 +48,7 @@ const getScheduledPosts = async () => {
     const idArray = data?.map((post) => post.id) || []
     return idArray
   } catch (err) {
-    throw errors.helpers.annotateAxiosError(err)
+    throw formatAxiosError(err)
   }
 }
 
@@ -75,7 +80,12 @@ const updatePostStatus = async (postIds) => {
 
   // update post status
   try {
-    console.log(`Update post ${postIds} status to published.`)
+    console.log(
+      JSON.stringify({
+        severity: 'INFO',
+        message: `Update post ${postIds} status to published.`,
+      })
+    )
     const token = await tokenManager.getToken()
     const update = await axios.post(config.apiUrl, updatePayload, {
       withCredentials: true,
@@ -96,7 +106,7 @@ const updatePostStatus = async (postIds) => {
       throw annotatedErr
     }
   } catch (err) {
-    throw errors.helpers.annotateAxiosError(err)
+    throw formatAxiosError(err)
   }
 }
 
@@ -104,15 +114,30 @@ const main = async () => {
   try {
     const scheduledPosts = await getScheduledPosts()
     if (scheduledPosts.length === 0) {
-      console.log(`No scheduled posts.`)
+      console.log(
+        JSON.stringify({
+          severity: 'INFO',
+          message: 'No scheduled posts.',
+        })
+      )
     } else {
-      console.log(`Scheduled posts: ${scheduledPosts}`)
+      console.log(
+        JSON.stringify({
+          severity: 'INFO',
+          message: `Scheduled posts: ${scheduledPosts}`,
+        })
+      )
       await updatePostStatus(scheduledPosts)
     }
   } catch (err) {
     errorHandling(err)
   }
-  console.log(`Cronjob scheduled-post completed.`)
+  console.log(
+    JSON.stringify({
+      severity: 'NOTICE',
+      message: 'Cronjob scheduled-post completed.',
+    })
+  )
 }
 
 main()
