@@ -292,7 +292,10 @@
     list-style-type: disc;
   }
 
-  body.no-scroll {
+  html.no-scroll,
+  html[class*='no-scroll--'],
+  body.no-scroll,
+  body[class*='no-scroll--'] {
     overflow: hidden;
   }
 

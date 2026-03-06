@@ -6,3 +6,5 @@ export const UPDATE_QA_MODAL_OVERRIDES = {
     content: '你可以隨時回到這裡，修改已送出的答案！',
   },
 }
+
+export const ENLIGHTEN_BAODAOZAI_STATE_CHANGE_DELAY = 2000

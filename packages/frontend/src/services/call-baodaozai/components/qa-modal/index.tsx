@@ -1,12 +1,13 @@
 'use client'
 
-import { Button, cn } from '@kids-reporter/routing-ui'
+import { Button, cn, useBodyScrollLock } from '@kids-reporter/routing-ui'
 import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { CallBaodaozaiProps, useCallBaodaozaiContext } from '../../context'
 import { BaodaozaiAction, BaodaozaiQuestions } from '../../types'
 import { UPDATE_QA_MODAL_OVERRIDES } from './constants'
+import EnlightenBaodaozai from './enlighten-baodaozai'
 import { QAModalMode } from './types'
 import {
   getDefaultAnswerFromQuestions,
@@ -16,7 +17,8 @@ import {
 
 export type QAModalEvent = {
   setHide: (hide: boolean) => void
-  setIsActive: (isActive: boolean) => void
+  setActionEntered: (action: BaodaozaiAction, isEntered: boolean) => void
+  setIsIdelReadStoned: (isIdelReadStoned: boolean) => void
   setAction: (action: BaodaozaiAction) => void
   onDialogPropsChange: (
     dialogProps: Partial<CallBaodaozaiProps['dialogWithActionProps']>
@@ -27,7 +29,8 @@ type QAModalProps = {
   questions: BaodaozaiQuestions
   onClose: ({
     setHide,
-    setIsActive,
+    setActionEntered,
+    setIsIdelReadStoned,
     setAction,
     onDialogPropsChange,
   }: QAModalEvent) => void
@@ -62,7 +65,12 @@ function QAModal({
   const [isLeaving, setIsLeaving] = useState(false)
 
   const {
-    baodaozaiProps: { setHide, setIsActive, setAction },
+    baodaozaiProps: {
+      setHide,
+      setActionEntered,
+      setIsIdelReadStoned,
+      setAction,
+    },
     onDialogPropsChange,
   } = useCallBaodaozaiContext()
 
@@ -91,8 +99,20 @@ function QAModal({
   }, [])
 
   const events = useMemo(
-    () => ({ setHide, setIsActive, setAction, onDialogPropsChange }),
-    [setHide, setIsActive, setAction, onDialogPropsChange]
+    () => ({
+      setHide,
+      setActionEntered,
+      setIsIdelReadStoned,
+      setAction,
+      onDialogPropsChange,
+    }),
+    [
+      setHide,
+      setActionEntered,
+      setIsIdelReadStoned,
+      setAction,
+      onDialogPropsChange,
+    ]
   )
 
   const handleConfirmLeaving = useCallback(() => {
@@ -127,16 +147,17 @@ function QAModal({
     setIsLeaving(false)
   }, [defaultAnswers])
 
+  useBodyScrollLock({
+    toLock: isOpen,
+    lockID: 'call-baodaozai-qa-modal',
+  })
+
   useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('no-scroll')
-    } else {
+    if (!isOpen) {
       handleReset()
-      document.body.classList.remove('no-scroll')
     }
     return () => {
       handleReset()
-      document.body.classList.remove('no-scroll')
     }
   }, [isOpen, handleReset])
 
@@ -292,19 +313,9 @@ function QAModal({
                   <div className="flex h-full w-full items-center justify-center">
                     {answers[currentModalStep.questionIndex] ===
                     currentModalStep.correctAnswerIndex.toString() ? (
-                      <Image
-                        src="/assets/images/baodaozai/correct_answer.svg"
-                        alt="Correct Answer"
-                        width={300}
-                        height={120}
-                      />
+                      <EnlightenBaodaozai state="enlighten-correct" />
                     ) : (
-                      <Image
-                        src="/assets/images/baodaozai/incorrect_answer.svg"
-                        alt="Incorrect Answer"
-                        width={300}
-                        height={120}
-                      />
+                      <EnlightenBaodaozai state="enlighten-fault" />
                     )}
                   </div>
                 </div>
@@ -340,14 +351,8 @@ function QAModal({
 
               <div className="mb-6 flex w-full justify-center px-6">
                 <div className="flex h-[120px] w-[300px] items-center justify-center">
-                  {/* Placeholder for result image - would be replaced with actual image component */}
                   <div className="flex h-full w-full items-center justify-center">
-                    <Image
-                      src="/assets/images/baodaozai/send.svg"
-                      alt="Correct Answer"
-                      width={300}
-                      height={120}
-                    />
+                    <EnlightenBaodaozai state="enlighten-send" />
                   </div>
                 </div>
               </div>
@@ -460,9 +465,10 @@ function QAModal({
     currentModalStep,
     handleCancelLeaving,
     handleConfirmLeaving,
-    currentAnswer,
     mode,
     handleLeaving,
+    currentAnswer,
+    isCleanAnswers,
     isLastQuestion,
   ])
 

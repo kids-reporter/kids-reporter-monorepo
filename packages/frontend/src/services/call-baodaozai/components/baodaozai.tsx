@@ -14,28 +14,54 @@ function Baodaozai() {
   } = useCallBaodaozaiContext()
 
   const { confirmAction, cancelAction, ...dialogProps } = dialogWithActionProps
-  const { setIsActive, setAction, isActive, hide, setHide } = baodaozaiProps
+  const {
+    action,
+    setAction,
+    setActionEntered,
+    setIsIdelReadStoned,
+    hide,
+    setHide,
+    clickBaodaozaiAction,
+  } = baodaozaiProps
 
   const handleConfirm = useCallback(() => {
-    confirmAction({ setHide, setIsActive, setAction })
-    setAction('none')
-    setIsActive(false)
+    confirmAction({ setHide, setActionEntered, setIsIdelReadStoned, setAction })
     onDialogPropsChange({ isOpen: false })
-  }, [confirmAction, setHide, setIsActive, setAction, onDialogPropsChange])
+  }, [
+    confirmAction,
+    setHide,
+    setActionEntered,
+    setIsIdelReadStoned,
+    setAction,
+    onDialogPropsChange,
+  ])
 
   const handleCancel = useCallback(() => {
-    cancelAction({ setHide, setIsActive, setAction })
-    setAction('none')
-    setIsActive(false)
+    cancelAction({ setHide, setActionEntered, setIsIdelReadStoned, setAction })
     onDialogPropsChange({ isOpen: false })
-  }, [cancelAction, setHide, setIsActive, setAction, onDialogPropsChange])
+  }, [
+    cancelAction,
+    setHide,
+    setActionEntered,
+    setIsIdelReadStoned,
+    setAction,
+    onDialogPropsChange,
+  ])
 
   const handleOpenDialog = useCallback(() => {
     onDialogPropsChange({ isOpen: true })
-    // TODO: make default action configurable
-    setIsActive(true)
-    setAction('speak')
-  }, [onDialogPropsChange, setIsActive, setAction])
+    if (clickBaodaozaiAction) {
+      setAction(clickBaodaozaiAction)
+      return
+    }
+    setActionEntered(action, true)
+  }, [
+    onDialogPropsChange,
+    setAction,
+    setActionEntered,
+    action,
+    clickBaodaozaiAction,
+  ])
 
   const refDialogBoxContainerRef = useRef<HTMLDivElement>(null)
   const [dialogBoxHeight, setDialogBoxHeight] = useState(0)
@@ -62,12 +88,11 @@ function Baodaozai() {
   }, [])
 
   const baodaozaiBottom = useMemo(() => {
-    if (!isActive) return '0px'
     if (isMobile && dialogProps.isOpen) {
       return `calc(${dialogBoxHeight}px - 30px)`
     }
     return isTablet ? '24px' : '32px'
-  }, [isActive, isMobile, dialogProps.isOpen, isTablet, dialogBoxHeight])
+  }, [isMobile, dialogProps.isOpen, isTablet, dialogBoxHeight])
 
   return (
     <div
@@ -92,9 +117,8 @@ function Baodaozai() {
       </div>
       <button
         className={cn(
-          'absolute -right-2 z-12 transition-all duration-1000 tablet:right-0 tablet:bottom-0',
+          'absolute right-2 z-12 transition-all duration-1000 tablet:right-8',
           !dialogProps.isOpen && 'cursor-pointer',
-          isActive && 'right-6 tablet:right-6 desktop:right-8',
           dialogProps.isOpen && 'right-9 z-10'
         )}
         onClick={dialogProps.isOpen ? undefined : handleOpenDialog}

@@ -16,6 +16,7 @@ type EventConfig = Pick<
 type AllSiteBaodaozaiEventTriggerProps = {
   id: EventId
   content?: string
+  isIdle: boolean
 }
 
 function createBaodaozaiEventConfig({
@@ -35,20 +36,23 @@ function createBaodaozaiEventConfig({
         cancelText: '跳過',
       },
       baodaozaiState: {
-        isActive: true,
-        action: 'speak',
+        action: 'dialog-speaker',
       },
     },
     'hide-intro': {
       dialogState: {
         isOpen: false,
+        content: content || '',
         confirmText: '開始介紹',
         confirmAction,
         cancelText: '跳過',
+        cancelAction: ({ setActionEntered }) => {
+          setActionEntered('dialog-speaker', false)
+        },
       },
       baodaozaiState: {
-        isActive: false,
-        action: 'none',
+        action: 'dialog-speaker',
+        isEntered: false,
       },
     },
   }
@@ -57,6 +61,7 @@ function createBaodaozaiEventConfig({
 function AllSiteBaodaozaiEventTrigger({
   id,
   content,
+  isIdle,
 }: AllSiteBaodaozaiEventTriggerProps) {
   const isAtTop = useIsAtTop(35)
   const [isFirstRenderAtTop, setIsFirstRenderAtTop] = useState(isAtTop)
@@ -78,7 +83,7 @@ function AllSiteBaodaozaiEventTrigger({
   const { isFinishedIntro } = useFeatureIntroDialogContext()
 
   const disabled =
-    !isFinishedIntro || (id === 'show-intro' && !isFirstRenderAtTop)
+    !isFinishedIntro || (id === 'show-intro' && !isFirstRenderAtTop) || isIdle
 
   if (!eventConfig) {
     console.warn(

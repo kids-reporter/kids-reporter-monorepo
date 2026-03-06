@@ -7,7 +7,6 @@ import { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
 
 import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
-import AllSiteBaodaozaiEventTrigger from '@/components/all-site-baodaozai-event-trigger'
 import Pagination from '@/components/pagination'
 import PostList from '@/components/post-list'
 import { ERROR_PAGE, GENERAL_DESCRIPTION, POST_PER_PAGE } from '@/constants'
@@ -15,6 +14,8 @@ import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
 import type { DeepPartial } from '@/types/utils'
 import { getPostSummaries, log, LogLevel } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
+
+import AllModule from './_components/module'
 
 export const metadata: Metadata = {
   title: '所有文章 - 少年報導者 The Reporter for Kids',
@@ -90,12 +91,7 @@ export default async function LatestPosts({
       className="mb-10 flex flex-col items-center justify-center gap-10"
     >
       <BaodaozaiVisibilitySetter show={true} />
-      <AllSiteBaodaozaiEventTrigger id="show-intro" content={introContent} />
-      <div className="relative">
-        <div className="absolute top-[150vh]">
-          <AllSiteBaodaozaiEventTrigger id="hide-intro" />
-        </div>
-      </div>
+      <AllModule introContent={introContent ?? ''} />
       <img
         className="w-full max-w-xl"
         src={'/assets/images/new_article.svg'}

@@ -3,6 +3,7 @@ import { cva } from 'class-variance-authority'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button, Input } from '../components'
+import { useBodyScrollLock } from '../hooks'
 import {
   ClearIcon,
   HamburgerIcon,
@@ -125,6 +126,11 @@ export function SearchInputSection(props: SearchInputSectionProps) {
   const tags = props.tags
   const searchPlaceholder = props.searchPlaceholder
 
+  useBodyScrollLock({
+    toLock: mode === 'popover' && isSearchOpen,
+    lockID: 'header-search-input',
+  })
+
   useEffect(() => {
     if (mode === 'inline') {
       return
@@ -132,11 +138,9 @@ export function SearchInputSection(props: SearchInputSectionProps) {
     if (isSearchOpen) {
       ref.current?.focus()
       setIsFocused(true)
-      document.body.classList.add('no-scroll')
       return
     }
     setIsFocused(false)
-    document.body.classList.remove('no-scroll')
   }, [mode, isSearchOpen])
 
   return (

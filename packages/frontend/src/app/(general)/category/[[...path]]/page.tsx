@@ -11,7 +11,6 @@ import {
 } from '@/api/category'
 import { getSubSubcategoryPosts } from '@/api/sub-subcategory'
 import { getSubcategoryPosts } from '@/api/subcategory'
-import AllSiteBaodaozaiEventTrigger from '@/components/all-site-baodaozai-event-trigger'
 import Pagination from '@/components/pagination'
 import PostList from '@/components/post-list'
 import {
@@ -32,6 +31,7 @@ import {
 } from '@/utils/category'
 
 import Navigator from '../../_components/category/navigator'
+import CategoryModule from './_components/module'
 
 function isPost(
   post: DeepPartial<Post> | null | undefined
@@ -264,15 +264,7 @@ export default async function Category({
         {pageEnum && (
           <>
             <BaodaozaiVisibilitySetter show={true} />
-            <AllSiteBaodaozaiEventTrigger
-              id="show-intro"
-              content={introContent}
-            />
-            <div className="relative">
-              <div className="absolute top-[150vh]">
-                <AllSiteBaodaozaiEventTrigger id="hide-intro" />
-              </div>
-            </div>
+            <CategoryModule introContent={introContent ?? ''} />
           </>
         )}
         <div className="flex flex-row flex-wrap justify-center gap-2.5">

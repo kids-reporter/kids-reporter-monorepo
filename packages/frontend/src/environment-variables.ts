@@ -15,9 +15,13 @@ const loginWidgetUrl =
   process.env.NEXT_PUBLIC_LOGIN_WIDGET_URL ||
   'https://accounts.twreporter.org/signin-widget'
 
-const baodaozaiRiveFilePath =
-  process.env.NEXT_PUBLIC_BAODAOZAI_RIVE_FILE_PATH ||
-  'https://kids-storage.twreporter.org/baodaozai-db.riv'
+const baodaozaiIdelRiveFilePath =
+  process.env.NEXT_PUBLIC_BAODAOZAI_IDEL_RIVE_FILE_PATH ||
+  'https://kids-storage.twreporter.org/baodaozai-db-idel.riv'
+
+const baodaozaiEnlightenRiveFilePath =
+  process.env.NEXT_PUBLIC_BAODAOZAI_ENLIGHTEN_RIVE_FILE_PATH ||
+  'https://kids-storage.twreporter.org/baodaozai-db-enlighten.riv'
 
 const nodeEnv = process.env.NODE_ENV
 
@@ -31,7 +35,8 @@ const environmentVariables = {
   loginUrl,
   loginWidgetUrl,
   nodeEnv,
-  baodaozaiRiveFilePath,
+  baodaozaiIdelRiveFilePath,
+  baodaozaiEnlightenRiveFilePath,
 }
 
 export default environmentVariables
