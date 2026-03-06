@@ -8,6 +8,41 @@ import { config } from './configs.js'
 // @twreporter/errors is a cjs module, therefore, we need to use its default property
 export const errors = _errors.default
 
+/**
+ * Format axios errors for consistent logging (aligned with api-gateway).
+ * @see packages/api-gateway/src/utils/format-axios-error.ts
+ */
+export const formatAxiosError = (err) => {
+  if (!axios.isAxiosError(err)) {
+    return errors.helpers.wrap(
+      err,
+      err instanceof Error ? err.name : 'UnknownError',
+      err instanceof Error ? err.message : String(err)
+    )
+  }
+
+  let message = 'failed to make an axios request'
+  if (err.response) {
+    message = `an axios request was made but responded with status ${err.response?.status}`
+  } else if (err.request) {
+    message = 'an axios request was made but no response was received'
+  }
+
+  const axiosError = {
+    name: 'AxiosError',
+    message,
+    code: err.code,
+    status: err.response?.status,
+    method: err.config?.method,
+    url: err.config?.url,
+    responseData: err.response?.data,
+  }
+
+  return errors.helpers.wrap(undefined, axiosError.name, axiosError.message, {
+    axiosError,
+  })
+}
+
 const sendSlackNotification = async (message) => {
   try {
     const webhook = new IncomingWebhook(config.slackLogHook)
@@ -39,7 +74,12 @@ const sendSlackNotification = async (message) => {
         },
       ],
     })
-    console.log(`Slack notification sent: ${message}`)
+    console.log(
+      JSON.stringify({
+        severity: 'INFO',
+        message: `Slack notification sent: ${message}`,
+      })
+    )
   } catch (err) {
     errorHandling(err)
   }
@@ -49,21 +89,35 @@ export const logWithSlack = async (message) => {
   if (config.slackLogHook) {
     await sendSlackNotification(message)
   }
-  console.log(message)
-}
-
-export const errorHandling = (err) => {
-  console.error(
+  console.log(
     JSON.stringify({
-      severity: 'ERROR',
-      message: errors.helpers.printAll(
-        err,
-        { withStack: true, withPayload: true },
-        0,
-        0
-      ),
+      severity: 'INFO',
+      message,
     })
   )
+}
+
+/**
+ * Log error and exit (aligned with api-gateway app-level error handler).
+ * Wraps unknown errors so all failures have a consistent annotated structure.
+ */
+export const errorHandling = (err) => {
+  const annotatingError = errors.helpers.wrap(
+    err,
+    'CronjobError',
+    'Cronjob failed'
+  )
+  const entry = {
+    severity: 'ERROR',
+    // Stack trace integrates with Error Reporting (e.g. Cloud Run).
+    message: errors.helpers.printAll(
+      annotatingError,
+      { withStack: true, withPayload: true },
+      0,
+      0
+    ),
+  }
+  console.error(JSON.stringify(entry))
   process.exit(1)
 }
 
@@ -71,6 +125,14 @@ export class TokenManager {
   static instance
 
   constructor(email, password, apiEndpoint = config.apiUrl) {
+    if (!email || !password || !apiEndpoint) {
+      const annotatedErr = errors.helpers.wrap(
+        new Error('Email, password, and apiEndpoint are required'),
+        'TokenManangerError',
+        'Email, password, and apiEndpoint are required'
+      )
+      throw annotatedErr
+    }
     this.email = email
     this.password = password
     this.apiEndpoint = apiEndpoint
@@ -162,7 +224,7 @@ export class TokenManager {
         },
       })
     } catch (err) {
-      throw errors.helpers.annotateAxiosError(err)
+      throw formatAxiosError(err)
     }
 
     const authenticationResult =

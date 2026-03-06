@@ -15,7 +15,7 @@ export const formatAxiosError = (err: unknown): Error => {
 
   let message = 'failed to make an axios request'
   if (err.response) {
-    message = `an axios request was made but response with status ${err.response?.status}`
+    message = `an axios request was made but responded with status ${err.response?.status}`
   } else if (err.request) {
     message = 'an axios request was made but no response was received'
   }
