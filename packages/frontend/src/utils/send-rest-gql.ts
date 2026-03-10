@@ -5,7 +5,8 @@ import { INTERNAL_REST_GQL_ENDPOINT, REST_GQL_ENDPOINT } from '@/constants'
 
 import { log, LogLevel } from './log'
 
-export const AXIOS_TIMEOUT = 5000
+// align timeout with api-gateway
+export const AXIOS_TIMEOUT = 10000
 
 type GraphQLResponse<TData = Record<string, unknown>> = {
   data?: TData
