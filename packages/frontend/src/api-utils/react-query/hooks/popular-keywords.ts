@@ -7,6 +7,8 @@ export const usePopularKeywords = () => {
   return useQuery({
     queryKey: usePopularKeywords.getQueryKey(),
     queryFn: () => getPopularKeywords(),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   })
 }
 

@@ -19,7 +19,10 @@ function HeaderProviderWithPopularKeywords({
 }) {
   const { data: keywords } = usePopularKeywords()
   const keywordsArray = useMemo(
-    () => keywords?.map((keyword) => keyword?.name ?? '') ?? [],
+    () =>
+      keywords
+        ?.map((keyword) => keyword?.name ?? '')
+        .filter((name): name is string => Boolean(name)) ?? [],
     [keywords]
   )
   return <HeaderProvider keywords={keywordsArray}>{children}</HeaderProvider>
