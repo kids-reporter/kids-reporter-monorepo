@@ -1,7 +1,6 @@
 'use client'
 
 import { Button, cn, useBodyScrollLock } from '@kids-reporter/routing-ui'
-import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { CallBaodaozaiProps, useCallBaodaozaiContext } from '../../context'
@@ -17,8 +16,8 @@ import {
 
 export type QAModalEvent = {
   setHide: (hide: boolean) => void
-  setActionEntered: (action: BaodaozaiAction, isEntered: boolean) => void
-  setIsIdelReadStoned: (isIdelReadStoned: boolean) => void
+  setIsActionEntered: (isEntered: boolean) => void
+  setIsIdleReadStoned: (isIdleReadStoned: boolean) => void
   setAction: (action: BaodaozaiAction) => void
   onDialogPropsChange: (
     dialogProps: Partial<CallBaodaozaiProps['dialogWithActionProps']>
@@ -29,8 +28,8 @@ type QAModalProps = {
   questions: BaodaozaiQuestions
   onClose: ({
     setHide,
-    setActionEntered,
-    setIsIdelReadStoned,
+    setIsActionEntered,
+    setIsIdleReadStoned,
     setAction,
     onDialogPropsChange,
   }: QAModalEvent) => void
@@ -67,8 +66,8 @@ function QAModal({
   const {
     baodaozaiProps: {
       setHide,
-      setActionEntered,
-      setIsIdelReadStoned,
+      setIsActionEntered,
+      setIsIdleReadStoned,
       setAction,
     },
     onDialogPropsChange,
@@ -101,15 +100,15 @@ function QAModal({
   const events = useMemo(
     () => ({
       setHide,
-      setActionEntered,
-      setIsIdelReadStoned,
+      setIsActionEntered,
+      setIsIdleReadStoned,
       setAction,
       onDialogPropsChange,
     }),
     [
       setHide,
-      setActionEntered,
-      setIsIdelReadStoned,
+      setIsActionEntered,
+      setIsIdleReadStoned,
       setAction,
       onDialogPropsChange,
     ]
@@ -479,21 +478,8 @@ function QAModal({
       case 'choice':
       case 'essay':
         return (
-          <div className="pointer-events-none absolute -top-18 left-[37.5px] -z-1 tablet:-top-12 tablet:left-0 tablet:z-4">
-            <Image
-              src="/assets/images/baodaozai/answering_mobile.svg"
-              alt="Baodaozai"
-              width={300}
-              height={120}
-              className="tablet:hidden"
-            />
-            <Image
-              src="/assets/images/baodaozai/answering.svg"
-              alt="Baodaozai"
-              width={200}
-              height={120}
-              className="hidden tablet:block"
-            />
+          <div className="pointer-events-none absolute -top-20 left-0 -z-1 tablet:-top-18 tablet:-left-6 tablet:z-4">
+            <EnlightenBaodaozai state="enlighten-ask" />
           </div>
         )
       case 'choice-result':

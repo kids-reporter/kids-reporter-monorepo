@@ -12,7 +12,7 @@ function useAllSiteBaodaozaiIdleTimer() {
   const idleTimerProps = useMemo(
     () => ({
       idleCallback: () => {
-        setAction('idel-sleep')
+        setAction('idle-sleep')
       },
       interactCallback: () => {
         setAction('dialog-speaker')

@@ -94,7 +94,7 @@ function DialogBox({
             </Button>
           </div>
         </div>
-        <div className="hidden translate-x-5 translate-y-0 transition-all duration-300 ease-out tablet:block">
+        <div className="hidden translate-x-10 translate-y-0 transition-all duration-300 ease-out tablet:block">
           <DialogArrow />
         </div>
       </div>

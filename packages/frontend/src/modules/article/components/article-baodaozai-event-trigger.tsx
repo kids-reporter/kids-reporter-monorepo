@@ -48,10 +48,13 @@ function createBaodaozaiEventConfig({
         confirmText: '開始閱讀',
         hideCancelButton: true,
         content: startReadingContent || '',
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
         action: 'dialog-read',
+        clickBaodaozaiAction: 'dialog-read',
       },
     },
     'hide-start-reading': {
@@ -60,10 +63,12 @@ function createBaodaozaiEventConfig({
         hideCancelButton: true,
         confirmText: '開始閱讀',
         content: startReadingContent || '',
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
-        action: 'dialog-read',
+        action: 'idle-read',
       },
     },
     'change-start-reading': {
@@ -72,11 +77,13 @@ function createBaodaozaiEventConfig({
         hideCancelButton: true,
         confirmText: '開始閱讀',
         content: startReadingContent || '',
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
-        action: 'idel-read',
-        clickBaodaozaiAction: 'idel-read',
+        action: 'idle-read',
+        clickBaodaozaiAction: 'dialog-read',
       },
     },
     'change-encourage-reading': {
@@ -85,10 +92,13 @@ function createBaodaozaiEventConfig({
         hideCancelButton: true,
         confirmText: '繼續閱讀',
         content: ENCOURAGE_READING_CONTENT,
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
-        action: 'idel-read',
+        action: 'idle-read',
+        clickBaodaozaiAction: 'dialog-read',
       },
     },
     'change-ask-questions': {
@@ -98,9 +108,12 @@ function createBaodaozaiEventConfig({
         hideCancelButton: false,
         confirmText: '好！出招吧',
         confirmAction: onAskQuestionsConfirm,
+        cancelAction: ({ setAction }) => {
+          setAction('idle-enlighten')
+        },
       },
       baodaozaiState: {
-        action: 'idel-enlighten',
+        action: 'idle-enlighten',
         clickBaodaozaiAction: 'dialog-enlighten',
       },
     },
@@ -111,6 +124,9 @@ function createBaodaozaiEventConfig({
         hideCancelButton: false,
         confirmText: '好！出招吧',
         confirmAction: onAskQuestionsConfirm,
+        cancelAction: ({ setAction }) => {
+          setAction('idle-enlighten')
+        },
       },
       baodaozaiState: {
         action: 'dialog-enlighten',
@@ -121,7 +137,7 @@ function createBaodaozaiEventConfig({
         isOpen: false,
       },
       baodaozaiState: {
-        action: 'idel-read',
+        action: 'idle-read',
       },
     },
   }

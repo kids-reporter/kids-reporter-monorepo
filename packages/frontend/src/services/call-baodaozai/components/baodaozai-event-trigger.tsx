@@ -37,7 +37,7 @@ function BaodaozaiEventTrigger({
     baodaozaiProps: {
       setAction,
       isInitialized,
-      setActionEntered,
+      setIsActionEntered,
       setClickBaodaozaiAction,
     },
   } = useCallBaodaozaiContext()
@@ -70,7 +70,7 @@ function BaodaozaiEventTrigger({
     onDialogPropsChange({ ...newDialogStateWithSuppress })
     if (typeof action === 'string') {
       if (typeof isEntered === 'boolean') {
-        setActionEntered(action, isEntered)
+        setIsActionEntered(isEntered)
       } else {
         setAction(action)
       }
@@ -85,7 +85,7 @@ function BaodaozaiEventTrigger({
     action,
     clickBaodaozaiAction,
     isEntered,
-    setActionEntered,
+    setIsActionEntered,
     setAction,
     setClickBaodaozaiAction,
   ])

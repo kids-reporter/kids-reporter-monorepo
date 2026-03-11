@@ -6,6 +6,7 @@ RUN corepack enable
 RUN set -e; \
     apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
+    ca-certificates \
     curl \
     wget \
     gnupg2 \

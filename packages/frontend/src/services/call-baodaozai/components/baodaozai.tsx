@@ -15,35 +15,44 @@ function Baodaozai() {
 
   const { confirmAction, cancelAction, ...dialogProps } = dialogWithActionProps
   const {
-    action,
     setAction,
-    setActionEntered,
-    setIsIdelReadStoned,
+    setIsActionEntered,
+    setIsIdleReadStoned,
     hide,
     setHide,
     clickBaodaozaiAction,
   } = baodaozaiProps
 
   const handleConfirm = useCallback(() => {
-    confirmAction({ setHide, setActionEntered, setIsIdelReadStoned, setAction })
+    confirmAction({
+      setHide,
+      setIsActionEntered,
+      setIsIdleReadStoned,
+      setAction,
+    })
     onDialogPropsChange({ isOpen: false })
   }, [
     confirmAction,
     setHide,
-    setActionEntered,
-    setIsIdelReadStoned,
+    setIsActionEntered,
+    setIsIdleReadStoned,
     setAction,
     onDialogPropsChange,
   ])
 
   const handleCancel = useCallback(() => {
-    cancelAction({ setHide, setActionEntered, setIsIdelReadStoned, setAction })
+    cancelAction({
+      setHide,
+      setIsActionEntered,
+      setIsIdleReadStoned,
+      setAction,
+    })
     onDialogPropsChange({ isOpen: false })
   }, [
     cancelAction,
     setHide,
-    setActionEntered,
-    setIsIdelReadStoned,
+    setIsActionEntered,
+    setIsIdleReadStoned,
     setAction,
     onDialogPropsChange,
   ])
@@ -54,14 +63,8 @@ function Baodaozai() {
       setAction(clickBaodaozaiAction)
       return
     }
-    setActionEntered(action, true)
-  }, [
-    onDialogPropsChange,
-    setAction,
-    setActionEntered,
-    action,
-    clickBaodaozaiAction,
-  ])
+    setIsActionEntered(true)
+  }, [onDialogPropsChange, setAction, setIsActionEntered, clickBaodaozaiAction])
 
   const refDialogBoxContainerRef = useRef<HTMLDivElement>(null)
   const [dialogBoxHeight, setDialogBoxHeight] = useState(0)
@@ -91,8 +94,11 @@ function Baodaozai() {
     if (isMobile && dialogProps.isOpen) {
       return `calc(${dialogBoxHeight}px - 30px)`
     }
-    return isTablet ? '24px' : '32px'
-  }, [isMobile, dialogProps.isOpen, isTablet, dialogBoxHeight])
+    if (!isMobile && isTablet) {
+      return '8px'
+    }
+    return '0'
+  }, [isMobile, dialogProps.isOpen, dialogBoxHeight, isTablet])
 
   return (
     <div
@@ -117,9 +123,9 @@ function Baodaozai() {
       </div>
       <button
         className={cn(
-          'absolute right-2 z-12 transition-all duration-1000 tablet:right-8',
+          'absolute right-2 z-12 transition-all duration-1000 tablet:right-4',
           !dialogProps.isOpen && 'cursor-pointer',
-          dialogProps.isOpen && 'right-9 z-10'
+          dialogProps.isOpen && 'right-6 z-10'
         )}
         onClick={dialogProps.isOpen ? undefined : handleOpenDialog}
         style={{

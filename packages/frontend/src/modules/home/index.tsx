@@ -37,6 +37,7 @@ function HomeModule({
           <AllSiteBaodaozaiEventTrigger
             id="hide-intro"
             isIdle={isAllSiteBaodaozaiIdle}
+            content={introContent}
           />
         </div>
       </div>

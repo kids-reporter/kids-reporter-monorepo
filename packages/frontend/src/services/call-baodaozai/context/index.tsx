@@ -4,6 +4,7 @@ import {
   useRive,
   useViewModel,
   useViewModelInstance,
+  useViewModelInstanceArtboard,
   useViewModelInstanceBoolean,
   useViewModelInstanceEnum,
 } from '@rive-app/react-webgl2'
@@ -20,10 +21,14 @@ import {
 import envVars from '@/environment-variables'
 
 import { DialogBoxProps } from '../components/dialog-box'
-import { BaodaozaiAction, BaodaozaiActionSetter } from '../types'
 import {
-  ARTBOARD_IDEL_NAME,
-  DEFAULT_ANIMATION_DELAY,
+  BaodaozaiAction,
+  BaodaozaiActionSetter,
+  GeneralBaodaozaiState,
+} from '../types'
+import { mapActionToExitDelay } from '../utils'
+import {
+  DEFAULT_ANIMATION_ENTER_DELAY,
   DIALOG_DEFAULT_CANCEL_TEXT,
   DIALOG_DEFAULT_CONFIRM_TEXT,
   DIALOG_DEFAULT_CONTENT,
@@ -39,10 +44,11 @@ export type CallBaodaozaiProps = {
   baodaozaiProps: {
     action: BaodaozaiAction
     setAction: (action: BaodaozaiAction) => void
-    getActionEntered: (action: BaodaozaiAction) => boolean
-    setActionEntered: (action: BaodaozaiAction, isEntered: boolean) => void
-    isIdelReadStoned: boolean
-    setIsIdelReadStoned: (isIdelReadStoned: boolean) => void
+    getCurrentArtboardType: () => BaodaozaiAction
+    isActionEntered: boolean
+    setIsActionEntered: (isActionEntered: boolean) => void
+    isIdleReadStoned: boolean
+    setIsIdleReadStoned: (isIdleReadStoned: boolean) => void
     hide: boolean
     setHide: (hide: boolean) => void
     isInitialized: boolean
@@ -68,10 +74,10 @@ export function CallBaodaozaiProvider({
   children: React.ReactNode
 }) {
   const { RiveComponent, rive } = useRive({
-    src: envVars.baodaozaiIdelRiveFilePath,
+    src: envVars.baodaozaiRiveFilePath,
     stateMachines: STATE_MACHINE_NAME,
     autoplay: true,
-    artboard: ARTBOARD_IDEL_NAME,
+    isTouchScrollEnabled: true,
   })
 
   const rootViewModel = useViewModel(rive, { name: VIEW_MODEL_NAME })
@@ -79,9 +85,32 @@ export function CallBaodaozaiProvider({
     rive,
   })
 
-  const { value: action, setValue: setAction } = useViewModelInstanceEnum(
-    'Enum_IdelDialog',
+  const { setValue: setArtboardType } = useViewModelInstanceArtboard(
+    'artboard_type',
     rootInstance
+  )
+
+  const { setValue: setIsHover } = useViewModelInstanceBoolean(
+    'Bool_isHover',
+    rootInstance
+  )
+
+  const [currentAction, setCurrentAction] = useState<BaodaozaiAction>('default')
+
+  const setAction = useCallback(
+    (artboardName: GeneralBaodaozaiState) => {
+      if (rive) {
+        const artboardType = rive.getArtboard(artboardName)
+        setArtboardType(artboardType)
+        setCurrentAction(artboardName as BaodaozaiAction)
+      }
+    },
+    [rive, setArtboardType]
+  )
+
+  const getCurrentArtboardType = useCallback(
+    () => currentAction,
+    [currentAction]
   )
 
   const [clickBaodaozaiAction, setClickBaodaozaiAction] =
@@ -91,104 +120,23 @@ export function CallBaodaozaiProvider({
 
   const [stateQueue, setStateQueue] = useState<
     {
-      state: BaodaozaiAction
+      state?: BaodaozaiAction
       shouldTriggerExit: boolean
       isEntered?: boolean
     }[]
   >([])
 
-  const { value: defaultEnterState, setValue: setDefaultEnterState } =
-    useViewModelInstanceEnum('vmi_default/Enum_EnterState', rootInstance)
-  const { value: idelSleepEnterState, setValue: setIdelSleepEnterState } =
-    useViewModelInstanceEnum('vmi_idel-sleep/Enum_EnterState', rootInstance)
-  const { value: idelReadEnterState, setValue: setIdelReadEnterState } =
-    useViewModelInstanceEnum('vmi_idel-read/Enum_EnterState', rootInstance)
-  const {
-    value: idelEnlightenEnterState,
-    setValue: setIdelEnlightenEnterState,
-  } = useViewModelInstanceEnum(
-    'vmi_idel-enlighten/Enum_EnterState',
-    rootInstance
-  )
-  const {
-    value: dialogSpeakerEnterState,
-    setValue: setDialogSpeakerEnterState,
-  } = useViewModelInstanceEnum(
-    'vmi_dialog-speaker/Enum_EnterState',
-    rootInstance
-  )
-  const { value: dialogReadEnterState, setValue: setDialogReadEnterState } =
-    useViewModelInstanceEnum('vmi_dialog-read/Enum_EnterState', rootInstance)
-  const {
-    value: dialogEnlightenEnterState,
-    setValue: setDialogEnlightenEnterState,
-  } = useViewModelInstanceEnum(
-    'vmi_dialog-enlighten/Enum_EnterState',
-    rootInstance
-  )
+  const { value: enterState, setValue: setEnterState } =
+    useViewModelInstanceEnum('Enum_EnterState', rootInstance)
 
   useEffect(() => {
-    if (action === 'default') {
-      setDefaultEnterState('enter')
+    if (currentAction === 'default') {
+      setEnterState('enter')
     }
-  }, [action, setDefaultEnterState])
-
-  const getEnterStateControl = useCallback(
-    (state: BaodaozaiAction) => {
-      switch (state) {
-        case 'default':
-          return { state: defaultEnterState, setState: setDefaultEnterState }
-        case 'idel-sleep':
-          return {
-            state: idelSleepEnterState,
-            setState: setIdelSleepEnterState,
-          }
-        case 'idel-read':
-          return { state: idelReadEnterState, setState: setIdelReadEnterState }
-        case 'idel-enlighten':
-          return {
-            state: idelEnlightenEnterState,
-            setState: setIdelEnlightenEnterState,
-          }
-        case 'dialog-speaker':
-          return {
-            state: dialogSpeakerEnterState,
-            setState: setDialogSpeakerEnterState,
-          }
-        case 'dialog-read':
-          return {
-            state: dialogReadEnterState,
-            setState: setDialogReadEnterState,
-          }
-        case 'dialog-enlighten':
-          return {
-            state: dialogEnlightenEnterState,
-            setState: setDialogEnlightenEnterState,
-          }
-        default:
-          return null
-      }
-    },
-    [
-      defaultEnterState,
-      idelSleepEnterState,
-      idelReadEnterState,
-      idelEnlightenEnterState,
-      dialogSpeakerEnterState,
-      dialogReadEnterState,
-      dialogEnlightenEnterState,
-      setDefaultEnterState,
-      setIdelSleepEnterState,
-      setIdelReadEnterState,
-      setIdelEnlightenEnterState,
-      setDialogSpeakerEnterState,
-      setDialogReadEnterState,
-      setDialogEnlightenEnterState,
-    ]
-  )
+  }, [currentAction, setEnterState])
 
   const { value: isStoned, setValue: setIsStoned } =
-    useViewModelInstanceBoolean('vmi_idel-read/Bool_Stoned', rootInstance)
+    useViewModelInstanceBoolean('Bool_Stoned', rootInstance)
 
   const switchStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const switchStateInnerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -219,51 +167,45 @@ export function CallBaodaozaiProvider({
       state: BaodaozaiAction
       shouldTriggerExit?: boolean
     }) => {
-      if (nextState === action) return
+      if (nextState === currentAction) return
       setIsAnimating(true)
       if (
         shouldTriggerExit &&
-        getEnterStateControl(action as BaodaozaiAction)?.state === 'enter' &&
-        action !== 'default'
+        enterState === 'enter' &&
+        currentAction !== 'default'
       ) {
-        getEnterStateControl(action as BaodaozaiAction)?.setState('exit')
+        setEnterState('exit')
         cleanSwitchStateTimer()
+        const exitDelay = mapActionToExitDelay(currentAction)
         switchStateTimerRef.current = setTimeout(() => {
           setAction(nextState)
-          getEnterStateControl(nextState)?.setState('enter')
+          setEnterState('enter')
           switchStateInnerTimerRef.current = setTimeout(() => {
             setIsAnimating(false)
-          }, DEFAULT_ANIMATION_DELAY)
-        }, DEFAULT_ANIMATION_DELAY)
+          }, DEFAULT_ANIMATION_ENTER_DELAY)
+        }, exitDelay)
       } else {
         setAction(nextState)
-        getEnterStateControl(nextState)?.setState('enter')
+        setEnterState('enter')
         cleanSwitchStateTimer()
         switchStateTimerRef.current = setTimeout(() => {
           setIsAnimating(false)
-        }, DEFAULT_ANIMATION_DELAY)
+        }, DEFAULT_ANIMATION_ENTER_DELAY)
       }
     },
-    [action, setAction, getEnterStateControl, cleanSwitchStateTimer]
+    [currentAction, enterState, setEnterState, cleanSwitchStateTimer, setAction]
   )
 
   const handleSwitchEntered = useCallback(
-    async ({
-      state: nextState,
-      isEntered,
-    }: {
-      state: BaodaozaiAction
-      isEntered: boolean
-    }) => {
+    async ({ isEntered }: { isEntered: boolean }) => {
       setIsAnimating(true)
-      setAction(nextState)
-      getEnterStateControl(nextState)?.setState(isEntered ? 'enter' : 'exit')
+      setEnterState(isEntered ? 'enter' : 'exit')
       cleanSwitchStateTimer()
       switchStateTimerRef.current = setTimeout(() => {
         setIsAnimating(false)
-      }, DEFAULT_ANIMATION_DELAY)
+      }, DEFAULT_ANIMATION_ENTER_DELAY)
     },
-    [getEnterStateControl, setAction, cleanSwitchStateTimer]
+    [setEnterState, cleanSwitchStateTimer]
   )
 
   const handlePipeState = useCallback(
@@ -272,7 +214,7 @@ export function CallBaodaozaiProvider({
       shouldTriggerExit = true,
       isEntered,
     }: {
-      state: BaodaozaiAction
+      state?: BaodaozaiAction
       shouldTriggerExit?: boolean
       isEntered?: boolean
     }) => {
@@ -297,10 +239,9 @@ export function CallBaodaozaiProvider({
     setStateQueue((prev) => prev.slice(1))
     if (nextState.isEntered !== undefined) {
       handleSwitchEntered({
-        state: nextState.state,
         isEntered: nextState.isEntered,
       })
-    } else {
+    } else if (nextState.state) {
       handleSwitchState({
         state: nextState.state,
         shouldTriggerExit: nextState.shouldTriggerExit,
@@ -329,13 +270,6 @@ export function CallBaodaozaiProvider({
 
   const [hide, setHide] = useState(true)
 
-  const getActionEntered = useCallback(
-    (action: BaodaozaiAction) => {
-      return getEnterStateControl(action)?.state === 'enter'
-    },
-    [getEnterStateControl]
-  )
-
   const setBaodaozaiAction = useCallback(
     (action: BaodaozaiAction) => {
       handlePipeState({ state: action })
@@ -343,48 +277,53 @@ export function CallBaodaozaiProvider({
     [handlePipeState]
   )
 
-  const setActionEntered = useCallback(
-    (action: BaodaozaiAction, isEntered: boolean) => {
-      handlePipeState({ state: action, isEntered })
+  const setIsActionEntered = useCallback(
+    (isEntered: boolean) => {
+      handlePipeState({ isEntered })
     },
     [handlePipeState]
   )
 
   const baodaozaiProps = useMemo(
     () => ({
-      action: action as BaodaozaiAction,
+      action: currentAction,
       setAction: setBaodaozaiAction,
+      getCurrentArtboardType,
       hide,
       setHide,
-      isIdelReadStoned: !!isStoned,
-      setIsIdelReadStoned: setIsStoned,
+      isIdleReadStoned: !!isStoned,
+      setIsIdleReadStoned: setIsStoned,
       isInitialized: !!rootViewModel,
-      getActionEntered,
-      setActionEntered,
+      isActionEntered: enterState === 'enter',
+      setIsActionEntered,
       clickBaodaozaiAction,
       setClickBaodaozaiAction,
     }),
     [
-      action,
+      currentAction,
       setBaodaozaiAction,
+      getCurrentArtboardType,
       hide,
       isStoned,
       setIsStoned,
       rootViewModel,
-      getActionEntered,
-      setActionEntered,
+      enterState,
+      setIsActionEntered,
       clickBaodaozaiAction,
-      setClickBaodaozaiAction,
     ]
   )
 
   const renderBaodaozai = useMemo(() => {
     return (
-      <div className="transition-width transition-height h-25 w-25 duration-1000">
+      <div
+        className="transition-width transition-height h-25 w-25 duration-1000"
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+      >
         <RiveComponent />
       </div>
     )
-  }, [RiveComponent])
+  }, [RiveComponent, setIsHover])
 
   const contextValue: CallBaodaozaiState = useMemo(
     () => ({

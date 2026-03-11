@@ -1,9 +1,16 @@
 'use client'
 
 import { useIsAtTop } from '@kids-reporter/routing-ui'
-import { ComponentProps, useEffect, useMemo, useState } from 'react'
+import {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import BaodaozaiEventTrigger from '@/services/call-baodaozai/components/baodaozai-event-trigger'
+import { BaodaozaiActionSetter } from '@/services/call-baodaozai/types'
 import { useFeatureIntroDialogContext } from '@/services/feature-intro'
 
 type EventId = 'show-intro' | 'hide-intro'
@@ -23,7 +30,7 @@ function createBaodaozaiEventConfig({
   content,
   confirmAction,
 }: {
-  confirmAction: () => void
+  confirmAction: (args: Parameters<BaodaozaiActionSetter>[0]) => void
   content?: string
 }): Record<EventId, EventConfig> {
   return {
@@ -34,9 +41,13 @@ function createBaodaozaiEventConfig({
         confirmText: '開始介紹',
         confirmAction,
         cancelText: '跳過',
+        cancelAction: ({ setAction }) => {
+          setAction('default')
+        },
       },
       baodaozaiState: {
         action: 'dialog-speaker',
+        clickBaodaozaiAction: 'dialog-speaker',
       },
     },
     'hide-intro': {
@@ -46,13 +57,13 @@ function createBaodaozaiEventConfig({
         confirmText: '開始介紹',
         confirmAction,
         cancelText: '跳過',
-        cancelAction: ({ setActionEntered }) => {
-          setActionEntered('dialog-speaker', false)
+        cancelAction: ({ setAction }) => {
+          setAction('default')
         },
       },
       baodaozaiState: {
-        action: 'dialog-speaker',
-        isEntered: false,
+        action: 'default',
+        clickBaodaozaiAction: 'dialog-speaker',
       },
     },
   }
@@ -65,22 +76,29 @@ function AllSiteBaodaozaiEventTrigger({
 }: AllSiteBaodaozaiEventTriggerProps) {
   const isAtTop = useIsAtTop(35)
   const [isFirstRenderAtTop, setIsFirstRenderAtTop] = useState(isAtTop)
-  const { openDialog: openFeatureIntroDialog } = useFeatureIntroDialogContext()
+  const { openDialog: openFeatureIntroDialog, isFinishedIntro } =
+    useFeatureIntroDialogContext()
   useEffect(() => {
     if (!isAtTop && isFirstRenderAtTop) {
       setIsFirstRenderAtTop(false)
     }
   }, [isAtTop, isFirstRenderAtTop])
 
+  const confirmAction = useCallback(
+    ({ setAction }: Parameters<BaodaozaiActionSetter>[0]) => {
+      setAction('default')
+      openFeatureIntroDialog()
+    },
+    [openFeatureIntroDialog]
+  )
+
   const eventConfig = useMemo(() => {
     const config = createBaodaozaiEventConfig({
       content,
-      confirmAction: openFeatureIntroDialog,
+      confirmAction,
     })
     return config[id]
-  }, [id, content, openFeatureIntroDialog])
-
-  const { isFinishedIntro } = useFeatureIntroDialogContext()
+  }, [id, content, confirmAction])
 
   const disabled =
     !isFinishedIntro || (id === 'show-intro' && !isFirstRenderAtTop) || isIdle

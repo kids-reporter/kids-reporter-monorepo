@@ -18,6 +18,7 @@ function CategoryModule({ introContent }: { introContent: string }) {
           <AllSiteBaodaozaiEventTrigger
             id="hide-intro"
             isIdle={isAllSiteBaodaozaiIdle}
+            content={introContent}
           />
         </div>
       </div>
