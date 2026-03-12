@@ -4,6 +4,7 @@ import {
   Alignment,
   Fit,
   Layout,
+  RiveFile,
   useRive,
   useViewModel,
   useViewModelInstance,
@@ -12,25 +13,26 @@ import {
 } from '@rive-app/react-webgl2'
 import { useCallback, useEffect } from 'react'
 
-import envVars from '@/environment-variables'
-
 import { STATE_MACHINE_NAME, VIEW_MODEL_NAME } from '../../context/constants'
 import { QaBaodaozaiState } from '../../types'
 import { mapQaActionToEyesAndMouthArtboard } from './utils'
 
 type EnlightenBaodaozaiProps = {
   state: QaBaodaozaiState
+  riveFile: RiveFile
 }
 
-function EnlightenBaodaozai({ state }: EnlightenBaodaozaiProps) {
+const RIVE_LAYOUT = new Layout({
+  fit: Fit.Layout,
+  alignment: Alignment.Center,
+})
+
+function EnlightenBaodaozai({ state, riveFile }: EnlightenBaodaozaiProps) {
   const { RiveComponent, rive } = useRive({
-    src: envVars.baodaozaiRiveFilePath,
+    riveFile,
     stateMachines: STATE_MACHINE_NAME,
     autoplay: true,
-    layout: new Layout({
-      fit: Fit.Layout,
-      alignment: Alignment.Center,
-    }),
+    layout: RIVE_LAYOUT,
   })
 
   const rootViewModel = useViewModel(rive, { name: VIEW_MODEL_NAME })

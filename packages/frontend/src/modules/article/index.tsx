@@ -195,6 +195,7 @@ const ArticleModule = ({
           } else {
             router.push(getLoginUrl())
           }
+          events.setAction('default')
         },
         cancelAction: () => {
           events.setAction('default')
