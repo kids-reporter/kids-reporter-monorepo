@@ -290,6 +290,12 @@ const ArticleModule = ({
               <NewsReading items={newsReadingGroupItems} />
             )}
 
+            <ArticleBaodaozaiEventTrigger
+              id="hide-start-reading"
+              disabled={isScrollingDown}
+              startReadingContent={post?.opening ?? ''}
+            />
+
             {trimmedBrief.blocks.length > 0 ? (
               <>
                 <ArticleSummary
@@ -307,12 +313,6 @@ const ArticleModule = ({
             ) : (
               <div className="mb-10 tablet:mb-15"></div>
             )}
-
-            <ArticleBaodaozaiEventTrigger
-              id="hide-start-reading"
-              disabled={isScrollingDown}
-              startReadingContent={post?.opening ?? ''}
-            />
 
             <div className="relative w-full">
               <PostRenderer

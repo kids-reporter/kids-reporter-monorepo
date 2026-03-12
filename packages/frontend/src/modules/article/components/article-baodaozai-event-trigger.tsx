@@ -98,7 +98,7 @@ function createBaodaozaiEventConfig({
       },
       baodaozaiState: {
         action: 'idle-read',
-        clickBaodaozaiAction: 'dialog-speaker',
+        clickBaodaozaiAction: 'dialog-read',
       },
     },
     'change-ask-questions': {

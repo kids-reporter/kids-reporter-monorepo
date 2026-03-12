@@ -1,9 +1,6 @@
 'use client'
 
 import {
-  Alignment,
-  Fit,
-  Layout,
   RiveFile,
   useRive,
   useViewModel,
@@ -22,17 +19,11 @@ type EnlightenBaodaozaiProps = {
   riveFile: RiveFile
 }
 
-const RIVE_LAYOUT = new Layout({
-  fit: Fit.Layout,
-  alignment: Alignment.Center,
-})
-
 function EnlightenBaodaozai({ state, riveFile }: EnlightenBaodaozaiProps) {
   const { RiveComponent, rive } = useRive({
     riveFile,
     stateMachines: STATE_MACHINE_NAME,
     autoplay: true,
-    layout: RIVE_LAYOUT,
   })
 
   const rootViewModel = useViewModel(rive, { name: VIEW_MODEL_NAME })

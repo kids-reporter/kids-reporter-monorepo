@@ -95,15 +95,15 @@ function Baodaozai() {
     let bottomValue
     if (isMobile) {
       bottomValue = dialogProps.isOpen
-        ? `calc(${dialogBoxHeight}px - 20px)`
-        : '2px'
+        ? `calc(${dialogBoxHeight}px - 52px)`
+        : '-22px'
     } else {
       if (dialogProps.isOpen) {
-        bottomValue = '0'
+        bottomValue = '-24px'
       } else if (isTablet) {
-        bottomValue = '8px'
+        bottomValue = '-16px'
       } else {
-        bottomValue = '12px'
+        bottomValue = '-12px'
       }
     }
     setBaodaozaiBottom(bottomValue)
@@ -132,9 +132,9 @@ function Baodaozai() {
       </div>
       <button
         className={cn(
-          'absolute -right-1 z-12 transition-all duration-1000 tablet:right-4',
+          'absolute -right-50 z-12 transition-all duration-1000 tablet:-right-48',
           !dialogProps.isOpen && 'cursor-pointer',
-          dialogProps.isOpen && 'right-6 z-10'
+          dialogProps.isOpen && '-right-42 z-10'
         )}
         onClick={dialogProps.isOpen ? undefined : handleOpenDialog}
         style={{
