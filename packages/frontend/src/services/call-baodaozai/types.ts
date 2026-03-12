@@ -19,13 +19,13 @@ export type BaodaozaiAction = GeneralBaodaozaiState
 export type BaodaozaiActionSetter = ({
   setHide,
   setIsActionEntered,
-  setIsIdleReadStoned,
   setAction,
+  setClickBaodaozaiAction,
 }: {
   setHide: (hide: boolean) => void
   setIsActionEntered: (isEntered: boolean) => void
-  setIsIdleReadStoned: (isIdleReadStoned: boolean) => void
   setAction: (action: BaodaozaiAction) => void
+  setClickBaodaozaiAction: (action: BaodaozaiAction) => void
 }) => void
 
 export type BaodaozaiEssayQuestion = {

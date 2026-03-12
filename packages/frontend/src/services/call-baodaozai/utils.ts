@@ -1,20 +1,37 @@
-import {
-  DEFAULT_ANIMATION_DIALOG_ENLIGHTEN_EXIT_DELAY,
-  DEFAULT_ANIMATION_DIALOG_READ_EXIT_DELAY,
-  DEFAULT_ANIMATION_DIALOG_SPEAKER_EXIT_DELAY,
-  DEFAULT_ANIMATION_ENTER_DELAY,
-} from './context/constants'
-import { BaodaozaiAction } from './types'
+import { GeneralBaodaozaiState } from './types'
 
-export const mapActionToExitDelay = (action: BaodaozaiAction): number => {
+export const mapGeneralActionToEyesAndMouthArtboard = (
+  action: GeneralBaodaozaiState
+): { eyes: string; mouth: string } => {
   switch (action) {
-    case 'dialog-read':
-      return DEFAULT_ANIMATION_DIALOG_READ_EXIT_DELAY
-    case 'dialog-enlighten':
-      return DEFAULT_ANIMATION_DIALOG_ENLIGHTEN_EXIT_DELAY
+    case 'idle-sleep':
+      return {
+        eyes: 'eyes-sleepy',
+        mouth: 'mouth-omouth',
+      }
+    case 'idle-read':
+      return {
+        eyes: 'eyes-blink',
+        mouth: 'mouth-smile',
+      }
+    case 'idle-enlighten':
+      return {
+        eyes: 'eyes-look-horizontal',
+        mouth: 'mouth-smile',
+      }
     case 'dialog-speaker':
-      return DEFAULT_ANIMATION_DIALOG_SPEAKER_EXIT_DELAY
+      return {
+        eyes: 'eyes-speaker',
+        mouth: 'mouth-omouth',
+      }
+    case 'dialog-read':
+      return { eyes: 'eyes-look-horizontal', mouth: 'mouth-smile' }
+    case 'dialog-enlighten':
+      return { eyes: 'eyes-look-vertical', mouth: 'mouth-omouth' }
     default:
-      return DEFAULT_ANIMATION_ENTER_DELAY
+      return {
+        eyes: 'eyes-look-horizontal',
+        mouth: 'mouth-smile',
+      }
   }
 }

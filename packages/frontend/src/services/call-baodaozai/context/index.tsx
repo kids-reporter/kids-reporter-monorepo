@@ -26,9 +26,10 @@ import {
   BaodaozaiActionSetter,
   GeneralBaodaozaiState,
 } from '../types'
-import { mapActionToExitDelay } from '../utils'
+import { mapGeneralActionToEyesAndMouthArtboard } from '../utils'
 import {
   DEFAULT_ANIMATION_ENTER_DELAY,
+  DEFAULT_ANIMATION_EXIT_DELAY,
   DIALOG_DEFAULT_CANCEL_TEXT,
   DIALOG_DEFAULT_CONFIRM_TEXT,
   DIALOG_DEFAULT_CONTENT,
@@ -44,11 +45,8 @@ export type CallBaodaozaiProps = {
   baodaozaiProps: {
     action: BaodaozaiAction
     setAction: (action: BaodaozaiAction) => void
-    getCurrentArtboardType: () => BaodaozaiAction
     isActionEntered: boolean
     setIsActionEntered: (isActionEntered: boolean) => void
-    isIdleReadStoned: boolean
-    setIsIdleReadStoned: (isIdleReadStoned: boolean) => void
     hide: boolean
     setHide: (hide: boolean) => void
     isInitialized: boolean
@@ -90,6 +88,16 @@ export function CallBaodaozaiProvider({
     rootInstance
   )
 
+  const { setValue: setEyes } = useViewModelInstanceArtboard(
+    'artboard_eyes',
+    rootInstance
+  )
+
+  const { setValue: setMouth } = useViewModelInstanceArtboard(
+    'artboard_mouth',
+    rootInstance
+  )
+
   const { setValue: setIsHover } = useViewModelInstanceBoolean(
     'Bool_isHover',
     rootInstance
@@ -102,10 +110,16 @@ export function CallBaodaozaiProvider({
       if (rive) {
         const artboardType = rive.getArtboard(artboardName)
         setArtboardType(artboardType)
+        const { eyes, mouth } =
+          mapGeneralActionToEyesAndMouthArtboard(artboardName)
+        const eyesArtboard = rive.getArtboard(eyes)
+        const mouthArtboard = rive.getArtboard(mouth)
+        setEyes(eyesArtboard)
+        setMouth(mouthArtboard)
         setCurrentAction(artboardName as BaodaozaiAction)
       }
     },
-    [rive, setArtboardType]
+    [rive, setArtboardType, setEyes, setMouth]
   )
 
   const getCurrentArtboardType = useCallback(
@@ -134,9 +148,6 @@ export function CallBaodaozaiProvider({
       setEnterState('enter')
     }
   }, [currentAction, setEnterState])
-
-  const { value: isStoned, setValue: setIsStoned } =
-    useViewModelInstanceBoolean('Bool_Stoned', rootInstance)
 
   const switchStateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const switchStateInnerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -176,14 +187,13 @@ export function CallBaodaozaiProvider({
       ) {
         setEnterState('exit')
         cleanSwitchStateTimer()
-        const exitDelay = mapActionToExitDelay(currentAction)
         switchStateTimerRef.current = setTimeout(() => {
           setAction(nextState)
           setEnterState('enter')
           switchStateInnerTimerRef.current = setTimeout(() => {
             setIsAnimating(false)
           }, DEFAULT_ANIMATION_ENTER_DELAY)
-        }, exitDelay)
+        }, DEFAULT_ANIMATION_EXIT_DELAY)
       } else {
         setAction(nextState)
         setEnterState('enter')
@@ -291,8 +301,6 @@ export function CallBaodaozaiProvider({
       getCurrentArtboardType,
       hide,
       setHide,
-      isIdleReadStoned: !!isStoned,
-      setIsIdleReadStoned: setIsStoned,
       isInitialized: !!rootViewModel,
       isActionEntered: enterState === 'enter',
       setIsActionEntered,
@@ -304,8 +312,6 @@ export function CallBaodaozaiProvider({
       setBaodaozaiAction,
       getCurrentArtboardType,
       hide,
-      isStoned,
-      setIsStoned,
       rootViewModel,
       enterState,
       setIsActionEntered,
@@ -316,7 +322,7 @@ export function CallBaodaozaiProvider({
   const renderBaodaozai = useMemo(() => {
     return (
       <div
-        className="transition-width transition-height h-25 w-25 duration-1000"
+        className="transition-width transition-height h-25 w-25 scale-80 duration-1000 tablet:scale-100"
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       >

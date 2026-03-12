@@ -1,6 +1,6 @@
 'use client'
 import { cn, useMediaQuery } from '@kids-reporter/routing-ui'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useCallBaodaozaiContext } from '../context'
 import DialogBox from './dialog-box'
@@ -17,26 +17,26 @@ function Baodaozai() {
   const {
     setAction,
     setIsActionEntered,
-    setIsIdleReadStoned,
     hide,
     setHide,
     clickBaodaozaiAction,
+    setClickBaodaozaiAction,
   } = baodaozaiProps
 
   const handleConfirm = useCallback(() => {
     confirmAction({
       setHide,
       setIsActionEntered,
-      setIsIdleReadStoned,
       setAction,
+      setClickBaodaozaiAction,
     })
     onDialogPropsChange({ isOpen: false })
   }, [
     confirmAction,
     setHide,
     setIsActionEntered,
-    setIsIdleReadStoned,
     setAction,
+    setClickBaodaozaiAction,
     onDialogPropsChange,
   ])
 
@@ -44,17 +44,17 @@ function Baodaozai() {
     cancelAction({
       setHide,
       setIsActionEntered,
-      setIsIdleReadStoned,
       setAction,
+      setClickBaodaozaiAction,
     })
     onDialogPropsChange({ isOpen: false })
   }, [
     cancelAction,
     setHide,
     setIsActionEntered,
-    setIsIdleReadStoned,
     setAction,
     onDialogPropsChange,
+    setClickBaodaozaiAction,
   ])
 
   const handleOpenDialog = useCallback(() => {
@@ -69,8 +69,8 @@ function Baodaozai() {
   const refDialogBoxContainerRef = useRef<HTMLDivElement>(null)
   const [dialogBoxHeight, setDialogBoxHeight] = useState(0)
 
-  const isMobile = useMediaQuery('(max-width: 768px)')
-  const isTablet = useMediaQuery('(max-width: 1024px)')
+  const isMobile = useMediaQuery('(max-width: 767px)')
+  const isTablet = useMediaQuery('(max-width: 1023px)')
 
   useEffect(() => {
     const container = refDialogBoxContainerRef.current
@@ -90,14 +90,23 @@ function Baodaozai() {
     }
   }, [])
 
-  const baodaozaiBottom = useMemo(() => {
-    if (isMobile && dialogProps.isOpen) {
-      return `calc(${dialogBoxHeight}px - 30px)`
+  const [baodaozaiBottom, setBaodaozaiBottom] = useState('12px')
+  useEffect(() => {
+    let bottomValue
+    if (isMobile) {
+      bottomValue = dialogProps.isOpen
+        ? `calc(${dialogBoxHeight}px - 20px)`
+        : '2px'
+    } else {
+      if (dialogProps.isOpen) {
+        bottomValue = '0'
+      } else if (isTablet) {
+        bottomValue = '8px'
+      } else {
+        bottomValue = '12px'
+      }
     }
-    if (!isMobile && isTablet) {
-      return '8px'
-    }
-    return '0'
+    setBaodaozaiBottom(bottomValue)
   }, [isMobile, dialogProps.isOpen, dialogBoxHeight, isTablet])
 
   return (
@@ -123,7 +132,7 @@ function Baodaozai() {
       </div>
       <button
         className={cn(
-          'absolute right-2 z-12 transition-all duration-1000 tablet:right-4',
+          'absolute -right-1 z-12 transition-all duration-1000 tablet:right-4',
           !dialogProps.isOpen && 'cursor-pointer',
           dialogProps.isOpen && 'right-6 z-10'
         )}

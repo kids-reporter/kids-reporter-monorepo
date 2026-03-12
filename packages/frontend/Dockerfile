@@ -2,6 +2,8 @@ ARG NODE_VERSION=20.19.5
 
 FROM node:${NODE_VERSION} AS build
 
+ARG DEPLOYMENT_ID
+
 RUN corepack enable
 
 WORKDIR /build
@@ -12,7 +14,7 @@ RUN yarn install --immutable --ignore-scripts
 
 COPY . /build/
 
-RUN yarn build:cloudbuild
+RUN DEPLOYMENT_ID=${DEPLOYMENT_ID} yarn build:cloudbuild
 
 
 FROM node:${NODE_VERSION}

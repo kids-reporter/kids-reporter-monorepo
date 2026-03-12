@@ -17,8 +17,8 @@ import {
 export type QAModalEvent = {
   setHide: (hide: boolean) => void
   setIsActionEntered: (isEntered: boolean) => void
-  setIsIdleReadStoned: (isIdleReadStoned: boolean) => void
   setAction: (action: BaodaozaiAction) => void
+  setClickBaodaozaiAction: (action: BaodaozaiAction) => void
   onDialogPropsChange: (
     dialogProps: Partial<CallBaodaozaiProps['dialogWithActionProps']>
   ) => void
@@ -29,7 +29,6 @@ type QAModalProps = {
   onClose: ({
     setHide,
     setIsActionEntered,
-    setIsIdleReadStoned,
     setAction,
     onDialogPropsChange,
   }: QAModalEvent) => void
@@ -67,8 +66,8 @@ function QAModal({
     baodaozaiProps: {
       setHide,
       setIsActionEntered,
-      setIsIdleReadStoned,
       setAction,
+      setClickBaodaozaiAction,
     },
     onDialogPropsChange,
   } = useCallBaodaozaiContext()
@@ -101,16 +100,16 @@ function QAModal({
     () => ({
       setHide,
       setIsActionEntered,
-      setIsIdleReadStoned,
       setAction,
       onDialogPropsChange,
+      setClickBaodaozaiAction,
     }),
     [
       setHide,
       setIsActionEntered,
-      setIsIdleReadStoned,
       setAction,
       onDialogPropsChange,
+      setClickBaodaozaiAction,
     ]
   )
 
@@ -263,7 +262,7 @@ function QAModal({
 
             <textarea
               className={cn(
-                'h-38 w-full flex-1 resize-none rounded-2xl border-2 bg-white px-5 py-4 prose-p1 text-neutral-900 transition-all focus:outline-none',
+                'h-38 min-h-38 w-full flex-1 resize-none rounded-2xl border-2 bg-white px-5 py-4 prose-p1 text-neutral-900 transition-all focus:outline-none',
                 (answers[currentModalStep.questionIndex] || '').trim()
                   ? 'border-neutral-600'
                   : 'border-neutral-200 hover:border-neutral-600 focus:border-neutral-600'
@@ -478,7 +477,7 @@ function QAModal({
       case 'choice':
       case 'essay':
         return (
-          <div className="pointer-events-none absolute -top-20 left-0 -z-1 tablet:-top-18 tablet:-left-6 tablet:z-4">
+          <div className="pointer-events-none absolute -top-20 -left-12 z-4 tablet:-top-18 tablet:-left-6">
             <EnlightenBaodaozai state="enlighten-ask" />
           </div>
         )

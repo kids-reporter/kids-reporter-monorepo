@@ -6,7 +6,8 @@ import { useCallBaodaozaiContext } from '@/services/call-baodaozai'
 
 function useAllSiteBaodaozaiIdleTimer() {
   const {
-    baodaozaiProps: { setAction, isInitialized, hide },
+    baodaozaiProps: { setAction, isInitialized, hide, setIsActionEntered },
+    dialogWithActionProps: { isOpen },
   } = useCallBaodaozaiContext()
 
   const idleTimerProps = useMemo(
@@ -15,11 +16,11 @@ function useAllSiteBaodaozaiIdleTimer() {
         setAction('idle-sleep')
       },
       interactCallback: () => {
-        setAction('dialog-speaker')
+        setIsActionEntered(false)
       },
-      disabled: !isInitialized || hide,
+      disabled: !isInitialized || hide || isOpen,
     }),
-    [setAction, isInitialized, hide]
+    [isInitialized, hide, isOpen, setAction, setIsActionEntered]
   )
 
   return useIdleTimer(idleTimerProps)

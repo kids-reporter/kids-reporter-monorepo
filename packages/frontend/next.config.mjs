@@ -2,6 +2,7 @@
 const nextConfig = {
   basePath:
     process.env.NEXT_PUBLIC_IS_PREVIEW_MODE === 'true' ? '/preview-server' : '',
+  deploymentId: process.env.DEPLOYMENT_ID || undefined,
   output: 'standalone',
   compiler: {
     styledComponents: true,

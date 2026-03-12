@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  Alignment,
   Fit,
   Layout,
   useRive,
@@ -15,6 +16,7 @@ import envVars from '@/environment-variables'
 
 import { STATE_MACHINE_NAME, VIEW_MODEL_NAME } from '../../context/constants'
 import { QaBaodaozaiState } from '../../types'
+import { mapQaActionToEyesAndMouthArtboard } from './utils'
 
 type EnlightenBaodaozaiProps = {
   state: QaBaodaozaiState
@@ -27,7 +29,7 @@ function EnlightenBaodaozai({ state }: EnlightenBaodaozaiProps) {
     autoplay: true,
     layout: new Layout({
       fit: Fit.Layout,
-      layoutScaleFactor: 1,
+      alignment: Alignment.Center,
     }),
   })
 
@@ -46,14 +48,26 @@ function EnlightenBaodaozai({ state }: EnlightenBaodaozaiProps) {
     rootInstance
   )
 
+  const { setValue: setEyes } = useViewModelInstanceArtboard(
+    'artboard_eyes',
+    rootInstance
+  )
+  const { setValue: setMouth } = useViewModelInstanceArtboard(
+    'artboard_mouth',
+    rootInstance
+  )
+
   const handleChangeArtboardType = useCallback(
     (artboardName: QaBaodaozaiState) => {
       if (rive) {
         const artboardType = rive.getArtboard(artboardName)
         setArtboardType(artboardType)
+        const { eyes, mouth } = mapQaActionToEyesAndMouthArtboard(artboardName)
+        setEyes(rive.getArtboard(eyes))
+        setMouth(rive.getArtboard(mouth))
       }
     },
-    [rive, setArtboardType]
+    [rive, setArtboardType, setEyes, setMouth]
   )
 
   useEffect(() => {

@@ -197,7 +197,8 @@ const ArticleModule = ({
           }
         },
         cancelAction: () => {
-          events.setAction('idle-enlighten')
+          events.setAction('default')
+          events.setClickBaodaozaiAction('dialog-speaker')
         },
       })
     },

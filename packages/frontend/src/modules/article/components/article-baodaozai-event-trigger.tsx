@@ -53,8 +53,8 @@ function createBaodaozaiEventConfig({
         },
       },
       baodaozaiState: {
-        action: 'dialog-read',
-        clickBaodaozaiAction: 'dialog-read',
+        action: 'dialog-speaker',
+        clickBaodaozaiAction: 'dialog-speaker',
       },
     },
     'hide-start-reading': {
@@ -83,7 +83,7 @@ function createBaodaozaiEventConfig({
       },
       baodaozaiState: {
         action: 'idle-read',
-        clickBaodaozaiAction: 'dialog-read',
+        clickBaodaozaiAction: 'dialog-speaker',
       },
     },
     'change-encourage-reading': {
@@ -98,7 +98,7 @@ function createBaodaozaiEventConfig({
       },
       baodaozaiState: {
         action: 'idle-read',
-        clickBaodaozaiAction: 'dialog-read',
+        clickBaodaozaiAction: 'dialog-speaker',
       },
     },
     'change-ask-questions': {
