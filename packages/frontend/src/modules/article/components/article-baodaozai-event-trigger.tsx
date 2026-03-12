@@ -10,6 +10,7 @@ import {
 type EventId =
   | 'show-start-reading'
   | 'hide-start-reading'
+  | 'hide-start-reading-scroll-up'
   | 'change-start-reading'
   | 'change-encourage-reading'
   | 'change-ask-questions'
@@ -58,6 +59,20 @@ function createBaodaozaiEventConfig({
       },
     },
     'hide-start-reading': {
+      dialogState: {
+        isOpen: false,
+        hideCancelButton: true,
+        confirmText: '開始閱讀',
+        content: startReadingContent || '',
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
+      },
+      baodaozaiState: {
+        action: 'idle-read',
+      },
+    },
+    'hide-start-reading-scroll-up': {
       dialogState: {
         isOpen: false,
         hideCancelButton: true,

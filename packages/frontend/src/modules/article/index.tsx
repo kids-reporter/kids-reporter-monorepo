@@ -289,11 +289,18 @@ const ArticleModule = ({
             {post?.newsReadingGroup && (
               <NewsReading items={newsReadingGroupItems} />
             )}
+
+            <ArticleBaodaozaiEventTrigger
+              id="hide-start-reading-scroll-up"
+              startReadingContent={post?.opening ?? ''}
+              disabled={isScrollingDown}
+            />
+
             <div className="absolute top-[120vh]">
               <ArticleBaodaozaiEventTrigger
                 id="hide-start-reading"
-                disabled={isScrollingDown}
                 startReadingContent={post?.opening ?? ''}
+                disabled={!isScrollingDown}
               />
             </div>
 
