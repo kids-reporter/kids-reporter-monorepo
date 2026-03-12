@@ -322,7 +322,7 @@ export function CallBaodaozaiProvider({
   const renderBaodaozai = useMemo(() => {
     return (
       <div
-        className="transition-width transition-height h-25 w-25 scale-80 duration-1000 tablet:scale-100"
+        className="transition-width transition-height h-[120px] w-[300px] scale-80 duration-1000 tablet:scale-100"
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
       >
