@@ -256,7 +256,7 @@ const ArticleModule = ({
           }}
         >
           <Toolbar topicURL={topicURL} postSlug={slug} />
-          <div className="flex w-full max-w-256 flex-col items-center desktop:mx-auto desktop:px-12 hd:max-w-354.5">
+          <div className="relative flex w-full max-w-256 flex-col items-center desktop:mx-auto desktop:px-12 hd:max-w-354.5">
             {isDesktop && (
               <ImageModal
                 isOpen={isImgModalOpen}
@@ -289,12 +289,13 @@ const ArticleModule = ({
             {post?.newsReadingGroup && (
               <NewsReading items={newsReadingGroupItems} />
             )}
-
-            <ArticleBaodaozaiEventTrigger
-              id="hide-start-reading"
-              disabled={isScrollingDown}
-              startReadingContent={post?.opening ?? ''}
-            />
+            <div className="absolute top-[120vh]">
+              <ArticleBaodaozaiEventTrigger
+                id="hide-start-reading"
+                disabled={isScrollingDown}
+                startReadingContent={post?.opening ?? ''}
+              />
+            </div>
 
             {trimmedBrief.blocks.length > 0 ? (
               <>
