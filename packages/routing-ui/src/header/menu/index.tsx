@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 
 import Button from '../../components/button'
+import { useBodyScrollLock } from '../../hooks'
 import { ClearIcon } from '../../icons'
 import type { MenuItem, SocialMediaHrefs } from '../../types'
 import { cn } from '../../utils/cn'
@@ -44,17 +45,10 @@ function Menu({
 }: MenuProps) {
   const socialMediaConfig = generateSocialMediaConfig(socialMediaHrefs)
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('no-scroll')
-    } else {
-      document.body.classList.remove('no-scroll')
-    }
-
-    return () => {
-      document.body.classList.remove('no-scroll')
-    }
-  }, [isOpen])
+  useBodyScrollLock({
+    toLock: isOpen,
+    lockID: 'header-menu',
+  })
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

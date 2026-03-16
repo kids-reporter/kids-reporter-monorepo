@@ -5166,7 +5166,7 @@ __metadata:
     "@graphql-codegen/typescript-operations": "npm:^5.0.2"
     "@hookform/resolvers": "npm:^5.2.2"
     "@kids-reporter/draft-renderer": "npm:^1.0.13"
-    "@kids-reporter/routing-ui": "npm:0.1.17"
+    "@kids-reporter/routing-ui": "npm:0.1.20"
     "@next/bundle-analyzer": "npm:^14.2.33"
     "@next/eslint-plugin-next": "npm:^14.2.33"
     "@next/third-parties": "npm:^14.1.1"
@@ -5233,7 +5233,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kids-reporter/routing-ui@npm:0.1.17, @kids-reporter/routing-ui@workspace:packages/routing-ui":
+"@kids-reporter/routing-ui@npm:0.1.20, @kids-reporter/routing-ui@workspace:packages/routing-ui":
   version: 0.0.0-use.local
   resolution: "@kids-reporter/routing-ui@workspace:packages/routing-ui"
   dependencies:

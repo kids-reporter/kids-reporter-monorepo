@@ -1,12 +1,15 @@
 'use client'
 
-import { Button, cn } from '@kids-reporter/routing-ui'
-import Image from 'next/image'
+import { Button, cn, useBodyScrollLock } from '@kids-reporter/routing-ui'
+import { useRiveFile } from '@rive-app/react-webgl2'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import envVars from '@/environment-variables'
 
 import { CallBaodaozaiProps, useCallBaodaozaiContext } from '../../context'
 import { BaodaozaiAction, BaodaozaiQuestions } from '../../types'
 import { UPDATE_QA_MODAL_OVERRIDES } from './constants'
+import EnlightenBaodaozai from './enlighten-baodaozai'
 import { QAModalMode } from './types'
 import {
   getDefaultAnswerFromQuestions,
@@ -16,8 +19,9 @@ import {
 
 export type QAModalEvent = {
   setHide: (hide: boolean) => void
-  setIsActive: (isActive: boolean) => void
+  setIsActionEntered: (isEntered: boolean) => void
   setAction: (action: BaodaozaiAction) => void
+  setClickBaodaozaiAction: (action: BaodaozaiAction) => void
   onDialogPropsChange: (
     dialogProps: Partial<CallBaodaozaiProps['dialogWithActionProps']>
   ) => void
@@ -27,7 +31,7 @@ type QAModalProps = {
   questions: BaodaozaiQuestions
   onClose: ({
     setHide,
-    setIsActive,
+    setIsActionEntered,
     setAction,
     onDialogPropsChange,
   }: QAModalEvent) => void
@@ -43,6 +47,9 @@ function QAModal({
   isOpen,
   mode = 'default',
 }: QAModalProps) {
+  const { riveFile } = useRiveFile({
+    src: envVars.baodaozaiRiveFilePath,
+  })
   const [currentModalStepIndex, setCurrentModalStepIndex] = useState(0)
   const defaultAnswers = useMemo(
     () => getDefaultAnswerFromQuestions(questions),
@@ -62,7 +69,12 @@ function QAModal({
   const [isLeaving, setIsLeaving] = useState(false)
 
   const {
-    baodaozaiProps: { setHide, setIsActive, setAction },
+    baodaozaiProps: {
+      setHide,
+      setIsActionEntered,
+      setAction,
+      setClickBaodaozaiAction,
+    },
     onDialogPropsChange,
   } = useCallBaodaozaiContext()
 
@@ -91,8 +103,20 @@ function QAModal({
   }, [])
 
   const events = useMemo(
-    () => ({ setHide, setIsActive, setAction, onDialogPropsChange }),
-    [setHide, setIsActive, setAction, onDialogPropsChange]
+    () => ({
+      setHide,
+      setIsActionEntered,
+      setAction,
+      onDialogPropsChange,
+      setClickBaodaozaiAction,
+    }),
+    [
+      setHide,
+      setIsActionEntered,
+      setAction,
+      onDialogPropsChange,
+      setClickBaodaozaiAction,
+    ]
   )
 
   const handleConfirmLeaving = useCallback(() => {
@@ -127,16 +151,17 @@ function QAModal({
     setIsLeaving(false)
   }, [defaultAnswers])
 
+  useBodyScrollLock({
+    toLock: isOpen,
+    lockID: 'call-baodaozai-qa-modal',
+  })
+
   useEffect(() => {
-    if (isOpen) {
-      document.body.classList.add('no-scroll')
-    } else {
+    if (!isOpen) {
       handleReset()
-      document.body.classList.remove('no-scroll')
     }
     return () => {
       handleReset()
-      document.body.classList.remove('no-scroll')
     }
   }, [isOpen, handleReset])
 
@@ -243,7 +268,7 @@ function QAModal({
 
             <textarea
               className={cn(
-                'h-38 w-full flex-1 resize-none rounded-2xl border-2 bg-white px-5 py-4 prose-p1 text-neutral-900 transition-all focus:outline-none',
+                'h-38 min-h-38 w-full flex-1 resize-none rounded-2xl border-2 bg-white px-5 py-4 prose-p1 text-neutral-900 transition-all focus:outline-none',
                 (answers[currentModalStep.questionIndex] || '').trim()
                   ? 'border-neutral-600'
                   : 'border-neutral-200 hover:border-neutral-600 focus:border-neutral-600'
@@ -290,20 +315,15 @@ function QAModal({
               <div className="mb-6 flex w-full justify-center px-6">
                 <div className="flex h-[120px] w-[300px] items-center justify-center">
                   <div className="flex h-full w-full items-center justify-center">
-                    {answers[currentModalStep.questionIndex] ===
-                    currentModalStep.correctAnswerIndex.toString() ? (
-                      <Image
-                        src="/assets/images/baodaozai/correct_answer.svg"
-                        alt="Correct Answer"
-                        width={300}
-                        height={120}
-                      />
-                    ) : (
-                      <Image
-                        src="/assets/images/baodaozai/incorrect_answer.svg"
-                        alt="Incorrect Answer"
-                        width={300}
-                        height={120}
+                    {riveFile && (
+                      <EnlightenBaodaozai
+                        state={
+                          answers[currentModalStep.questionIndex] ===
+                          currentModalStep.correctAnswerIndex.toString()
+                            ? 'enlighten-correct'
+                            : 'enlighten-fault'
+                        }
+                        riveFile={riveFile}
                       />
                     )}
                   </div>
@@ -340,14 +360,13 @@ function QAModal({
 
               <div className="mb-6 flex w-full justify-center px-6">
                 <div className="flex h-[120px] w-[300px] items-center justify-center">
-                  {/* Placeholder for result image - would be replaced with actual image component */}
                   <div className="flex h-full w-full items-center justify-center">
-                    <Image
-                      src="/assets/images/baodaozai/send.svg"
-                      alt="Correct Answer"
-                      width={300}
-                      height={120}
-                    />
+                    {riveFile && (
+                      <EnlightenBaodaozai
+                        state="enlighten-send"
+                        riveFile={riveFile}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -373,6 +392,7 @@ function QAModal({
     handleAnswerChange,
     isLeaving,
     mode,
+    riveFile,
   ])
 
   const renderModalButtons = useMemo(() => {
@@ -460,9 +480,10 @@ function QAModal({
     currentModalStep,
     handleCancelLeaving,
     handleConfirmLeaving,
-    currentAnswer,
     mode,
     handleLeaving,
+    currentAnswer,
+    isCleanAnswers,
     isLastQuestion,
   ])
 
@@ -473,21 +494,10 @@ function QAModal({
       case 'choice':
       case 'essay':
         return (
-          <div className="pointer-events-none absolute -top-18 left-[37.5px] -z-1 tablet:-top-12 tablet:left-0 tablet:z-4">
-            <Image
-              src="/assets/images/baodaozai/answering_mobile.svg"
-              alt="Baodaozai"
-              width={300}
-              height={120}
-              className="tablet:hidden"
-            />
-            <Image
-              src="/assets/images/baodaozai/answering.svg"
-              alt="Baodaozai"
-              width={200}
-              height={120}
-              className="hidden tablet:block"
-            />
+          <div className="pointer-events-none absolute -top-20 -left-12 z-4 tablet:-top-18 tablet:-left-6">
+            {riveFile && (
+              <EnlightenBaodaozai state="enlighten-ask" riveFile={riveFile} />
+            )}
           </div>
         )
       case 'choice-result':
@@ -496,7 +506,7 @@ function QAModal({
       default:
         return null
     }
-  }, [currentModalStep, isLeaving])
+  }, [currentModalStep, isLeaving, riveFile])
 
   if (!isOpen) return null
 

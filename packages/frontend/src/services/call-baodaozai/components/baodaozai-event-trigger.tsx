@@ -15,8 +15,8 @@ export type BaodaozaiEventTriggerProps = {
   >
   baodaozaiState?: Partial<{
     action: BaodaozaiAction
-    isActive: boolean
-    shouldTriggerStep: boolean
+    isEntered: boolean
+    clickBaodaozaiAction: BaodaozaiAction
   }>
   once?: boolean
   disabled?: boolean
@@ -34,9 +34,14 @@ function BaodaozaiEventTrigger({
 }: BaodaozaiEventTriggerProps) {
   const {
     onDialogPropsChange,
-    baodaozaiProps: { setAction, setIsActive, triggerStep, isInitialized },
+    baodaozaiProps: {
+      setAction,
+      isInitialized,
+      setIsActionEntered,
+      setClickBaodaozaiAction,
+    },
   } = useCallBaodaozaiContext()
-  const { action, isActive, shouldTriggerStep } = newBaodaozaiState
+  const { action, isEntered, clickBaodaozaiAction } = newBaodaozaiState
   const containerRef = useRef<HTMLDivElement>(null)
   const triggeredOnceRef = useRef(false)
 
@@ -63,27 +68,26 @@ function BaodaozaiEventTrigger({
 
   const handleInView = useCallback(() => {
     onDialogPropsChange({ ...newDialogStateWithSuppress })
-
-    if (typeof isActive === 'boolean') {
-      setIsActive(isActive)
-    }
-
     if (typeof action === 'string') {
-      setAction(action)
+      if (typeof isEntered === 'boolean') {
+        setIsActionEntered(isEntered)
+      } else {
+        setAction(action)
+      }
     }
 
-    if (shouldTriggerStep) {
-      triggerStep()
+    if (typeof clickBaodaozaiAction === 'string') {
+      setClickBaodaozaiAction(clickBaodaozaiAction)
     }
   }, [
     onDialogPropsChange,
     newDialogStateWithSuppress,
-    isActive,
     action,
-    shouldTriggerStep,
-    setIsActive,
+    clickBaodaozaiAction,
+    isEntered,
+    setIsActionEntered,
     setAction,
-    triggerStep,
+    setClickBaodaozaiAction,
   ])
 
   const [prevDisabled, setPrevDisabled] = useState(disabled)
@@ -97,11 +101,13 @@ function BaodaozaiEventTrigger({
 
   useEffect(() => {
     const element = containerRef.current
+
     if (
       !element ||
       disabled ||
       triggeredOnceRef.current ||
-      shouldSuppress.current
+      shouldSuppress.current ||
+      !isInitialized
     )
       return
 
@@ -126,7 +132,7 @@ function BaodaozaiEventTrigger({
     observer.observe(element)
 
     return () => observer.disconnect()
-  }, [handleInView, once, disabled])
+  }, [handleInView, once, disabled, isInitialized])
 
   return isInitialized ? <div ref={containerRef} id={id} /> : null
 }

@@ -1,6 +1,8 @@
 'use client'
 
+import AllSiteBaodaozaiEventTrigger from '@/components/all-site-baodaozai-event-trigger'
 import { PostSummary } from '@/components/types'
+import useAllSiteBaodaozaiIdleTimer from '@/hooks/use-site-baodaozai-idle-timer'
 
 import CategoryPostCards from './components/category-post-cards'
 import EditorRecommendation from './components/editor-recommendation'
@@ -13,11 +15,32 @@ type HomeModuleProps = {
   topics: { url: string; image: string; title: string; subtitle: string }[]
   latestPosts: PostSummary[]
   featuredPosts: PostSummary[]
+  introContent: string
 }
 
-function HomeModule({ topics, latestPosts, featuredPosts }: HomeModuleProps) {
+function HomeModule({
+  topics,
+  latestPosts,
+  featuredPosts,
+  introContent,
+}: HomeModuleProps) {
+  const { isIdle: isAllSiteBaodaozaiIdle } = useAllSiteBaodaozaiIdleTimer()
   return (
     <>
+      <AllSiteBaodaozaiEventTrigger
+        id="show-intro"
+        content={introContent}
+        isIdle={isAllSiteBaodaozaiIdle}
+      />
+      <div className="relative">
+        <div className="absolute top-[150vh]">
+          <AllSiteBaodaozaiEventTrigger
+            id="hide-intro"
+            isIdle={isAllSiteBaodaozaiIdle}
+            content={introContent}
+          />
+        </div>
+      </div>
       <TopicSlider topics={topics} />
       <EditorRecommendation posts={featuredPosts} />
       <LatestArticles posts={latestPosts} />

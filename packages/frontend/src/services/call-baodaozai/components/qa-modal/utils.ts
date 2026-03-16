@@ -2,6 +2,7 @@ import {
   BaodaozaiChoiceQuestion,
   BaodaozaiQuestion,
   BaodaozaiQuestions,
+  QaBaodaozaiState,
 } from '../../types'
 import { QAModalMode } from './types'
 
@@ -168,4 +169,21 @@ export const getDefaultAnswerFromQuestions = (
     },
     {}
   )
+}
+
+export const mapQaActionToEyesAndMouthArtboard = (
+  action: QaBaodaozaiState
+): { eyes: string; mouth: string } => {
+  switch (action) {
+    case 'enlighten-ask':
+      return { eyes: 'eyes-confuse', mouth: 'mouth-omouth' }
+    case 'enlighten-send':
+      return { eyes: 'eyes-look-horizontal', mouth: 'mouth-smile' }
+    case 'enlighten-fault':
+      return { eyes: 'eyes-watery', mouth: 'mouth-smile' }
+    case 'enlighten-correct':
+      return { eyes: 'eyes-look-horizontal', mouth: 'mouth-teeth' }
+    default:
+      return { eyes: 'eyes-look-horizontal', mouth: 'mouth-smile' }
+  }
 }

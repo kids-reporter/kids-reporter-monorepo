@@ -4,6 +4,7 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { ArticleBodyDraftRenderer } from '@kids-reporter/draft-renderer'
 import { cn } from '@kids-reporter/routing-ui'
 import { RawDraftContentState } from 'draft-js'
+import Skeleton from 'react-loading-skeleton'
 
 import { FontSizeLevel, STICKY_HEADER_HEIGHT } from '@/constants'
 
@@ -43,6 +44,11 @@ function PostRenderer({ content, shouldMount }: PostProp) {
           }
           offsetTop={STICKY_HEADER_HEIGHT}
         />
+      )}
+      {!shouldMount && (
+        <div className="mx-auto w-[min(512px,calc(100vw-12px))] px-6 tablet:px-0 desktop:w-[584px]">
+          <Skeleton count={10} />
+        </div>
       )}
     </div>
   )

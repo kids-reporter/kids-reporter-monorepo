@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
-import AllSiteBaodaozaiEventTrigger from '@/components/all-site-baodaozai-event-trigger'
 import Pagination from '@/components/pagination'
 import PostSlider from '@/components/post-slider'
 import {
@@ -19,6 +18,7 @@ import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
 import { getFormattedDate, getPostSummaries, log, LogLevel } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
+import TopicModule from './_components/module'
 import styles from './page.module.css'
 
 const ImageWithFallback = dynamic(
@@ -208,15 +208,7 @@ export default async function Topic({
       className={`${styles.main} mb-10 flex flex-col items-center justify-center`}
     >
       <BaodaozaiVisibilitySetter show={true} />
-      <AllSiteBaodaozaiEventTrigger
-        id="show-intro"
-        content={topicsIntroContent}
-      />
-      <div className="relative">
-        <div className="absolute top-[150vh]">
-          <AllSiteBaodaozaiEventTrigger id="hide-intro" />
-        </div>
-      </div>
+      <TopicModule introContent={topicsIntroContent ?? ''} />
       <div className="flex w-full max-w-7xl flex-col items-center justify-center gap-10">
         <img
           className="w-full max-w-xl"

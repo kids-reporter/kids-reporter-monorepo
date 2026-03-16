@@ -5,7 +5,6 @@ import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
 import { getEditorPicksSettings } from '@/api/editor-picks-settings'
 import { getLatestPosts } from '@/api/post'
 import { getTopicProjects } from '@/api/project'
-import AllSiteBaodaozaiEventTrigger from '@/components/all-site-baodaozai-event-trigger'
 import AuthHeaderLoggedInSetter from '@/components/auth-header-logged-in-setter'
 import ScrollUpBaodaozaiEventTrigger from '@/components/scroll-up-baodaozai-event-trigger'
 import { FALLBACK_IMG, GENERAL_DESCRIPTION } from '@/constants'
@@ -84,16 +83,12 @@ export default async function Home() {
         <Header />
         <BaodaozaiVisibilitySetter show={true} />
         <AuthHeaderLoggedInSetter />
-        <AllSiteBaodaozaiEventTrigger id="show-intro" content={introContent} />
-        <div className="relative">
-          <div className="absolute top-[150vh]">
-            <AllSiteBaodaozaiEventTrigger id="hide-intro" />
-          </div>
-        </div>
+
         <HomeModule
           topics={topics}
           latestPosts={latestPosts}
           featuredPosts={featuredPosts}
+          introContent={introContent ?? ''}
         />
         <Baodaozai />
         <ScrollUpBaodaozaiEventTrigger />

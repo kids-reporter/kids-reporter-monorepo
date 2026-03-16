@@ -49,6 +49,10 @@ steps:
 
         -t gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest \
 
+        -f "$_DOCKERFILE" \
+
+        --build-arg DEPLOYMENT_ID=${SHORT_SHA} \
+
         --cache-from gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest .
     entrypoint: bash
 
@@ -106,3 +110,4 @@ substitutions:
   _CLOUD_RUN_SERVICE_NAMES: '' # default value
   _ENV_FILE: '' # default value
   _DEPLOYMENT_TYPE: 'service' # default value
+  _DOCKERFILE: 'Dockerfile' # default value

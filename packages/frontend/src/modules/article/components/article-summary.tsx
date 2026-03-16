@@ -3,6 +3,7 @@ import { cn } from '@kids-reporter/routing-ui'
 import { RawDraftContentState } from 'draft-js'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import Skeleton from 'react-loading-skeleton'
 
 import Divider from '@/components/divider'
 import { FontSizeLevel } from '@/constants'
@@ -68,8 +69,12 @@ function ArticleSummary({
           ]
         )}
       >
-        {content && isMounted && (
+        {content && isMounted ? (
           <ArticleIntroductionDraftRenderer rawContentState={content} />
+        ) : (
+          <div className="w-[min(512px,calc(100vw-36px))] px-6 tablet:px-0 desktop:w-[584px]">
+            <Skeleton count={5} />
+          </div>
         )}
       </div>
 

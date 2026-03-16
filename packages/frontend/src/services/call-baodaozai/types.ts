@@ -1,13 +1,31 @@
-export type BaodaozaiAction = 'speak' | 'none' | 'timer'
+export type GeneralBaodaozaiState =
+  | 'default'
+  | 'idle-sleep'
+  | 'idle-read'
+  | 'idle-enlighten'
+  | 'dialog-speaker'
+  | 'dialog-read'
+  | 'dialog-enlighten'
+
+export type QaBaodaozaiState =
+  | 'default'
+  | 'enlighten-send'
+  | 'enlighten-fault'
+  | 'enlighten-correct'
+  | 'enlighten-ask'
+
+export type BaodaozaiAction = GeneralBaodaozaiState
 
 export type BaodaozaiActionSetter = ({
   setHide,
-  setIsActive,
+  setIsActionEntered,
   setAction,
+  setClickBaodaozaiAction,
 }: {
   setHide: (hide: boolean) => void
-  setIsActive: (isActive: boolean) => void
+  setIsActionEntered: (isEntered: boolean) => void
   setAction: (action: BaodaozaiAction) => void
+  setClickBaodaozaiAction: (action: BaodaozaiAction) => void
 }) => void
 
 export type BaodaozaiEssayQuestion = {

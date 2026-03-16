@@ -2,7 +2,6 @@
 
 import { ComponentProps, useMemo } from 'react'
 
-import { ReporterIcon } from '@/icons'
 import {
   BaodaozaiActionSetter,
   BaodaozaiEventTrigger,
@@ -11,11 +10,11 @@ import {
 type EventId =
   | 'show-start-reading'
   | 'hide-start-reading'
+  | 'hide-start-reading-scroll-up'
   | 'change-start-reading'
   | 'change-encourage-reading'
   | 'change-ask-questions'
   | 'show-ask-questions'
-  | 'show-related-articles'
   | 'scroll-up'
 
 type EventConfig = Pick<
@@ -33,6 +32,8 @@ type ArticleBaodaozaiEventTriggerProps = {
 
 const ENCOURAGE_READING_CONTENT =
   '進度很棒！再看一下下，最後會有小挑戰等你破解！'
+const ASK_QUESTIONS_CONTENT =
+  '你好棒！已經把文章讀完了！接下來讓我問問你幾個和文章有關的問題⋯⋯'
 
 function createBaodaozaiEventConfig({
   onAskQuestionsConfirm,
@@ -48,11 +49,13 @@ function createBaodaozaiEventConfig({
         confirmText: '開始閱讀',
         hideCancelButton: true,
         content: startReadingContent || '',
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
-        isActive: true,
-        action: 'speak',
+        action: 'dialog-speaker',
+        clickBaodaozaiAction: 'dialog-speaker',
       },
     },
     'hide-start-reading': {
@@ -61,11 +64,26 @@ function createBaodaozaiEventConfig({
         hideCancelButton: true,
         confirmText: '開始閱讀',
         content: startReadingContent || '',
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
-        isActive: false,
-        action: 'none',
+        action: 'idle-read',
+      },
+    },
+    'hide-start-reading-scroll-up': {
+      dialogState: {
+        isOpen: false,
+        hideCancelButton: true,
+        confirmText: '開始閱讀',
+        content: startReadingContent || '',
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
+      },
+      baodaozaiState: {
+        action: 'idle-read',
       },
     },
     'change-start-reading': {
@@ -74,11 +92,13 @@ function createBaodaozaiEventConfig({
         hideCancelButton: true,
         confirmText: '開始閱讀',
         content: startReadingContent || '',
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
-        isActive: false,
-        action: 'none',
+        action: 'idle-read',
+        clickBaodaozaiAction: 'dialog-speaker',
       },
     },
     'change-encourage-reading': {
@@ -87,60 +107,44 @@ function createBaodaozaiEventConfig({
         hideCancelButton: true,
         confirmText: '繼續閱讀',
         content: ENCOURAGE_READING_CONTENT,
-        confirmAction: () => {},
+        confirmAction: ({ setAction }) => {
+          setAction('idle-read')
+        },
       },
       baodaozaiState: {
-        isActive: false,
-        action: 'none',
+        action: 'idle-read',
+        clickBaodaozaiAction: 'dialog-read',
       },
     },
     'change-ask-questions': {
       dialogState: {
         isOpen: false,
-        content:
-          '你好棒！已經把文章讀完了！接下來讓我問問你幾個和文章有關的問題⋯⋯',
+        content: ASK_QUESTIONS_CONTENT,
         hideCancelButton: false,
         confirmText: '好！出招吧',
         confirmAction: onAskQuestionsConfirm,
+        cancelAction: ({ setAction }) => {
+          setAction('idle-enlighten')
+        },
       },
       baodaozaiState: {
-        isActive: false,
-        action: 'none',
+        action: 'idle-enlighten',
+        clickBaodaozaiAction: 'dialog-enlighten',
       },
     },
     'show-ask-questions': {
       dialogState: {
         isOpen: true,
-        content:
-          '你好棒！已經把文章讀完了！接下來讓我問問你幾個和文章有關的問題⋯⋯',
+        content: ASK_QUESTIONS_CONTENT,
         hideCancelButton: false,
         confirmText: '好！出招吧',
         confirmAction: onAskQuestionsConfirm,
+        cancelAction: ({ setAction }) => {
+          setAction('idle-enlighten')
+        },
       },
       baodaozaiState: {
-        isActive: true,
-        action: 'speak',
-      },
-    },
-    'show-related-articles': {
-      dialogState: {
-        isOpen: true,
-        content: (
-          <span>
-            現在點擊相關文章的
-            <span className="mx-1 inline-block size-5 align-middle">
-              <ReporterIcon />
-            </span>
-            報導者，可以看到來自報導者的觀點了，一起來看看更多深度文章吧！
-          </span>
-        ),
-        hideCancelButton: true,
-        confirmText: '我知道了',
-        confirmAction: () => {},
-      },
-      baodaozaiState: {
-        isActive: true,
-        action: 'speak',
+        action: 'dialog-enlighten',
       },
     },
     'scroll-up': {
@@ -148,8 +152,7 @@ function createBaodaozaiEventConfig({
         isOpen: false,
       },
       baodaozaiState: {
-        isActive: false,
-        action: 'none',
+        action: 'idle-read',
       },
     },
   }

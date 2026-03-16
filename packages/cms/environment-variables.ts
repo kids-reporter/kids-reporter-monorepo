@@ -1,6 +1,5 @@
 const {
   IS_UI_DISABLED,
-  ACCESS_CONTROL_STRATEGY,
   PREVIEW_SERVER_ORIGIN,
   PREVIEW_SERVER_PATH,
   DATABASE_PROVIDER,
@@ -53,7 +52,6 @@ const environmentVariables = {
   memoryCacheSize: Number.isNaN(Number(MEMORY_CACHE_SIZE))
     ? 300
     : Number(MEMORY_CACHE_SIZE),
-  accessControlStrategy: ACCESS_CONTROL_STRATEGY || 'cms', // the value could be one of 'cms', 'gql' or 'preview'
   database: {
     provider:
       DATABASE_PROVIDER === 'sqlite'

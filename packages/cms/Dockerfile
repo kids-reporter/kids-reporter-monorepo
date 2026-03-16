@@ -4,8 +4,9 @@ RUN corepack enable
 
 ## Install system dependencies, `gcsfuse` in particular.
 RUN set -e; \
-    apt-get update -y && apt-get install -y \
+    apt-get update -y && apt-get install -y --no-install-recommends \
     build-essential \
+    ca-certificates \
     curl \
     wget \
     gnupg2 \
@@ -20,8 +21,8 @@ RUN set -e; \
     # apt-get update; \
     # apt-get install -y gcsfuse \
     # TODO: remove wget workaround for gcsfuse due to missing registry & restore with apt-get
-    wget https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v1.2.0/gcsfuse_1.2.0_amd64.deb -O gcsfuse.deb && apt-get install -y ./gcsfuse.deb && rm -f ./gcsfuse.deb \
-    && apt-get clean
+    wget https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v1.2.0/gcsfuse_1.2.0_amd64.deb -O gcsfuse.deb && apt-get install -y --no-install-recommends ./gcsfuse.deb && rm -f ./gcsfuse.deb \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV APP_DIR /app
 ## Set fallback mount directory

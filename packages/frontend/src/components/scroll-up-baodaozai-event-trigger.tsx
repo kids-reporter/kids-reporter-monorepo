@@ -9,7 +9,7 @@ const SCROLL_UP_THRESHOLD = 100
 
 function ScrollUpBaodaozaiEventTrigger() {
   const { onDialogPropsChange, baodaozaiProps } = useCallBaodaozaiContext()
-  const { setIsActive, setAction, isInitialized } = baodaozaiProps
+  const { setAction, isInitialized, action } = baodaozaiProps
 
   const lastScrollY = useRef(0)
   const scrollUpStartY = useRef(0)
@@ -22,10 +22,9 @@ function ScrollUpBaodaozaiEventTrigger() {
 
   const triggerScrollUpEvent = useCallback(() => {
     onDialogPropsChange({ isOpen: false })
-    setIsActive(false)
-    setAction('none')
+    setAction('default')
     resetScrollTracking()
-  }, [onDialogPropsChange, setIsActive, setAction, resetScrollTracking])
+  }, [onDialogPropsChange, setAction, resetScrollTracking])
 
   const throttledTriggerScrollUpEvent = useMemo(
     () => throttle(triggerScrollUpEvent, 100),
@@ -63,7 +62,7 @@ function ScrollUpBaodaozaiEventTrigger() {
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, [handleScroll, isInitialized])
+  }, [handleScroll, isInitialized, action])
 
   return null
 }

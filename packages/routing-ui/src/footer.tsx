@@ -137,9 +137,7 @@ const Footer = ({
                 </a>
               </p>
               <p className="hidden desktop:inline">｜</p>
-              <p className="desktop:inline">
-                Copyright © {new Date().getFullYear()} The Reporter
-              </p>
+              <p className="desktop:inline">Copyright © The Reporter</p>
             </div>
           </div>
         </div>

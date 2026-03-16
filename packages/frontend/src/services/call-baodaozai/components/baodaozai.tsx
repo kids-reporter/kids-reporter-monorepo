@@ -1,6 +1,6 @@
 'use client'
 import { cn, useMediaQuery } from '@kids-reporter/routing-ui'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useCallBaodaozaiContext } from '../context'
 import DialogBox from './dialog-box'
@@ -14,34 +14,63 @@ function Baodaozai() {
   } = useCallBaodaozaiContext()
 
   const { confirmAction, cancelAction, ...dialogProps } = dialogWithActionProps
-  const { setIsActive, setAction, isActive, hide, setHide } = baodaozaiProps
+  const {
+    setAction,
+    setIsActionEntered,
+    hide,
+    setHide,
+    clickBaodaozaiAction,
+    setClickBaodaozaiAction,
+  } = baodaozaiProps
 
   const handleConfirm = useCallback(() => {
-    confirmAction({ setHide, setIsActive, setAction })
-    setAction('none')
-    setIsActive(false)
+    confirmAction({
+      setHide,
+      setIsActionEntered,
+      setAction,
+      setClickBaodaozaiAction,
+    })
     onDialogPropsChange({ isOpen: false })
-  }, [confirmAction, setHide, setIsActive, setAction, onDialogPropsChange])
+  }, [
+    confirmAction,
+    setHide,
+    setIsActionEntered,
+    setAction,
+    setClickBaodaozaiAction,
+    onDialogPropsChange,
+  ])
 
   const handleCancel = useCallback(() => {
-    cancelAction({ setHide, setIsActive, setAction })
-    setAction('none')
-    setIsActive(false)
+    cancelAction({
+      setHide,
+      setIsActionEntered,
+      setAction,
+      setClickBaodaozaiAction,
+    })
     onDialogPropsChange({ isOpen: false })
-  }, [cancelAction, setHide, setIsActive, setAction, onDialogPropsChange])
+  }, [
+    cancelAction,
+    setHide,
+    setIsActionEntered,
+    setAction,
+    onDialogPropsChange,
+    setClickBaodaozaiAction,
+  ])
 
   const handleOpenDialog = useCallback(() => {
     onDialogPropsChange({ isOpen: true })
-    // TODO: make default action configurable
-    setIsActive(true)
-    setAction('speak')
-  }, [onDialogPropsChange, setIsActive, setAction])
+    if (clickBaodaozaiAction) {
+      setAction(clickBaodaozaiAction)
+      return
+    }
+    setIsActionEntered(true)
+  }, [onDialogPropsChange, setAction, setIsActionEntered, clickBaodaozaiAction])
 
   const refDialogBoxContainerRef = useRef<HTMLDivElement>(null)
   const [dialogBoxHeight, setDialogBoxHeight] = useState(0)
 
-  const isMobile = useMediaQuery('(max-width: 768px)')
-  const isTablet = useMediaQuery('(max-width: 1024px)')
+  const isMobile = useMediaQuery('(max-width: 767px)')
+  const isTablet = useMediaQuery('(max-width: 1023px)')
 
   useEffect(() => {
     const container = refDialogBoxContainerRef.current
@@ -61,13 +90,24 @@ function Baodaozai() {
     }
   }, [])
 
-  const baodaozaiBottom = useMemo(() => {
-    if (!isActive) return '0px'
-    if (isMobile && dialogProps.isOpen) {
-      return `calc(${dialogBoxHeight}px - 30px)`
+  const [baodaozaiBottom, setBaodaozaiBottom] = useState('12px')
+  useEffect(() => {
+    let bottomValue
+    if (isMobile) {
+      bottomValue = dialogProps.isOpen
+        ? `calc(${dialogBoxHeight}px - 52px)`
+        : '-22px'
+    } else {
+      if (dialogProps.isOpen) {
+        bottomValue = '-24px'
+      } else if (isTablet) {
+        bottomValue = '-16px'
+      } else {
+        bottomValue = '-12px'
+      }
     }
-    return isTablet ? '24px' : '32px'
-  }, [isActive, isMobile, dialogProps.isOpen, isTablet, dialogBoxHeight])
+    setBaodaozaiBottom(bottomValue)
+  }, [isMobile, dialogProps.isOpen, dialogBoxHeight, isTablet])
 
   return (
     <div
@@ -92,10 +132,9 @@ function Baodaozai() {
       </div>
       <button
         className={cn(
-          'absolute -right-2 z-12 transition-all duration-1000 tablet:right-0 tablet:bottom-0',
+          'absolute -right-47.5 z-12 transition-all duration-1000 tablet:-right-48',
           !dialogProps.isOpen && 'cursor-pointer',
-          isActive && 'right-6 tablet:right-6 desktop:right-8',
-          dialogProps.isOpen && 'right-9 z-10'
+          dialogProps.isOpen && '-right-42 z-10'
         )}
         onClick={dialogProps.isOpen ? undefined : handleOpenDialog}
         style={{

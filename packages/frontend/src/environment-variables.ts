@@ -17,9 +17,17 @@ const loginWidgetUrl =
 
 const baodaozaiRiveFilePath =
   process.env.NEXT_PUBLIC_BAODAOZAI_RIVE_FILE_PATH ||
-  'https://kids-storage.twreporter.org/baodaozai-db.riv'
+  'https://kids-storage.twreporter.org/callinbaodaozai.riv'
 
 const nodeEnv = process.env.NODE_ENV
+
+const isPreviewMode = process.env.NEXT_PUBLIC_IS_PREVIEW_MODE === 'true'
+const rawRequestTimeoutMs = Number(process.env.NEXT_PUBLIC_REQUEST_TIMEOUT_MS)
+
+const requestTimeoutMs =
+  Number.isFinite(rawRequestTimeoutMs) && rawRequestTimeoutMs >= 0
+    ? rawRequestTimeoutMs
+    : 10000
 
 const environmentVariables = {
   internalApiGatewayEndpoint,
@@ -32,6 +40,8 @@ const environmentVariables = {
   loginWidgetUrl,
   nodeEnv,
   baodaozaiRiveFilePath,
+  isPreviewMode,
+  requestTimeoutMs,
 }
 
 export default environmentVariables
