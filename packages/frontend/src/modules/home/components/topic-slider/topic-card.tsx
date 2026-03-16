@@ -14,7 +14,7 @@ type TopicCardProp = {
 
 function TopicCard({ url, image, title, subtitle }: TopicCardProp) {
   return (
-    <div className="relative mx-auto flex h-full w-[calc(100%-48px)] flex-col overflow-hidden rounded-[40px] bg-neutral-white px-5 pt-5 pb-20 tablet:w-160 tablet:flex-row tablet:gap-6 tablet:rounded-[64px] tablet:px-10 tablet:py-12 desktop:w-208 desktop:gap-10 desktop:rounded-[80px] desktop:px-14 desktop:py-18 hd:w-272 hd:rounded-[96px] hd:px-16 hd:py-24">
+    <div className="relative mx-auto flex h-full w-[calc(100%-48px)] flex-col overflow-hidden rounded-[40px] bg-neutral-white px-5 pt-5 pb-20 tablet:w-160 tablet:flex-row tablet:gap-6 tablet:rounded-[64px] tablet:px-10 tablet:py-12 desktop:w-208 desktop:gap-10 desktop:rounded-[80px] desktop:px-14 desktop:py-18 hd:w-272 hd:rounded-[96px] hd:px-14 hd:py-24">
       <ImageWithFallback
         className="aspect-[287/162] w-full rounded-[24px] object-cover tablet:h-[171px] tablet:w-[304px] desktop:h-[234px] desktop:w-[416px] desktop:rounded-[32px] hd:h-[300px] hd:w-[533px]"
         src={image}

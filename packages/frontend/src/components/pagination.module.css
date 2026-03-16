@@ -1,9 +1,0 @@
-.index:hover {
-  border: 2px solid var(--paletteColor1);
-}
-
-.active {
-  color: var(--colorActive, white);
-  background: var(--paletteColor1);
-  pointer-events: none;
-}

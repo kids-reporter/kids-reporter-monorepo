@@ -114,6 +114,9 @@ export const AUTHOR_ROLES_IN_ORDER = [
 
 export const DEFAULT_AVATAR = '/assets/images/avatar_default.svg'
 
+export const FIRST_PAGE_TOPIC_PER_PAGE = 9
+export const OTHER_PAGE_TOPIC_PER_PAGE = 8
+
 export const POST_PER_PAGE = 9
 
 export const SEARCH_PLACEHOLDER = '搜尋更多新聞、議題'

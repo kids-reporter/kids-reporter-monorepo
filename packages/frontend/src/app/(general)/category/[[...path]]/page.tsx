@@ -252,7 +252,7 @@ export default async function Category({
   return (
     <main
       style={{ width: '95vw' }}
-      className="mb-10 flex flex-col items-center justify-center"
+      className="mx-auto mb-10 flex flex-col items-center justify-center"
     >
       <div
         className={cn(

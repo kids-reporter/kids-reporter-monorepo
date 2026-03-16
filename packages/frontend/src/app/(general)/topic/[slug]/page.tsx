@@ -2,42 +2,20 @@ import type {
   GetProjectMetaQuery,
   GetProjectQuery,
 } from '__generated__/operations/content.generated'
-import { HeaderPostTitleSetter } from '@kids-reporter/routing-ui'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
 import {
   ContentType,
-  FALLBACK_IMG,
   GENERAL_DESCRIPTION,
   KIDS_URL_ORIGIN,
   OG_SUFFIX,
-  Theme,
 } from '@/constants'
+import TopicSlugModule from '@/modules/topic/slug'
+import { TitlePosition } from '@/modules/topic/types'
+import { normalizePhoto } from '@/modules/topic/utils'
 import { getFormattedDate, getPostSummaries, log, LogLevel } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
-
-import { Content } from '../../_components/topic/content'
-import { Credits } from '../../_components/topic/credits'
-import { Leading } from '../../_components/topic/leading'
-import { RelatedPosts } from '../../_components/topic/related-posts'
-import { PublishedDate } from '../../_components/topic/styled'
-
-const normalizePhoto = (photo: {
-  resized?: { small?: string; medium?: string; large?: string }
-}) => {
-  return {
-    resized: {
-      small: photo.resized?.small ?? FALLBACK_IMG,
-      medium: photo.resized?.medium ?? photo.resized?.small ?? FALLBACK_IMG,
-      large:
-        photo.resized?.large ??
-        photo.resized?.medium ??
-        photo.resized?.small ??
-        FALLBACK_IMG,
-    },
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -114,29 +92,16 @@ export default async function TopicPage({
     : undefined
 
   return (
-    project && (
-      <div>
-        <HeaderPostTitleSetter postTitle={project.title} />
-        <Leading
-          title={project.title ?? ''}
-          subtitle={project.subtitle ?? ''}
-          titlePosition={project.titlePosition}
-          backgroundImage={heroImage}
-          mobileBgImage={mobileHeroImage}
-        />
-        {project.publishedDate ? (
-          <PublishedDate>
-            {getFormattedDate(project.publishedDate)} 最後更新
-          </PublishedDate>
-        ) : null}
-        {project.content ? (
-          <Content rawContentState={project.content} theme={Theme.BLUE} />
-        ) : null}
-        {project.credits ? (
-          <Credits rawContentState={project.credits} theme={Theme.BLUE} />
-        ) : null}
-        <RelatedPosts posts={relatedPosts} />
-      </div>
-    )
+    <TopicSlugModule
+      title={project.title ?? ''}
+      subtitle={project.subtitle ?? ''}
+      titlePosition={(project.titlePosition ?? 'center') as TitlePosition}
+      backgroundImage={heroImage}
+      mobileBgImage={mobileHeroImage}
+      publishedDate={getFormattedDate(project.publishedDate ?? '')}
+      content={project.content}
+      credits={project.credits}
+      relatedPosts={relatedPosts}
+    />
   )
 }

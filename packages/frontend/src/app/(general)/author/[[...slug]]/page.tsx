@@ -111,7 +111,7 @@ export default async function Author({ params }: { params: { slug: any } }) {
   return (
     <main
       style={{ width: '95vw' }}
-      className="mb-10 flex flex-col items-center justify-center gap-10"
+      className="mx-auto mb-10 flex flex-col items-center justify-center gap-10"
     >
       <div className="flex max-w-2xl flex-col items-center justify-center gap-1.5 bg-white px-9 pt-10">
         <div className="mx-auto mb-1.5 max-h-44 max-w-44 overflow-hidden rounded-full object-cover">

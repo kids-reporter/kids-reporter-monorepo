@@ -88,7 +88,7 @@ export default async function LatestPosts({
   return (
     <main
       style={{ width: '95vw' }}
-      className="mb-10 flex flex-col items-center justify-center gap-10"
+      className="mx-auto mb-10 flex flex-col items-center justify-center gap-10"
     >
       <BaodaozaiVisibilitySetter show={true} />
       <AllModule introContent={introContent ?? ''} />

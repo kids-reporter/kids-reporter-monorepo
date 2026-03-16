@@ -108,7 +108,7 @@ export default async function Tag({ params }: { params: { slug: any } }) {
   return (
     <main
       style={{ width: '95vw' }}
-      className="mb-10 flex flex-col items-center justify-center gap-10 px-9 pt-10"
+      className="mx-auto mb-10 flex flex-col items-center justify-center gap-10 px-9 pt-10"
     >
       <div className="flex w-full flex-col items-center justify-center bg-white">
         <h1

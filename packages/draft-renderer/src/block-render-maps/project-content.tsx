@@ -3,20 +3,26 @@ import Immutable from 'immutable'
 import React from 'react'
 import styled from 'styled-components'
 
+import { mediaQuery } from '../utils/media-query'
 import {
   Atomic,
-  Heading as _Heading,
+  Heading,
   List,
-  Paragraph as _Paragraph,
+  Paragraph as ArticleParagraph,
 } from './article-content'
 
-export const Paragraph = styled(_Paragraph)`
-  text-align: center;
-  max-width: 750px;
-`
+export const Paragraph = styled(ArticleParagraph)`
+  width: 100%;
+  max-width: 582px;
+  margin: 0 auto;
 
-export const Heading = styled(_Heading)`
-  text-align: center;
+  ${mediaQuery.desktopAbove} {
+    max-width: 608px;
+  }
+
+  ${mediaQuery.largeOnly} {
+    max-width: 648px;
+  }
 `
 
 const _blockRenderMap = Immutable.Map({

@@ -16,3 +16,5 @@ export type CategorySlug =
   | 'campus'
   | 'listening-news'
   | 'classroom'
+
+export type Breakpoint = 'mobile' | 'tablet' | 'desktop' | 'hd'
