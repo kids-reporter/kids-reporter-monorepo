@@ -5,7 +5,14 @@ const {
   GQL_HEADLESS_ACCOUNT_EMAIL,
   GQL_HEADLESS_ACCOUNT_PASSWORD,
   GO_API_ENV,
+  REQUEST_TIMEOUT_MS,
 } = process.env
+
+const parsedRequestTimeoutMs = Number(REQUEST_TIMEOUT_MS)
+const requestTimeoutMs =
+  Number.isFinite(parsedRequestTimeoutMs) && parsedRequestTimeoutMs >= 0
+    ? parsedRequestTimeoutMs
+    : 10000
 
 const getAllowOrigins = (cors: string) => {
   if (cors === '*') {
@@ -40,6 +47,7 @@ const envVar = {
             ? 'https://staging-go-api.twreporter.org'
             : 'http://localhost:8080',
     },
+    requestTimeoutMs,
   },
   cors: {
     allowOrigins: getAllowOrigins(CORS_ALLOW_ORIGINS || ''),

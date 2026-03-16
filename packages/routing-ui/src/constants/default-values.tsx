@@ -28,14 +28,14 @@ export const MENU_ITEMS: MenuItem[] = [
       { label: '人物故事', href: '/category/news/story' },
       { label: '文化報導', href: '/category/news/explore' },
       { label: '專欄', href: '/category/news/column' },
-      { label: '英文新聞', href: '/categories/news/english-version' },
+      { label: '英文新聞', href: '/category/news/english-version' },
     ],
   },
   {
     label: '多媒體',
     href: '/category/storytelling',
     subItems: [
-      { label: '圖解新聞', href: '/category/storytelling/times' },
+      { label: '圖解新聞', href: '/category/storytelling/graphic-news' },
       { label: '新聞遊戲', href: '/category/storytelling/news-game' },
       { label: '圖文故事', href: '/category/storytelling/graphic-story' },
     ],

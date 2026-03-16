@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TableOfContentSideMenu } from '@/components/table-of-content'
 import { FontSizeLevel } from '@/constants'
 import { BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT } from '@/constants/baodaozai-question-count'
+import envVars from '@/environment-variables'
 import { SeparateIcon } from '@/icons'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import {
@@ -111,7 +112,6 @@ const ArticleModule = ({
   const { member, tokens } = useHydratedAuthStore()
 
   const isLogin = !!member
-
   const handleQAModalClose = useCallback(
     ({ setHide, setAction }: QAModalEvent) => {
       setIsQAModalOpen(false)
@@ -132,9 +132,12 @@ const ArticleModule = ({
   const showBaodaozai =
     post?.showBaodaozai === true && (!isLogin || member?.showBaodaozai === true)
 
-  const essayQuestionCount = isLogin
-    ? (member?.essayQuestionCount ?? BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT)
-    : 0
+  // In Preview Mode, we use the default essay question count to show all questions
+  const essayQuestionCount = envVars.isPreviewMode
+    ? BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT
+    : isLogin
+      ? (member?.essayQuestionCount ?? BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT)
+      : 0
 
   const postQuestions = useMemo<BaodaozaiQuestions | null>(() => {
     const essayQuestions = (post.postEssayQuestions ?? []).slice(
@@ -176,21 +179,23 @@ const ArticleModule = ({
 
   const handleQAModalSubmit = useCallback(
     async (answers: Record<number, string>, events: QAModalEvent) => {
-      if (isLogin) {
+      // In Preview Mode, we consider the user as logged in to show the dialog but not submit answers
+      if (isLogin && !envVars.isPreviewMode) {
         await onBatchSubmitAnswers(answers, postQuestions)
       }
+      const showLoginDialog = isLogin || envVars.isPreviewMode
       setIsQAModalOpen(false)
       events.setHide(false)
       events.onDialogPropsChange({
         isOpen: true,
-        content: isLogin
+        content: showLoginDialog
           ? `想知道其他讀者的答案嗎？
 大家送出的思辨題答案都會顯示在「小讀者觀點大集合」頁面喔～`
           : '登入帳號完成閱讀設定，還可以挑戰更多隱藏版的思辨題唷！',
         cancelText: '跳過',
-        confirmText: isLogin ? '立即前往' : '立即登入',
+        confirmText: showLoginDialog ? '立即前往' : '立即登入',
         confirmAction: () => {
-          if (isLogin) {
+          if (showLoginDialog) {
             window.open('/idea-hub', '_blank')
           } else {
             router.push(getLoginUrl())

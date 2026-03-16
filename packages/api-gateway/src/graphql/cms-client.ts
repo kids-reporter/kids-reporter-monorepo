@@ -1,9 +1,8 @@
 import axios from 'axios'
 
+import envVars from '../environment-variables.js'
 import { formatAxiosError } from '../utils/format-axios-error.js'
 import { appendSessionCookie, TokenManager } from './auth.js'
-
-const CMS_REQUEST_TIMEOUT_MS = 10000
 
 export async function callCmsGraphql({
   apiOrigin,
@@ -14,7 +13,7 @@ export async function callCmsGraphql({
   originalCookie,
   mode,
   tokenManager,
-  timeoutMs = CMS_REQUEST_TIMEOUT_MS,
+  timeoutMs = envVars.apis.requestTimeoutMs,
 }: {
   apiOrigin: string
   document: string

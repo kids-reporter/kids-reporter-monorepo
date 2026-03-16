@@ -18,7 +18,8 @@ import {
   LOGOUT_ENDPOINT,
   STATUS_CODES,
 } from '@/constants'
-import { AXIOS_TIMEOUT, log, LogLevel } from '@/utils'
+import envVars from '@/environment-variables'
+import { log, LogLevel } from '@/utils'
 
 export type MemberProfile = {
   id: string
@@ -114,7 +115,7 @@ export const useAuthStore = create<AuthState>()(
               axiosRes = await axios.post<AccessTokenResponse>(
                 ACCESS_TOKEN_ENDPOINT,
                 null,
-                { timeout: AXIOS_TIMEOUT, withCredentials: true }
+                { timeout: envVars.requestTimeoutMs, withCredentials: true }
               )
             } catch (err) {
               if (axios.isAxiosError(err)) {
@@ -271,7 +272,7 @@ export const useAuthStore = create<AuthState>()(
           set({ status: 'loading' })
           try {
             await axios.post(LOGOUT_ENDPOINT, null, {
-              timeout: AXIOS_TIMEOUT,
+              timeout: envVars.requestTimeoutMs,
               withCredentials: true,
             })
             get().clearAuth({ nextStatus: 'logged_out' })

@@ -5,7 +5,7 @@ import axios from 'axios'
 import { useState } from 'react'
 import styled from 'styled-components'
 
-import { AXIOS_TIMEOUT } from '@/utils'
+import envVars from '@/environment-variables'
 
 import { CardProp, Cards } from './cards'
 
@@ -54,7 +54,7 @@ export const LoadMoreResults = ({
         setIsLoading(true)
         axiosRes = await axios.get(
           `/api/search?q=${nextQuery.q}&start=${start}&count=${count}`,
-          { timeout: AXIOS_TIMEOUT }
+          { timeout: envVars.requestTimeoutMs }
         )
       } catch (err) {
         setIsLoading(false)

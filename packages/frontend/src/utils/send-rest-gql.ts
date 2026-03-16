@@ -2,11 +2,9 @@ import errors from '@twreporter/errors'
 import axios, { AxiosResponse } from 'axios'
 
 import { INTERNAL_REST_GQL_ENDPOINT, REST_GQL_ENDPOINT } from '@/constants'
+import envVars from '@/environment-variables'
 
 import { log, LogLevel } from './log'
-
-// align timeout with api-gateway
-export const AXIOS_TIMEOUT = 10000
 
 type GraphQLResponse<TData = Record<string, unknown>> = {
   data?: TData
@@ -39,7 +37,7 @@ export async function sendRestGqlRequest<TData = Record<string, unknown>>({
       headers: {
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       },
-      timeout: AXIOS_TIMEOUT,
+      timeout: envVars.requestTimeoutMs,
       withCredentials: true,
       signal,
     }
