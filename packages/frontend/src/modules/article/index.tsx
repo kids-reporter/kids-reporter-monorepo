@@ -13,7 +13,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { TableOfContentSideMenu } from '@/components/table-of-content'
 import { FontSizeLevel } from '@/constants'
-import { BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT } from '@/constants/baodaozai-question-count'
+import {
+  BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT,
+  BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT_IN_PREVIEW_MODE,
+} from '@/constants/baodaozai-question-count'
 import envVars from '@/environment-variables'
 import { SeparateIcon } from '@/icons'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
@@ -134,7 +137,7 @@ const ArticleModule = ({
 
   // In Preview Mode, we use the default essay question count to show all questions
   const essayQuestionCount = envVars.isPreviewMode
-    ? BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT
+    ? BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT_IN_PREVIEW_MODE
     : isLogin
       ? (member?.essayQuestionCount ?? BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT)
       : 0
