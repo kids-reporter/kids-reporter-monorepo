@@ -52,7 +52,7 @@ function TopicAllModule({
       </div>
       <div className="w-screen bg-neutral-100 pb-14 tablet:pb-16 desktop:pb-24 hd:pb-30">
         <div className="mx-auto flex w-full flex-col items-center justify-center px-6 tablet:px-8 desktop:px-12 hd:max-w-300 hd:px-0">
-          <div className="relative mb-10 flex w-full flex-col items-center justify-center tablet:flex-row tablet:justify-between hd:px-14">
+          <div className="relative mb-5 flex w-full flex-col items-center justify-center tablet:flex-row tablet:justify-between hd:mb-10 hd:px-14">
             <div className="relative z-2 mt-6 flex items-center gap-4 self-start tablet:mt-16 desktop:mt-20 desktop:gap-5 hd:mt-24">
               <div className="h-10 w-1 rounded-[8px] bg-red-400 desktop:h-12 desktop:w-3" />
               <h1 className="prose-h1-small font-swei! text-neutral-900 desktop:prose-h1-large">
@@ -81,8 +81,8 @@ function TopicAllModule({
             <div className="absolute bottom-0 left-1/2 z-3 hidden h-[120px] w-screen -translate-x-1/2 bg-[url(/assets/images/topic/wave_l.svg)] bg-[length:1024px_120px] bg-center bg-repeat-x desktop:block hd:hidden" />
             <div className="absolute bottom-0 left-1/2 z-3 hidden h-[120px] w-screen -translate-x-1/2 bg-[url(/assets/images/topic/wave_xl.svg)] bg-[length:1440px_120px] bg-center bg-repeat-x hd:block" />
           </div>
-          <div className="w-full hd:px-4">
-            {featuredTopic && (
+          {featuredTopic && (
+            <div className="w-full hd:px-4">
               <div
                 className={cn(
                   'grid w-full grid-cols-1 rounded-[30px] bg-white tablet:gap-6 tablet:rounded-[56px] tablet:p-6 desktop:gap-x-8 desktop:gap-y-8 desktop:rounded-[56px] desktop:p-8 hd:gap-x-8 hd:gap-y-8 hd:p-10',
@@ -111,11 +111,16 @@ function TopicAllModule({
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {topicsForListing.length > 0 && (
-            <div className="mt-10 mb-5 flex w-full flex-col items-center justify-center gap-6 tablet:mt-12 tablet:mb-8 tablet:grid tablet:grid-cols-4 tablet:gap-x-6 tablet:gap-y-8 desktop:mt-14 desktop:mb-10 desktop:gap-x-8 desktop:gap-y-10 hd:mt-20 hd:mb-12 hd:gap-y-14 hd:px-14">
+            <div
+              className={cn(
+                'mt-10 mb-5 flex w-full flex-col items-center justify-center gap-6 tablet:mt-12 tablet:mb-8 tablet:grid tablet:grid-cols-4 tablet:gap-x-6 tablet:gap-y-8 desktop:mt-14 desktop:mb-10 desktop:gap-x-8 desktop:gap-y-10 hd:mt-20 hd:mb-12 hd:gap-y-14 hd:px-14',
+                !featuredTopic && 'mt-0'
+              )}
+            >
               {topicsForListing.map((topic, index) => {
                 const isLastOddTopic =
                   index === topicsForListing.length - 1 &&
