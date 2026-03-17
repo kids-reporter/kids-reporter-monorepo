@@ -1,3 +1,4 @@
+import { emitStructured } from '@kids-reporter/logger'
 import http from 'http'
 
 import { createApp } from './app.js'
@@ -17,26 +18,19 @@ async function start() {
       },
     })
     server = http.createServer(app).listen(port, () => {
-      console.log(
-        JSON.stringify({
-          severity: 'NOTICE',
-          message: `server starts at port ${port}`,
-        })
-      )
+      emitStructured({
+        severity: 'INFO',
+        message: `server starts at port ${port}`,
+      })
     })
   } catch (err) {
-    console.error(
-      JSON.stringify({
-        severity: 'ALERT',
-        // All exceptions that include a stack trace will be
-        // integrated with Error Reporting.
-        // See https://cloud.google.com/run/docs/error-reporting
-        message:
-          err instanceof Error && err.stack
-            ? 'Error to start server: ' + err.stack
-            : new Error('Error to start server').stack,
-      })
-    )
+    const message =
+      err instanceof Error ? (err.stack ?? err.message) : String(err)
+    emitStructured({
+      severity: 'ALERT',
+      message,
+      error: err instanceof Error ? err.stack : String(err),
+    })
   }
 
   process.on('SIGTERM', () => {

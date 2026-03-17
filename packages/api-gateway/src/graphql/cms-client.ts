@@ -31,7 +31,10 @@ export async function callCmsGraphql({
       endpoint,
       { query: document, variables, operationName },
       {
-        headers: { ...customHeaders, 'content-type': 'application/json' },
+        headers: {
+          ...customHeaders,
+          'content-type': 'application/json',
+        },
         timeout: timeoutMs,
       }
     )

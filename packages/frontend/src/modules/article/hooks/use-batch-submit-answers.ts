@@ -1,3 +1,4 @@
+import { emitStructured } from '@kids-reporter/logger'
 import { useQueryClient } from '@tanstack/react-query'
 import errors from '@twreporter/errors'
 import { useCallback } from 'react'
@@ -15,7 +16,6 @@ import {
   useUpdatePostEssayAnswerMutation,
 } from '@/api-utils/react-query/hooks/post-essay-answer'
 import { BaodaozaiQuestions } from '@/services/call-baodaozai'
-import { log, LogLevel } from '@/utils'
 
 function useBatchSubmitAnswers({
   memberId,
@@ -156,7 +156,7 @@ function useBatchSubmitAnswers({
               0
             )
 
-            log(LogLevel.ERROR, msg)
+            emitStructured({ severity: 'ERROR', message: msg })
           }
         })
       )

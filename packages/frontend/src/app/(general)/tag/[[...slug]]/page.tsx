@@ -2,7 +2,9 @@ import type {
   GetTagMetaQuery,
   GetTagPostsQuery,
 } from '__generated__/operations/content.generated'
+import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import Pagination from '@/components/pagination'
@@ -14,8 +16,9 @@ import {
   OG_SUFFIX,
   POST_PER_PAGE,
 } from '@/constants'
-import { getPostSummaries, log, LogLevel } from '@/utils'
+import { getPostSummaries } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export async function generateMetadata({
   params,
@@ -35,7 +38,10 @@ export async function generateMetadata({
   })
   const tagMeta = tagOGRes?.data?.data?.tag
   if (!tagMeta) {
-    log(LogLevel.WARNING, `Tag meta not found! ${slug}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Tag meta not found! ${slug}`,
+    })
   }
 
   return {
@@ -63,9 +69,9 @@ export async function generateMetadata({
 export default async function Tag({ params }: { params: { slug: any } }) {
   const slug = params.slug?.[0]
   const currentPage = !params.slug?.[1] ? 1 : Number(params.slug[1])
-
+  const traceHeaders = getServerTraceHeaders(headers())
   if (params.slug?.length > 2 || !slug || !(currentPage > 0)) {
-    log(LogLevel.WARNING, 'Incorrect tag routing!')
+    emitStructured({ severity: 'WARNING', message: 'Incorrect tag routing!' })
     notFound()
   }
 
@@ -84,11 +90,12 @@ export default async function Tag({ params }: { params: { slug: any } }) {
       take: POST_PER_PAGE,
       skip: (currentPage - 1) * POST_PER_PAGE,
     },
+    traceHeaders,
   })
 
   const tag = response?.data?.data?.tag
   if (!tag) {
-    log(LogLevel.WARNING, 'Tag not found!')
+    emitStructured({ severity: 'WARNING', message: 'Tag not found!' })
     notFound()
   }
   const posts = tag.posts ?? []
@@ -96,10 +103,10 @@ export default async function Tag({ params }: { params: { slug: any } }) {
 
   const totalPages = Math.ceil(postsCount / POST_PER_PAGE)
   if (currentPage > 1 && currentPage > totalPages) {
-    log(
-      LogLevel.WARNING,
-      `Request page(${currentPage}) exceeds total pages(${totalPages})!`
-    )
+    emitStructured({
+      severity: 'WARNING',
+      message: `Request page(${currentPage}) exceeds total pages(${totalPages})!`,
+    })
     notFound()
   }
 
@@ -108,7 +115,7 @@ export default async function Tag({ params }: { params: { slug: any } }) {
   return (
     <main
       style={{ width: '95vw' }}
-      className="mb-10 flex flex-col items-center justify-center gap-10 px-9 pt-10"
+      className="mx-auto mb-10 flex flex-col items-center justify-center gap-10 px-9 pt-10"
     >
       <div className="flex w-full flex-col items-center justify-center bg-white">
         <h1

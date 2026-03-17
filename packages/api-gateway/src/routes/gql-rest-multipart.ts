@@ -3,6 +3,7 @@
 import { randomBytes } from 'node:crypto'
 import { PassThrough } from 'node:stream'
 
+import { emitStructured } from '@kids-reporter/logger'
 import axios from 'axios'
 import Busboy from 'busboy'
 import express from 'express'
@@ -78,21 +79,19 @@ export const createMultipartRewriteHandler = ({
           'GraphQLRestMultipartServerError',
           'GraphQL REST multipart server error'
         )
-        console.error(
-          JSON.stringify({
-            severity: 'ERROR',
-            message: errors.helpers.printAll(
-              annotatedErr,
-              {
-                withStack: true,
-                withPayload: true,
-              },
-              0,
-              0
-            ),
-            ...res?.locals?.globalLogFields,
-          })
-        )
+        emitStructured({
+          severity: 'ERROR',
+          message: errors.helpers.printAll(
+            annotatedErr,
+            {
+              withStack: true,
+              withPayload: true,
+            },
+            0,
+            0
+          ),
+          ...res?.locals?.globalLogFields,
+        })
       }
       res.set('Cache-Control', 'no-store')
       logResponse(
@@ -241,18 +240,16 @@ export const createMultipartRewriteHandler = ({
 
     // Reject malformed multipart payloads.
     busboy.on('error', (err) => {
-      console.log(
-        JSON.stringify({
-          severity: 'INFO',
-          message: 'Invalid multipart payload',
-          context: {
-            error: {
-              message: (err as Error).message,
-              stack: (err as Error).stack,
-            },
+      emitStructured({
+        severity: 'INFO',
+        message: 'Invalid multipart payload',
+        context: {
+          error: {
+            message: (err as Error).message,
+            stack: (err as Error).stack,
           },
-        })
-      )
+        },
+      })
       return abortWith(statusCodes.badRequest, {
         status: 'fail',
         data: {

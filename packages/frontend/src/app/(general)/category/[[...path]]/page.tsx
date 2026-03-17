@@ -1,6 +1,8 @@
 import { Post } from '__generated__/types'
+import { emitStructured } from '@kids-reporter/logger'
 import { cn } from '@kids-reporter/routing-ui'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 
 import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
@@ -23,12 +25,13 @@ import {
 } from '@/constants'
 import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
 import { DeepPartial } from '@/types/utils'
-import { getPostSummaries, log, LogLevel } from '@/utils'
+import { getPostSummaries } from '@/utils'
 import {
   mapCategorySlugToIntroPageType,
   mapCategoryThemeToClassName,
   parseCategoryInfoFromPath,
 } from '@/utils/category'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 import Navigator from '../../_components/category/navigator'
 import CategoryModule from './_components/module'
@@ -53,10 +56,10 @@ export async function generateMetadata({
   })
 
   if (!categoryData) {
-    log(
-      LogLevel.INFO,
-      `Category metadata not found. URL path is: /${path?.join('/') ?? ''}`
-    )
+    emitStructured({
+      severity: 'INFO',
+      message: `Category metadata not found. URL path is: /${path?.join('/') ?? ''}`,
+    })
     return {}
   }
 
@@ -73,10 +76,10 @@ export async function generateMetadata({
     categoryData?.ogImage?.resized?.medium
 
   if (!category) {
-    log(
-      LogLevel.INFO,
-      `Category metadata not found. URL path is: /${params.path?.join('/') ?? ''}`
-    )
+    emitStructured({
+      severity: 'INFO',
+      message: `Category metadata not found. URL path is: /${params.path?.join('/') ?? ''}`,
+    })
     return {}
   }
 
@@ -91,31 +94,37 @@ export async function generateMetadata({
   }
 }
 
-function getPosts({
-  category,
-  subcategory,
-  subSubcategory,
-  currentPage,
-}: {
-  category: string
-  subcategory?: string
-  subSubcategory?: string
-  currentPage: number
-}) {
+function getPosts(
+  {
+    category,
+    subcategory,
+    subSubcategory,
+    currentPage,
+  }: {
+    category: string
+    subcategory?: string
+    subSubcategory?: string
+    currentPage: number
+  },
+  traceHeaders?: Record<string, string>
+) {
   const commonVariables = {
     take: POST_PER_PAGE,
     skip: (currentPage - 1) * POST_PER_PAGE,
   }
   if (subSubcategory) {
-    return getSubSubcategoryPosts({
-      where: { slug: subSubcategory },
-      ...commonVariables,
-      orderBy: [
-        {
-          publishedDate: 'desc',
-        },
-      ],
-    })
+    return getSubSubcategoryPosts(
+      {
+        where: { slug: subSubcategory },
+        ...commonVariables,
+        orderBy: [
+          {
+            publishedDate: 'desc',
+          },
+        ],
+      },
+      traceHeaders
+    )
   }
   if (subcategory) {
     return getSubcategoryPosts({
@@ -151,9 +160,12 @@ export default async function Category({
     currentPage = 1,
     isNotFound,
   } = parseCategoryInfoFromPath(path)
-
+  const traceHeaders = getServerTraceHeaders(headers())
   if (isNotFound || !category) {
-    log(LogLevel.WARNING, `Category not found! ${path}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Category not found! ${path}`,
+    })
     notFound()
   }
 
@@ -161,14 +173,20 @@ export default async function Category({
   const pageEnum = mapCategorySlugToIntroPageType(category)
 
   const introContent = pageEnum
-    ? await getCallBaodaozaiIntroContent({ where: { page: pageEnum } })
+    ? await getCallBaodaozaiIntroContent(
+        { where: { page: pageEnum } },
+        traceHeaders
+      )
     : undefined
 
-  const categoryData = await getCategorySubcategoriesAndThemeColor({
-    where: { slug: category },
-  })
+  const categoryData = await getCategorySubcategoriesAndThemeColor(
+    {
+      where: { slug: category },
+    },
+    traceHeaders
+  )
   if (!categoryData) {
-    log(LogLevel.WARNING, 'Incorrect category!')
+    emitStructured({ severity: 'WARNING', message: 'Incorrect category!' })
     notFound()
   }
   const theme = (categoryData.themeColor || DEFAULT_THEME_COLOR) as Theme
@@ -186,15 +204,18 @@ export default async function Category({
   ]
 
   // Fetch related posts of subSubcategory/subcategory/category
-  const postsRes = await getPosts({
-    category,
-    subcategory,
-    subSubcategory,
-    currentPage,
-  })
+  const postsRes = await getPosts(
+    {
+      category,
+      subcategory,
+      subSubcategory,
+      currentPage,
+    },
+    traceHeaders
+  )
 
   if (!postsRes) {
-    log(LogLevel.WARNING, `Empty related posts!`)
+    emitStructured({ severity: 'WARNING', message: 'Empty related posts!' })
     redirect(ERROR_PAGE)
   }
 
@@ -205,10 +226,10 @@ export default async function Category({
       subcategory !== subcategoryCandidate ||
       category !== categoryCandidate
     ) {
-      log(
-        LogLevel.WARNING,
-        `Parent category mismatch! subcategory=${subcategoryCandidate}, category=${categoryCandidate}`
-      )
+      emitStructured({
+        severity: 'WARNING',
+        message: `Parent category mismatch! subcategory=${subcategoryCandidate}, category=${categoryCandidate}`,
+      })
       redirect(ERROR_PAGE)
     }
   }
@@ -216,10 +237,10 @@ export default async function Category({
   if ('category' in postsRes) {
     const categoryCandidate = postsRes?.category?.slug
     if (category !== categoryCandidate) {
-      log(
-        LogLevel.WARNING,
-        `Parent category mismatch! category=${categoryCandidate}`
-      )
+      emitStructured({
+        severity: 'WARNING',
+        message: `Parent category mismatch! category=${categoryCandidate}`,
+      })
       redirect(ERROR_PAGE)
     }
   }
@@ -232,10 +253,10 @@ export default async function Category({
 
   const totalPages = Math.ceil(postsCount / POST_PER_PAGE)
   if (totalPages > 0 && currentPage > totalPages) {
-    log(
-      LogLevel.WARNING,
-      `Incorrect page! currentPage=${currentPage}, totalPages=${totalPages}`
-    )
+    emitStructured({
+      severity: 'WARNING',
+      message: `Incorrect page! currentPage=${currentPage}, totalPages=${totalPages}`,
+    })
     notFound()
   }
 
@@ -252,7 +273,7 @@ export default async function Category({
   return (
     <main
       style={{ width: '95vw' }}
-      className="mb-10 flex flex-col items-center justify-center"
+      className="mx-auto mb-10 flex flex-col items-center justify-center"
     >
       <div
         className={cn(

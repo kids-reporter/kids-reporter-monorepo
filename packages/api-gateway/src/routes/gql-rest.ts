@@ -1,3 +1,4 @@
+import { emitStructured } from '@kids-reporter/logger'
 import express from 'express'
 import { print } from 'graphql'
 
@@ -195,21 +196,19 @@ export function createGqlRestRouter({
             'GraphQLRestError',
             'Failed to call CMS GraphQL'
           )
-          console.error(
-            JSON.stringify({
-              severity: 'ERROR',
-              message: errors.helpers.printAll(
-                annotatedErr,
-                {
-                  withStack: true,
-                  withPayload: true,
-                },
-                0,
-                0
-              ),
-              ...res?.locals?.globalLogFields,
-            })
-          )
+          emitStructured({
+            severity: 'ERROR',
+            message: errors.helpers.printAll(
+              annotatedErr,
+              {
+                withStack: true,
+                withPayload: true,
+              },
+              0,
+              0
+            ),
+            ...res?.locals?.globalLogFields,
+          })
           const payload = {
             status: 'error',
             message: 'Failed to process request',

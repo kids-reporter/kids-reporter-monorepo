@@ -16,7 +16,7 @@ export const MENU_ITEMS: MenuItem[] = [
   },
   {
     label: '專題',
-    href: '/topic/page',
+    href: '/topic/page/1',
     subItems: [],
   },
   {

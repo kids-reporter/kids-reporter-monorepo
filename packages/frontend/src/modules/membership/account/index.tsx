@@ -1,5 +1,6 @@
 'use client'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { emitStructured } from '@kids-reporter/logger'
 import {
   Button,
   HeaderMobileBackButtonHrefSetter,
@@ -16,7 +17,7 @@ import {
 } from '@/api-utils/react-query/hooks/member-avatars'
 import { DEFAULT_TEXT_HOLDER } from '@/constants/input-field'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
-import { getFormattedDate, log, LogLevel } from '@/utils'
+import { getFormattedDate } from '@/utils'
 
 import MembershipSideMenu from '../components/side-menu'
 import UserAvatar from '../components/user-avatar'
@@ -117,7 +118,7 @@ function Account() {
           withPayload: true,
         })
 
-        log(LogLevel.ERROR, msg)
+        emitStructured({ severity: 'ERROR', message: msg })
         toast.error('儲存失敗，請稍後再試。')
       }
     },

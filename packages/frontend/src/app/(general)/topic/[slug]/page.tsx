@@ -2,42 +2,23 @@ import type {
   GetProjectMetaQuery,
   GetProjectQuery,
 } from '__generated__/operations/content.generated'
-import { HeaderPostTitleSetter } from '@kids-reporter/routing-ui'
+import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import {
   ContentType,
-  FALLBACK_IMG,
   GENERAL_DESCRIPTION,
   KIDS_URL_ORIGIN,
   OG_SUFFIX,
-  Theme,
 } from '@/constants'
-import { getFormattedDate, getPostSummaries, log, LogLevel } from '@/utils'
+import TopicSlugModule from '@/modules/topic/slug'
+import { TitlePosition } from '@/modules/topic/types'
+import { normalizePhoto } from '@/modules/topic/utils'
+import { getFormattedDate, getPostSummaries } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
-
-import { Content } from '../../_components/topic/content'
-import { Credits } from '../../_components/topic/credits'
-import { Leading } from '../../_components/topic/leading'
-import { RelatedPosts } from '../../_components/topic/related-posts'
-import { PublishedDate } from '../../_components/topic/styled'
-
-const normalizePhoto = (photo: {
-  resized?: { small?: string; medium?: string; large?: string }
-}) => {
-  return {
-    resized: {
-      small: photo.resized?.small ?? FALLBACK_IMG,
-      medium: photo.resized?.medium ?? photo.resized?.small ?? FALLBACK_IMG,
-      large:
-        photo.resized?.large ??
-        photo.resized?.medium ??
-        photo.resized?.small ??
-        FALLBACK_IMG,
-    },
-  }
-}
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export async function generateMetadata({
   params,
@@ -57,7 +38,10 @@ export async function generateMetadata({
   })
   const topicMeta = topicOGRes?.data?.data?.project
   if (!topicMeta) {
-    log(LogLevel.WARNING, `Topic not found! ${params.slug}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Topic not found! ${params.slug}`,
+    })
   }
 
   return {
@@ -88,10 +72,10 @@ export default async function TopicPage({
   params: { slug: string }
 }) {
   if (!params?.slug) {
-    log(LogLevel.WARNING, 'Incorrect topic slug!')
+    emitStructured({ severity: 'WARNING', message: 'Incorrect topic slug!' })
     notFound()
   }
-
+  const traceHeaders = getServerTraceHeaders(headers())
   const axiosRes = await sendRestGqlRequest<GetProjectQuery>({
     operation: 'project-detail',
     method: 'GET',
@@ -100,10 +84,11 @@ export default async function TopicPage({
         slug: params.slug,
       },
     },
+    traceHeaders,
   })
   const project = axiosRes?.data?.data?.project
   if (!project) {
-    log(LogLevel.WARNING, 'Empty topic!')
+    emitStructured({ severity: 'WARNING', message: 'Empty topic!' })
     notFound()
   }
 
@@ -114,29 +99,16 @@ export default async function TopicPage({
     : undefined
 
   return (
-    project && (
-      <div>
-        <HeaderPostTitleSetter postTitle={project.title} />
-        <Leading
-          title={project.title ?? ''}
-          subtitle={project.subtitle ?? ''}
-          titlePosition={project.titlePosition}
-          backgroundImage={heroImage}
-          mobileBgImage={mobileHeroImage}
-        />
-        {project.publishedDate ? (
-          <PublishedDate>
-            {getFormattedDate(project.publishedDate)} 最後更新
-          </PublishedDate>
-        ) : null}
-        {project.content ? (
-          <Content rawContentState={project.content} theme={Theme.BLUE} />
-        ) : null}
-        {project.credits ? (
-          <Credits rawContentState={project.credits} theme={Theme.BLUE} />
-        ) : null}
-        <RelatedPosts posts={relatedPosts} />
-      </div>
-    )
+    <TopicSlugModule
+      title={project.title ?? ''}
+      subtitle={project.subtitle ?? ''}
+      titlePosition={(project.titlePosition ?? 'center') as TitlePosition}
+      backgroundImage={heroImage}
+      mobileBgImage={mobileHeroImage}
+      publishedDate={getFormattedDate(project.publishedDate ?? '')}
+      content={project.content}
+      credits={project.credits}
+      relatedPosts={relatedPosts}
+    />
   )
 }

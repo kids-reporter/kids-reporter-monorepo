@@ -114,6 +114,9 @@ export const AUTHOR_ROLES_IN_ORDER = [
 
 export const DEFAULT_AVATAR = '/assets/images/avatar_default.svg'
 
+export const FIRST_PAGE_TOPIC_PER_PAGE = 9
+export const OTHER_PAGE_TOPIC_PER_PAGE = 8
+
 export const POST_PER_PAGE = 9
 
 export const SEARCH_PLACEHOLDER = '搜尋更多新聞、議題'
@@ -125,6 +128,8 @@ export const FALLBACK_IMG = '/assets/images/image_placeholder.png'
 export const DEBOUNCE_THRESHOLD = 100
 
 export const STICKY_HEADER_HEIGHT = 64
+
+export const DESKTOP_HEADER_HEIGHT = 128
 
 export const CATEGORY_IMAGES: Record<CategorySlug, string> = {
   news: '/assets/images/category_news.svg',

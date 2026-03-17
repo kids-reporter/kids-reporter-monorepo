@@ -1,8 +1,8 @@
+import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 import { NextResponse } from 'next/server'
 
 import envVars from '@/environment-variables'
-import { log, LogLevel } from '@/utils'
 
 import {
   defaultCount,
@@ -37,7 +37,10 @@ export async function GET(request: Request) {
       count,
     })
     if (postCardFormat) {
-      const items = await transferItemsToCards(searchResults.items)
+      const items = await transferItemsToCards(
+        searchResults.items,
+        request.headers
+      )
       return NextResponse.json({
         status: 'success',
         data: Object.assign(searchResults, { items }),
@@ -53,7 +56,7 @@ export async function GET(request: Request) {
       withPayload: true,
       withStack: true,
     })
-    log(LogLevel.WARNING, msg)
+    emitStructured({ severity: 'WARNING', message: msg })
 
     return NextResponse.json(
       {

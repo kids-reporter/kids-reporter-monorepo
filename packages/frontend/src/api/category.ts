@@ -32,13 +32,15 @@ export const getCategoryMetadata = async (
 }
 
 export const getCategorySubcategoriesAndThemeColor = async (
-  variables: GetCategorySubcategoriesAndThemeColorQueryVariables
+  variables: GetCategorySubcategoriesAndThemeColorQueryVariables,
+  traceHeaders?: Record<string, string>
 ) => {
   const response =
     await sendRestGqlRequest<GetCategorySubcategoriesAndThemeColorQuery>({
       operation: 'category-subcategories-and-theme-color',
       method: 'GET',
       variables,
+      traceHeaders,
     })
   return response?.data?.data?.category
 }

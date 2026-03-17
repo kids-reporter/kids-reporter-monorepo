@@ -1,4 +1,5 @@
 import { MemberUpdateInput } from '__generated__/types'
+import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -6,7 +7,6 @@ import { useUpdateMemberProfileMutation } from '@/api-utils/react-query/hooks/me
 import { BAODAOZAI_DEFAULT_ESSAY_QUESTION_COUNT } from '@/constants/baodaozai-question-count'
 import useDebounceValue from '@/hooks/use-debounce-value'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
-import { log, LogLevel } from '@/utils'
 
 function useOptimisticUpdateMemberReadingSettings() {
   const {
@@ -134,7 +134,7 @@ function useOptimisticUpdateMemberReadingSettings() {
           withStack: true,
           withPayload: true,
         })
-        log(LogLevel.ERROR, msg)
+        emitStructured({ severity: 'ERROR', message: msg })
       }
     }
 

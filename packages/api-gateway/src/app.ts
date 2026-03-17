@@ -1,3 +1,4 @@
+import { emitStructured } from '@kids-reporter/logger'
 // @ts-ignore `@twreporter/errors` does not have typescript definition file yet
 import _errors from '@twreporter/errors'
 import cookieParser from 'cookie-parser'
@@ -99,7 +100,7 @@ export function createApp({
       },
       res.locals.globalLogFields
     )
-    console.error(JSON.stringify(entry))
+    emitStructured(entry)
     res.status(statusCodes.internalServerError).send({
       status: 'error',
       error: annotatingError.error,

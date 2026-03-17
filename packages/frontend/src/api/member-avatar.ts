@@ -6,6 +6,7 @@ import axios, { AxiosResponse } from 'axios'
 
 import { REST_GQL_ENDPOINT } from '@/constants'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
+import { buildTraceHeaders } from '@/utils/trace-context'
 
 export const uploadMemberAvatar = async (
   file: File,
@@ -25,6 +26,7 @@ export const uploadMemberAvatar = async (
     headers: {
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       'apollo-require-preflight': 'true',
+      ...buildTraceHeaders(),
     },
     withCredentials: true,
   })

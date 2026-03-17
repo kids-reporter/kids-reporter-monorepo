@@ -1,4 +1,6 @@
+import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import { getPost, getPostMeta } from '@/api/post'
@@ -9,7 +11,7 @@ import {
   OG_SUFFIX,
 } from '@/constants'
 import ArticleModule from '@/modules/article'
-import { log, LogLevel } from '@/utils'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 const topicRelatedPostsNum = 5
 const postEssayQuestionsTake = 3
@@ -21,15 +23,21 @@ export async function generateMetadata({
   params: { slug: string }
 }): Promise<Metadata> {
   const slug = params.slug
-
-  const postMeta = await getPostMeta({
-    where: {
-      slug: slug,
+  const traceHeaders = getServerTraceHeaders(headers())
+  const postMeta = await getPostMeta(
+    {
+      where: {
+        slug: slug,
+      },
     },
-  })
+    traceHeaders
+  )
 
   if (!postMeta) {
-    log(LogLevel.WARNING, `Post meta not found! ${params.slug}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Post meta not found! ${params.slug}`,
+    })
   }
 
   return {
@@ -68,7 +76,7 @@ export default async function PostPage({
 }) {
   const slug = params.slug
   if (!slug) {
-    log(LogLevel.WARNING, 'Invalid post slug!')
+    emitStructured({ severity: 'WARNING', message: 'Invalid post slug!' })
     notFound()
   }
 
@@ -87,7 +95,7 @@ export default async function PostPage({
     postChoiceQuestionsTake,
   })
   if (!post) {
-    log(LogLevel.WARNING, `Post not found! ${slug}`)
+    emitStructured({ severity: 'WARNING', message: `Post not found! ${slug}` })
     notFound()
   }
 

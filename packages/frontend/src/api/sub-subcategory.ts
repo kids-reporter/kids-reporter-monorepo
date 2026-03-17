@@ -6,12 +6,14 @@ import {
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
 export const getSubSubcategoryPosts = async (
-  variables: GetSubSubcategoryPostsQueryVariables
+  variables: GetSubSubcategoryPostsQueryVariables,
+  traceHeaders?: Record<string, string>
 ) => {
   const response = await sendRestGqlRequest<GetSubSubcategoryPostsQuery>({
     operation: 'sub-subcategory-posts',
     method: 'GET',
     variables,
+    traceHeaders,
   })
   return response?.data?.data?.subSubcategory
 }
