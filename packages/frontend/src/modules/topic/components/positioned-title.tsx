@@ -34,7 +34,7 @@ function PositionedTitle({
   return (
     <div
       className={cn(
-        'absolute text-neutral-white text-shadow-[0_2px_8px_rgba(0,0,0,0.45)] tablet:text-shadow-[0_2px_10px_rgba(0,0,0,0.60)]',
+        'absolute text-neutral-white text-shadow-[0_2px_8px_rgba(0,0,0,0.25)] tablet:text-shadow-[0_2px_10px_rgba(0,0,0,0.60)]',
         getTitleClassname(titlePosition)
       )}
     >
