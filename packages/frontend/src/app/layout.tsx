@@ -4,10 +4,12 @@ import { Footer } from '@kids-reporter/routing-ui'
 import { GoogleTagManager } from '@next/third-parties/google'
 import { Noto_Sans_TC } from 'next/font/google'
 import localFont from 'next/font/local'
+import { headers } from 'next/headers'
 
 import Providers from '@/components/providers'
 import { Toaster } from '@/components/toaster'
 import FeatureIntroDialog from '@/services/feature-intro/components/feature-info-dialog'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 const GTM_ID = 'GTM-T37WZJ44'
 
@@ -27,11 +29,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const traceHeaders = getServerTraceHeaders(headers())
   return (
     <html className={`${notoSansTC.variable} ${swei.variable}`}>
       <GoogleTagManager gtmId={GTM_ID} />
       <body>
-        <Providers>
+        <Providers traceHeaders={traceHeaders}>
           <FeatureIntroDialog />
           {children}
           <Footer />

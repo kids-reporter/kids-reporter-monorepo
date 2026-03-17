@@ -129,6 +129,8 @@ export const DEBOUNCE_THRESHOLD = 100
 
 export const STICKY_HEADER_HEIGHT = 64
 
+export const DESKTOP_HEADER_HEIGHT = 128
+
 export const CATEGORY_IMAGES: Record<CategorySlug, string> = {
   news: '/assets/images/category_news.svg',
   storytelling: '/assets/images/category_storytelling.svg',

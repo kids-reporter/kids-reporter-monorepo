@@ -5,11 +5,11 @@ import type {
 } from '__generated__/operations/content.generated'
 import { customsearch } from '@googleapis/customsearch'
 import { customsearch_v1 } from '@googleapis/customsearch/v1'
+import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 
 import { CardProp } from '@/app/(general)/_components/search/card'
 import { ContentType, Theme } from '@/constants'
-import { log, LogLevel } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
 const client = customsearch('v1')
@@ -29,7 +29,8 @@ export type SearchResult = {
 const validContentTypes = Object.values(ContentType)
 
 export async function transferItemsToCards(
-  items: customsearch_v1.Schema$Result[]
+  items: customsearch_v1.Schema$Result[],
+  traceHeaders?: Headers | Record<string, string | undefined>
 ): Promise<CardProp[]> {
   if (!Array.isArray(items)) {
     return items
@@ -70,6 +71,7 @@ export async function transferItemsToCards(
                 slug: slug,
               },
             },
+            traceHeaders,
           })
         contentSummary.category = '專題'
         contentSummary.postCount =
@@ -83,6 +85,7 @@ export async function transferItemsToCards(
               slug: slug,
             },
           },
+          traceHeaders,
         })
         contentSummary.category = '作者'
         contentSummary.postCount =
@@ -100,6 +103,7 @@ export async function transferItemsToCards(
               publishedDate: 'desc',
             },
           },
+          traceHeaders,
         })
         contentSummary.category = '標籤'
         contentSummary.postCount = tagRes?.data?.data?.tag?.postsCount ?? 0
@@ -213,7 +217,7 @@ export async function getFilteredSearchResults({
       0,
       0
     )
-    log(LogLevel.WARNING, msg)
+    emitStructured({ severity: 'WARNING', message: msg })
 
     // Return accumulated items for workaround.
     // Google Custom Search JSON API sometimes returns different results,

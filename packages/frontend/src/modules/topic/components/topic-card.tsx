@@ -39,8 +39,8 @@ function TopicCard({
           {/* Title: Figma pb/px mobile 20/20, tablet 20/24, desktop 24/32 */}
           <div className="absolute right-0 bottom-0 left-0 flex items-end px-[20px] pb-[20px] tablet:px-[24px] tablet:pb-[20px] desktop:px-[32px] desktop:pb-[24px]">
             <h2
-              className="line-clamp-2 font-swei text-[22px] leading-[1.6] font-bold tracking-[1.1px] text-neutral-white desktop:text-[28px] desktop:tracking-[1.4px]"
-              style={{ textShadow: '0px 2px 10px rgba(0,0,0,0.6)' }}
+              className="line-clamp-2 prose-h4-small font-swei! text-neutral-white desktop:prose-h4-large desktop:text-[28px]"
+              style={{ textShadow: '0px 2px 3px rgba(0,0,0,0.80)' }}
             >
               {title}
             </h2>

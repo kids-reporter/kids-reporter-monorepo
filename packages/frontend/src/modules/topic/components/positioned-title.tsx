@@ -45,7 +45,12 @@ function PositionedTitle({
         <p className="mb-4 prose-p1-bold">{`${publishedDate} 最後更新 | 共 ${articleCount} 篇文章`}</p>
       )}
 
-      <h1 className="mb-2 prose-h1-small font-swei! desktop:prose-h1-large">
+      <h1
+        className="mb-2 prose-h1-small font-swei! desktop:prose-h1-large"
+        style={{
+          textShadow: '0 2px 10px rgba(0, 0, 0, 0.60)',
+        }}
+      >
         {title}
       </h1>
       {subtitle && (

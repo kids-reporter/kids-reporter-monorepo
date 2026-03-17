@@ -3,10 +3,10 @@ import { useQuery } from '@tanstack/react-query'
 import { getPopularKeywords } from '@/api/popular-keywords'
 
 const POPULAR_KEYWORDS_QUERY_KEY = 'popular-keywords'
-export const usePopularKeywords = () => {
+export const usePopularKeywords = (traceHeaders?: Record<string, string>) => {
   return useQuery({
     queryKey: usePopularKeywords.getQueryKey(),
-    queryFn: () => getPopularKeywords(),
+    queryFn: () => getPopularKeywords(undefined, traceHeaders),
     staleTime: Infinity,
     refetchOnWindowFocus: false,
   })

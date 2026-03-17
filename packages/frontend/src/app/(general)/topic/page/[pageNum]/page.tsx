@@ -1,4 +1,6 @@
+import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
@@ -11,7 +13,8 @@ import {
 } from '@/constants'
 import TopicAllModule from '@/modules/topic/all'
 import { TopicSummary } from '@/modules/topic/types'
-import { getPostSummaries, log, LogLevel } from '@/utils'
+import { getPostSummaries } from '@/utils'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export const metadata: Metadata = {
   title: '彙整: 專題 - 少年報導者 The Reporter for Kids',
@@ -28,35 +31,43 @@ export default async function Topic({
     !Number.isInteger(Number(pageNum)) ||
     Number(pageNum) <= 0
   ) {
-    log(LogLevel.WARNING, `Incorrect page number! ${pageNum}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Incorrect page number! ${pageNum}`,
+    })
     notFound()
   }
 
   const currentPage = Number(pageNum)
 
+  const traceHeaders = getServerTraceHeaders(headers())
+
   const [projectsRes, topicsIntroContentRes] = await Promise.allSettled([
     // Fetch projects of specific page
-    getTopicProjectsPaged({
-      orderBy: [
-        {
-          publishedDate: 'desc',
-        },
-      ],
-      take:
-        currentPage === 1
-          ? FIRST_PAGE_TOPIC_PER_PAGE
-          : OTHER_PAGE_TOPIC_PER_PAGE,
-      skip:
-        currentPage === 1
-          ? 0
-          : FIRST_PAGE_TOPIC_PER_PAGE +
-            (currentPage - 2) * OTHER_PAGE_TOPIC_PER_PAGE,
-      includeRelatedPosts: true,
-    }),
-    getCallBaodaozaiIntroContent({ where: { page: 'topics' } }),
+    getTopicProjectsPaged(
+      {
+        orderBy: [
+          {
+            publishedDate: 'desc',
+          },
+        ],
+        take:
+          currentPage === 1
+            ? FIRST_PAGE_TOPIC_PER_PAGE
+            : OTHER_PAGE_TOPIC_PER_PAGE,
+        skip:
+          currentPage === 1
+            ? 0
+            : FIRST_PAGE_TOPIC_PER_PAGE +
+              (currentPage - 2) * OTHER_PAGE_TOPIC_PER_PAGE,
+        includeRelatedPosts: true,
+      },
+      traceHeaders
+    ),
+    getCallBaodaozaiIntroContent({ where: { page: 'topics' } }, traceHeaders),
   ])
   if (projectsRes.status === 'rejected') {
-    log(LogLevel.WARNING, 'Empty topic response!')
+    emitStructured({ severity: 'WARNING', message: 'Empty topic response!' })
     notFound()
   }
 
@@ -72,10 +83,10 @@ export default async function Topic({
         )
       : 0
   if (currentPage > 1 && currentPage > totalPages) {
-    log(
-      LogLevel.WARNING,
-      `Request page(${currentPage}) exceeds total pages(${totalPages})!`
-    )
+    emitStructured({
+      severity: 'WARNING',
+      message: `Request page(${currentPage}) exceeds total pages(${totalPages})!`,
+    })
     notFound()
   }
 

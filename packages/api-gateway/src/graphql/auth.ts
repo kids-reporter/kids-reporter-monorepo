@@ -1,3 +1,4 @@
+import { normalizeTraceContext } from '@kids-reporter/logger'
 import axios from 'axios'
 import express from 'express'
 
@@ -75,16 +76,28 @@ export class TokenManager {
       }
     `
 
+    // Use a fresh trace for the singleton token renewal so concurrent requests
+    // don't attribute this auth request to the wrong trace.
+    const traceHeaders = normalizeTraceContext(undefined, {
+      generateIfMissing: true,
+    }).traceHeaders
+
     let axiosRes
     // fetch token
     try {
-      axiosRes = await axios.post(this.apiEndpoint, {
-        query: gqlQuery,
-        variables: {
-          email: this.email,
-          password: this.password,
+      axiosRes = await axios.post(
+        this.apiEndpoint,
+        {
+          query: gqlQuery,
+          variables: {
+            email: this.email,
+            password: this.password,
+          },
         },
-      })
+        {
+          headers: traceHeaders,
+        }
+      )
     } catch (err) {
       throw formatAxiosError(err)
     }
@@ -130,6 +143,11 @@ export async function buildAuthContext({
   originalCookie?: string
   tokenManager?: TokenManager
 }> {
+  const traceHeaders =
+    normalizeTraceContext(req.headers, {
+      generateIfMissing: true,
+    })?.traceHeaders || {}
+
   if (auth === 'auth') {
     const authorization = req.get('authorization') || ''
     if (!authorization) {
@@ -137,7 +155,10 @@ export async function buildAuthContext({
     }
     return {
       mode: 'jwt',
-      headers: { Authorization: authorization },
+      headers: {
+        Authorization: authorization,
+        ...traceHeaders,
+      },
     }
   }
 
@@ -153,7 +174,10 @@ export async function buildAuthContext({
 
   return {
     mode: 'cookie',
-    headers: { Cookie: cookie },
+    headers: {
+      Cookie: cookie,
+      ...traceHeaders,
+    },
     originalCookie,
     tokenManager,
   }

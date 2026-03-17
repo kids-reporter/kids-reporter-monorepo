@@ -1,5 +1,6 @@
 'use client'
 
+import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 import axios from 'axios'
 import { create } from 'zustand'
@@ -19,7 +20,7 @@ import {
   STATUS_CODES,
 } from '@/constants'
 import envVars from '@/environment-variables'
-import { log, LogLevel } from '@/utils'
+import { buildTraceHeaders } from '@/utils/trace-context'
 
 export type MemberProfile = {
   id: string
@@ -115,7 +116,11 @@ export const useAuthStore = create<AuthState>()(
               axiosRes = await axios.post<AccessTokenResponse>(
                 ACCESS_TOKEN_ENDPOINT,
                 null,
-                { timeout: envVars.requestTimeoutMs, withCredentials: true }
+                {
+                  timeout: envVars.requestTimeoutMs,
+                  withCredentials: true,
+                  headers: buildTraceHeaders(),
+                }
               )
             } catch (err) {
               if (axios.isAxiosError(err)) {
@@ -185,7 +190,7 @@ export const useAuthStore = create<AuthState>()(
               withPayload: true,
             })
 
-            log(LogLevel.ERROR, msg)
+            emitStructured({ severity: 'ERROR', message: msg })
 
             set({
               status: 'error',
@@ -236,10 +241,10 @@ export const useAuthStore = create<AuthState>()(
               return
             }
             const err = _err instanceof Error ? _err : new Error(String(_err))
-            log(
-              LogLevel.ERROR,
-              '[auth-store] fetchMember failed: ' + err.message
-            )
+            emitStructured({
+              severity: 'ERROR',
+              message: '[auth-store] fetchMember failed: ' + err.message,
+            })
           } finally {
             // Clear abort controller if this was the current one
             if (fetchMemberAbortController === currentAbortController) {
@@ -288,7 +293,7 @@ export const useAuthStore = create<AuthState>()(
               withPayload: true,
             })
 
-            log(LogLevel.ERROR, msg)
+            emitStructured({ severity: 'ERROR', message: msg })
 
             set({
               status: 'error',

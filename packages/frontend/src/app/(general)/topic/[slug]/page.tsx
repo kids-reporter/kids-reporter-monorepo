@@ -2,7 +2,9 @@ import type {
   GetProjectMetaQuery,
   GetProjectQuery,
 } from '__generated__/operations/content.generated'
+import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import {
@@ -14,8 +16,9 @@ import {
 import TopicSlugModule from '@/modules/topic/slug'
 import { TitlePosition } from '@/modules/topic/types'
 import { normalizePhoto } from '@/modules/topic/utils'
-import { getFormattedDate, getPostSummaries, log, LogLevel } from '@/utils'
+import { getFormattedDate, getPostSummaries } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export async function generateMetadata({
   params,
@@ -35,7 +38,10 @@ export async function generateMetadata({
   })
   const topicMeta = topicOGRes?.data?.data?.project
   if (!topicMeta) {
-    log(LogLevel.WARNING, `Topic not found! ${params.slug}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Topic not found! ${params.slug}`,
+    })
   }
 
   return {
@@ -66,10 +72,10 @@ export default async function TopicPage({
   params: { slug: string }
 }) {
   if (!params?.slug) {
-    log(LogLevel.WARNING, 'Incorrect topic slug!')
+    emitStructured({ severity: 'WARNING', message: 'Incorrect topic slug!' })
     notFound()
   }
-
+  const traceHeaders = getServerTraceHeaders(headers())
   const axiosRes = await sendRestGqlRequest<GetProjectQuery>({
     operation: 'project-detail',
     method: 'GET',
@@ -78,10 +84,11 @@ export default async function TopicPage({
         slug: params.slug,
       },
     },
+    traceHeaders,
   })
   const project = axiosRes?.data?.data?.project
   if (!project) {
-    log(LogLevel.WARNING, 'Empty topic!')
+    emitStructured({ severity: 'WARNING', message: 'Empty topic!' })
     notFound()
   }
 

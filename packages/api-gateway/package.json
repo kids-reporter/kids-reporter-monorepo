@@ -13,6 +13,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@kids-reporter/logger": "^0.0.2",
     "@twreporter/errors": "^1.1.2",
     "axios": "^1.4.0",
     "busboy": "^1.6.0",

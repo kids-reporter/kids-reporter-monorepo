@@ -1,10 +1,11 @@
+import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 import axios, { AxiosResponse } from 'axios'
 
 import { INTERNAL_REST_GQL_ENDPOINT, REST_GQL_ENDPOINT } from '@/constants'
 import envVars from '@/environment-variables'
 
-import { log, LogLevel } from './log'
+import { buildTraceHeaders } from './trace-context'
 
 type GraphQLResponse<TData = Record<string, unknown>> = {
   data?: TData
@@ -17,12 +18,14 @@ export async function sendRestGqlRequest<TData = Record<string, unknown>>({
   variables,
   authToken,
   signal,
+  traceHeaders,
 }: {
   operation: string
   method: 'GET' | 'POST'
   variables?: Record<string, unknown>
   authToken?: string
   signal?: AbortSignal
+  traceHeaders?: Headers | Record<string, string | undefined>
 }) {
   let url
   if (typeof window === 'undefined') {
@@ -36,6 +39,7 @@ export async function sendRestGqlRequest<TData = Record<string, unknown>>({
     const config = {
       headers: {
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        ...buildTraceHeaders(traceHeaders),
       },
       timeout: envVars.requestTimeoutMs,
       withCredentials: true,
@@ -58,13 +62,13 @@ export async function sendRestGqlRequest<TData = Record<string, unknown>>({
     }
   } catch (err) {
     const annotatedErr = errors.helpers.annotateAxiosError(err)
-    log(
-      LogLevel.ERROR,
-      errors.helpers.printAll(annotatedErr, {
+    emitStructured({
+      severity: 'ERROR',
+      message: errors.helpers.printAll(annotatedErr, {
         withStack: true,
         withPayload: true,
-      })
-    )
+      }),
+    })
   }
 
   const gqlErrors = response?.data?.errors
@@ -77,13 +81,13 @@ export async function sendRestGqlRequest<TData = Record<string, unknown>>({
       'Errors occurred after axios request',
       { errors: gqlErrors }
     )
-    log(
-      LogLevel.ERROR,
-      errors.helpers.printAll(annotatedErr, {
+    emitStructured({
+      severity: 'ERROR',
+      message: errors.helpers.printAll(annotatedErr, {
         withStack: true,
         withPayload: true,
-      })
-    )
+      }),
+    })
   }
 
   return response

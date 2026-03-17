@@ -14,10 +14,12 @@ import StyledComponentsRegistry from './registry'
 
 function HeaderProviderWithPopularKeywords({
   children,
+  traceHeaders,
 }: {
   children: React.ReactNode
+  traceHeaders?: Record<string, string>
 }) {
-  const { data: keywords } = usePopularKeywords()
+  const { data: keywords } = usePopularKeywords(traceHeaders)
   const keywordsArray = useMemo(
     () =>
       keywords
@@ -28,14 +30,20 @@ function HeaderProviderWithPopularKeywords({
   return <HeaderProvider keywords={keywordsArray}>{children}</HeaderProvider>
 }
 
-function Providers({ children }: { children: React.ReactNode }) {
+function Providers({
+  children,
+  traceHeaders,
+}: {
+  children: React.ReactNode
+  traceHeaders: Record<string, string>
+}) {
   const queryClient = getQueryClient()
 
   return (
     <StyledComponentsRegistry>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <HeaderProviderWithPopularKeywords>
+          <HeaderProviderWithPopularKeywords traceHeaders={traceHeaders}>
             <FeatureIntroDialogProvider>{children}</FeatureIntroDialogProvider>
           </HeaderProviderWithPopularKeywords>
         </AuthProvider>

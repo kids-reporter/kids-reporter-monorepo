@@ -1,5 +1,6 @@
 import { Header } from '@kids-reporter/routing-ui'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 
 import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
 import { getEditorPicksSettings } from '@/api/editor-picks-settings'
@@ -15,6 +16,7 @@ import {
   CallBaodaozaiProvider,
 } from '@/services/call-baodaozai'
 import { getPostSummaries } from '@/utils'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,24 +29,35 @@ export default async function Home() {
   const serverRenderTime = new Date().toISOString()
   console.log('Server re-render at:', serverRenderTime)
 
+  const traceHeaders = getServerTraceHeaders(headers())
+
   const [
     topicProjectsRes,
     latestPostsDataRes,
     editorPicksSettingsRes,
     introContentRes,
   ] = await Promise.allSettled([
-    getTopicProjects({
-      orderBy: [{ publishedDate: 'desc' }],
-      take: 9,
-    }),
-    getLatestPosts({
-      orderBy: [{ publishedDate: 'desc' }],
-      take: 6,
-    }),
-    getEditorPicksSettings({
-      take: 5,
-    }),
-    getCallBaodaozaiIntroContent({ where: { page: 'home' } }),
+    getTopicProjects(
+      {
+        orderBy: [{ publishedDate: 'desc' }],
+        take: 9,
+      },
+      traceHeaders
+    ),
+    getLatestPosts(
+      {
+        orderBy: [{ publishedDate: 'desc' }],
+        take: 6,
+      },
+      traceHeaders
+    ),
+    getEditorPicksSettings(
+      {
+        take: 5,
+      },
+      traceHeaders
+    ),
+    getCallBaodaozaiIntroContent({ where: { page: 'home' } }, traceHeaders),
   ])
 
   const topicProjects =

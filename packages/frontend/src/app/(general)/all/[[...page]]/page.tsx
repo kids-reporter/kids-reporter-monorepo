@@ -3,7 +3,9 @@ import type {
   PostsCountQuery,
 } from '__generated__/operations/content.generated'
 import type { Post } from '__generated__/types'
+import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 
 import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
@@ -12,8 +14,9 @@ import PostList from '@/components/post-list'
 import { ERROR_PAGE, GENERAL_DESCRIPTION, POST_PER_PAGE } from '@/constants'
 import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
 import type { DeepPartial } from '@/types/utils'
-import { getPostSummaries, log, LogLevel } from '@/utils'
+import { getPostSummaries } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 import AllModule from './_components/module'
 
@@ -30,9 +33,12 @@ export default async function LatestPosts({
   params: { page: any }
 }) {
   const currentPage = !params.page ? 1 : Number(params.page?.[0])
-
+  const traceHeaders = getServerTraceHeaders(headers())
   if (params.page?.length > 1 || !(currentPage > 0)) {
-    log(LogLevel.WARNING, `Incorrect page!: ${params.page}, ${currentPage}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Incorrect page!: ${params.page}, ${currentPage}`,
+    })
     notFound()
   }
 
@@ -40,9 +46,13 @@ export default async function LatestPosts({
   const postsCountRes = await sendRestGqlRequest<PostsCountQuery>({
     operation: 'posts-count',
     method: 'GET',
+    traceHeaders,
   })
   if (!postsCountRes) {
-    log(LogLevel.WARNING, `Empty post count response!`)
+    emitStructured({
+      severity: 'WARNING',
+      message: 'Empty post count response!',
+    })
   }
   const postsCount = postsCountRes?.data?.data?.postsCount ?? 0
 
@@ -51,10 +61,10 @@ export default async function LatestPosts({
   if (postsCount > 0) {
     totalPages = Math.ceil(postsCount / POST_PER_PAGE)
     if (currentPage > 1 && currentPage > totalPages) {
-      log(
-        LogLevel.WARNING,
-        `Request page(${currentPage}) exceeds total pages(${totalPages})!`
-      )
+      emitStructured({
+        severity: 'WARNING',
+        message: `Request page(${currentPage}) exceeds total pages(${totalPages})!`,
+      })
       notFound()
     }
 
@@ -71,9 +81,10 @@ export default async function LatestPosts({
         take: POST_PER_PAGE,
         skip: (currentPage - 1) * POST_PER_PAGE,
       },
+      traceHeaders,
     })
     if (!postsRes) {
-      log(LogLevel.WARNING, `Empty posts response!`)
+      emitStructured({ severity: 'WARNING', message: 'Empty posts response!' })
       redirect(ERROR_PAGE)
     }
     posts = postsRes?.data?.data?.posts ?? []
@@ -81,9 +92,12 @@ export default async function LatestPosts({
 
   const postSummaries = getPostSummaries(posts)
 
-  const introContent = await getCallBaodaozaiIntroContent({
-    where: { page: 'all' },
-  })
+  const introContent = await getCallBaodaozaiIntroContent(
+    {
+      where: { page: 'all' },
+    },
+    traceHeaders
+  )
 
   return (
     <main

@@ -1,4 +1,5 @@
-// @ts-ignore `@twreporter/errors` does not have tyepscript definition file yet
+import { emitStructured } from '@kids-reporter/logger'
+// @ts-ignore `@twreporter/errors` does not have typescript definition file yet
 import _errors from '@twreporter/errors'
 import axios from 'axios'
 import express from 'express'
@@ -57,13 +58,11 @@ function decodeJwtPayload(jwtToken: string): {
 const ensureIdTokenCookie: express.RequestHandler = (req, res, next) => {
   const idToken = req.cookies?.['id_token']
   if (!idToken) {
-    console.log(
-      JSON.stringify({
-        severity: 'INFO',
-        message: 'Skip handling /auth/access-token, id_token cookie is missing',
-        ...res?.locals?.globalLogFields,
-      })
-    )
+    emitStructured({
+      severity: 'INFO',
+      message: 'Skip handling /auth/access-token, id_token cookie is missing',
+      ...res?.locals?.globalLogFields,
+    })
     res.status(statusCodes.badRequest).send({
       status: 'fail',
       data: {
@@ -93,16 +92,14 @@ export function createAuthRouter() {
     const idToken = req.cookies?.['id_token']
     const requestStartTime = Date.now()
 
-    console.log(
-      JSON.stringify({
-        severity: 'DEBUG',
-        message: 'Calling upstream token endpoint.',
-        context: {
-          upstreamTokenEndpoint,
-        },
-        ...res?.locals?.globalLogFields,
-      })
-    )
+    emitStructured({
+      severity: 'DEBUG',
+      message: 'Calling upstream token endpoint.',
+      context: {
+        upstreamTokenEndpoint,
+      },
+      ...res?.locals?.globalLogFields,
+    })
 
     try {
       const upstreamResponse = await axios.post(
@@ -127,21 +124,19 @@ export function createAuthRouter() {
       const ttlSeconds = expiresAt - Math.round(Date.now() / 1000)
       const durationMs = Date.now() - requestStartTime
 
-      console.log(
-        JSON.stringify({
-          severity: 'INFO',
-          message: 'Issued access token.',
-          context: {
-            statusCode: statusCodes.ok,
-            upstreamStatus: upstreamResponse.status,
-            durationMs,
-            twreporterUserId,
-            expiresAt,
-            ttlSeconds,
-          },
-          ...res?.locals?.globalLogFields,
-        })
-      )
+      emitStructured({
+        severity: 'INFO',
+        message: 'Issued access token.',
+        context: {
+          statusCode: statusCodes.ok,
+          upstreamStatus: upstreamResponse.status,
+          durationMs,
+          twreporterUserId,
+          expiresAt,
+          ttlSeconds,
+        },
+        ...res?.locals?.globalLogFields,
+      })
       res.status(statusCodes.ok).json({
         status: 'success',
         data: {
@@ -159,13 +154,11 @@ export function createAuthRouter() {
           statusCode === statusCodes.badRequest ||
           statusCode === statusCodes.unauthorized
         ) {
-          console.log(
-            JSON.stringify({
-              severity: 'INFO',
-              message: 'Invalid id_token cookie.',
-              ...res?.locals?.globalLogFields,
-            })
-          )
+          emitStructured({
+            severity: 'INFO',
+            message: 'Invalid id_token cookie.',
+            ...res?.locals?.globalLogFields,
+          })
           res.status(statusCodes.unauthorized).send({
             status: 'fail',
             data: {
@@ -176,23 +169,21 @@ export function createAuthRouter() {
         }
       }
 
-      console.error(
-        JSON.stringify({
-          severity: 'ERROR',
-          message:
-            'Error to issue access token.' +
-            errors.helpers.printAll(
-              err,
-              {
-                withStack: true,
-                withPayload: true,
-              },
-              0,
-              0
-            ),
-          ...res?.locals?.globalLogFields,
-        })
-      )
+      emitStructured({
+        severity: 'ERROR',
+        message:
+          'Error to issue access token.' +
+          errors.helpers.printAll(
+            err,
+            {
+              withStack: true,
+              withPayload: true,
+            },
+            0,
+            0
+          ),
+        ...res?.locals?.globalLogFields,
+      })
 
       res.status(statusCodes.internalServerError).send({
         status: 'error',

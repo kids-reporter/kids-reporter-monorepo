@@ -5,6 +5,7 @@ import { createAuth } from '@keystone-6/auth'
 import { config } from '@keystone-6/core'
 import { statelessSessions } from '@keystone-6/core/session'
 import type { SessionStrategy } from '@keystone-6/core/types'
+import { emitStructured, getTraceLogFields } from '@kids-reporter/logger'
 import cors from 'cors'
 import express from 'express'
 import jwt from 'jsonwebtoken'
@@ -83,17 +84,17 @@ async function getSessionFromGoApiJwt({
       throw new Error(`Invalid audience: ${decoded.aud}`)
     }
   } catch (err) {
-    console.log(
-      JSON.stringify({
-        severity: 'INFO',
-        message:
-          'Authorization Bearer token is invalid. ' +
-          (err instanceof Error ? err.message : 'Invalid JWT'),
-        context: {
-          function: 'getSessionFromGoApiJwt',
-        },
-      })
-    )
+    const traceLogFields = getTraceLogFields(req.headers)
+    emitStructured({
+      severity: 'INFO',
+      message:
+        'Authorization Bearer token is invalid. ' +
+        (err instanceof Error ? err.message : 'Invalid JWT'),
+      context: {
+        function: 'getSessionFromGoApiJwt',
+      },
+      ...traceLogFields,
+    })
 
     // JWT verification fails, treat it as no session
     return
@@ -128,17 +129,17 @@ async function getSessionFromGoApiJwt({
     }
   } catch (_err) {
     const err = _err instanceof Error ? _err : new Error(String(_err))
+    const traceLogFields = getTraceLogFields(req.headers)
 
-    console.error(
-      JSON.stringify({
-        severity: 'ERROR',
-        context: {
-          twreporter_user_id: decoded.user_id,
-          email: decoded.email,
-        },
-        message: err.stack, // trigger error reporting
-      })
-    )
+    emitStructured({
+      severity: 'ERROR',
+      context: {
+        twreporter_user_id: decoded.user_id,
+        email: decoded.email,
+      },
+      message: err.stack, // trigger error reporting
+      ...traceLogFields,
+    })
 
     // JWT verification fails, treat it as no session
     return
@@ -203,17 +204,17 @@ const compositeSession: SessionStrategy<Session, TypeInfo> = {
         }
       } catch (_err) {
         const err = _err instanceof Error ? _err : new Error(String(_err))
+        const traceLogFields = getTraceLogFields(context.req?.headers)
 
-        console.error(
-          JSON.stringify({
-            severity: 'ERROR',
-            context: {
-              listKey,
-              itemId,
-            },
-            message: err.stack, // trigger error reporting
-          })
-        )
+        emitStructured({
+          severity: 'ERROR',
+          context: {
+            listKey,
+            itemId,
+          },
+          message: err.stack, // trigger error reporting
+          ...traceLogFields,
+        })
         return
       }
     }
@@ -306,6 +307,11 @@ const authConfig = withAuth(
     },
     server: {
       extendExpressApp: (app, commonContext) => {
+        app.use((req, res, next) => {
+          res.locals.traceLogFields = getTraceLogFields(req.headers)
+          next()
+        })
+
         // Health check endpoint for Cloud Run readiness and liveness probes
         app.get('/health', async (req, res) => {
           try {
@@ -317,13 +323,13 @@ const authConfig = withAuth(
             })
           } catch (e) {
             const err = e instanceof Error ? e : new Error(String(e))
+            const traceLogFields = getTraceLogFields(req.headers)
             // Log with stack trace for Error Reporting integration
-            console.log(
-              JSON.stringify({
-                severity: 'ERROR',
-                message: err.stack || err.message,
-              })
-            )
+            emitStructured({
+              severity: 'ERROR',
+              message: err.stack || err.message,
+              ...traceLogFields,
+            })
             res.status(503).json({
               status: 'error',
               timestamp: new Date().toISOString(),
@@ -343,15 +349,13 @@ const authConfig = withAuth(
           origin: envVar.cors.allowOrigins,
         }
 
-        console.log(
-          JSON.stringify({
-            severity: 'DEBUG',
-            message: 'cors allow origins',
-            debugPayload: {
-              corsOpts,
-            },
-          })
-        )
+        emitStructured({
+          severity: 'DEBUG',
+          message: 'cors allow origins',
+          debugPayload: {
+            corsOpts,
+          },
+        })
 
         const corsMiddleware = cors(corsOpts)
 

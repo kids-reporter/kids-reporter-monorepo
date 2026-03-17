@@ -6,12 +6,14 @@ import {
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
 export const getEditorPicksSettings = async (
-  variables: GetEditorPicksSettingsQueryVariables
+  variables: GetEditorPicksSettingsQueryVariables,
+  traceHeaders?: Record<string, string>
 ) => {
   const response = await sendRestGqlRequest<GetEditorPicksSettingsQuery>({
     operation: 'editor-picks-settings',
     method: 'GET',
     variables,
+    traceHeaders,
   })
   return response?.data?.data?.editorPicksSettings
 }

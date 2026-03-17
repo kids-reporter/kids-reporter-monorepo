@@ -1,4 +1,5 @@
 import { KeystoneContext } from '@keystone-6/core/types'
+import { emitStructured } from '@kids-reporter/logger'
 // @ts-ignore twreporter errors is not typed
 import _errors from '@twreporter/errors'
 import { CookieOptions, Express } from 'express'
@@ -94,17 +95,15 @@ export function twoFactorAuthRoute(
           'get2faSetup',
           'Failed to save tempSecret to user table'
         )
-        console.error(
-          JSON.stringify({
-            severity: 'ERROR',
-            message: errors.helpers.printAll(
-              annotatedErr,
-              { withStack: true, withPayload: true },
-              0,
-              0
-            ),
-          })
-        )
+        emitStructured({
+          severity: 'ERROR',
+          message: errors.helpers.printAll(
+            annotatedErr,
+            { withStack: true, withPayload: true },
+            0,
+            0
+          ),
+        })
         res.status(500).send({
           status: 'error',
           message: 'Failed to save tempSecret to user table',
@@ -189,17 +188,15 @@ export function twoFactorAuthRoute(
             'post2faSetup',
             'Failed to save 2fa setup to user table'
           )
-          console.error(
-            JSON.stringify({
-              severity: 'ERROR',
-              message: errors.helpers.printAll(
-                annotatedErr,
-                { withStack: true, withPayload: true },
-                0,
-                0
-              ),
-            })
-          )
+          emitStructured({
+            severity: 'ERROR',
+            message: errors.helpers.printAll(
+              annotatedErr,
+              { withStack: true, withPayload: true },
+              0,
+              0
+            ),
+          })
           res.status(500).send({
             status: 'error',
             message: 'Failed to save 2fa setup to user table',
@@ -270,17 +267,15 @@ export function twoFactorAuthRoute(
             'post2faClear',
             'Failed to clear 2fa token in user table'
           )
-          console.error(
-            JSON.stringify({
-              severity: 'ERROR',
-              message: errors.helpers.printAll(
-                annotatedErr,
-                { withStack: true, withPayload: true },
-                0,
-                0
-              ),
-            })
-          )
+          emitStructured({
+            severity: 'ERROR',
+            message: errors.helpers.printAll(
+              annotatedErr,
+              { withStack: true, withPayload: true },
+              0,
+              0
+            ),
+          })
           res.status(500).send({
             status: 'error',
             message: 'Failed to clear 2fa token in user table',

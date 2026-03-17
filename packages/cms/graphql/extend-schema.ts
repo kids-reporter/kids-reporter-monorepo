@@ -1,4 +1,5 @@
 import { graphql } from '@keystone-6/core'
+import { emitStructured } from '@kids-reporter/logger'
 import { Prisma } from '@prisma/client'
 // @ts-ignore `@twreporter/errors` does not have typescript definition file yet
 import _errors from '@twreporter/errors'
@@ -53,6 +54,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
         },
         async resolve(root, args, ctx: Context) {
           const { postId } = args as { postId: string }
+          const traceLogFields = ctx.res?.locals?.traceLogFields || {}
           try {
             const post = await ctx.query.Post.findOne({
               where: { id: postId },
@@ -84,17 +86,16 @@ export const extendGraphqlSchema = graphql.extend(() => {
             const res = await client.post('/completions', body)
 
             // GCP structured logging
-            console.log(
-              JSON.stringify({
-                severity: 'INFO',
-                message: 'generatePostQuestions response',
-                context: {
-                  function: 'generatePostQuestions',
-                  postId,
-                  data: res.data,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'INFO',
+              message: 'generatePostQuestions response',
+              context: {
+                function: 'generatePostQuestions',
+                postId,
+                data: res.data,
+              },
+              ...traceLogFields,
+            })
 
             const content: string | undefined =
               res?.data?.choices?.[0]?.message?.content
@@ -188,16 +189,15 @@ export const extendGraphqlSchema = graphql.extend(() => {
             }
 
             // GCP structured logging
-            console.error(
-              JSON.stringify({
-                severity: 'ERROR',
-                message: errorMessage,
-                context: {
-                  function: 'generatePostQuestions',
-                  postId,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'ERROR',
+              message: errorMessage,
+              context: {
+                function: 'generatePostQuestions',
+                postId,
+              },
+              ...traceLogFields,
+            })
 
             throw new GraphQLError(
               'Internal server error while generating post questions',
@@ -222,6 +222,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
         },
         async resolve(root, args, ctx: Context) {
           const { keywords } = args
+          const traceLogFields = ctx.res?.locals?.traceLogFields || {}
 
           const session = ctx.session
           const isUnauthorized = !session
@@ -240,17 +241,16 @@ export const extendGraphqlSchema = graphql.extend(() => {
 
             const errorCode = isUnauthorized ? 'UNAUTHENTICATED' : 'FORBIDDEN'
 
-            console.log(
-              JSON.stringify({
-                severity: 'WARNING',
-                message: errorMessage,
-                context: {
-                  function: 'searchTWReporterPosts',
-                  keywords,
-                  errorCode,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'WARNING',
+              message: errorMessage,
+              context: {
+                function: 'searchTWReporterPosts',
+                keywords,
+                errorCode,
+              },
+              ...traceLogFields,
+            })
 
             throw new GraphQLError(errorMessage, {
               extensions: {
@@ -300,17 +300,16 @@ export const extendGraphqlSchema = graphql.extend(() => {
                 }
               })
 
-            console.log(
-              JSON.stringify({
-                severity: 'INFO',
-                message: 'searchTWReporterPosts response',
-                context: {
-                  function: 'searchTWReporterPosts',
-                  keywords,
-                  data: response.data,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'INFO',
+              message: 'searchTWReporterPosts response',
+              context: {
+                function: 'searchTWReporterPosts',
+                keywords,
+                data: response.data,
+              },
+              ...traceLogFields,
+            })
 
             return posts || []
           } catch (_err) {
@@ -327,16 +326,15 @@ export const extendGraphqlSchema = graphql.extend(() => {
             }
 
             // GCP structured logging
-            console.error(
-              JSON.stringify({
-                severity: 'ERROR',
-                message: errorMessage,
-                context: {
-                  function: 'searchTWReporterPosts',
-                  keywords,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'ERROR',
+              message: errorMessage,
+              context: {
+                function: 'searchTWReporterPosts',
+                keywords,
+              },
+              ...traceLogFields,
+            })
 
             throw new GraphQLError(
               'Internal server error while searching TW Reporter posts',
@@ -360,6 +358,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
         },
         async resolve(root, args, ctx: Context) {
           const { take = 5, cursor } = args
+          const traceLogFields = ctx.res?.locals?.traceLogFields || {}
           const memberId =
             ctx.session?.data && 'memberId' in ctx.session.data
               ? ctx.session?.data?.memberId
@@ -377,19 +376,18 @@ export const extendGraphqlSchema = graphql.extend(() => {
 
             const errorCode = isUnauthorized ? 'UNAUTHENTICATED' : 'FORBIDDEN'
 
-            console.log(
-              JSON.stringify({
-                severity: 'WARNING',
-                message: errorMessage,
-                context: {
-                  function: 'getMemberPostsWithAnswers',
-                  memberId,
-                  take,
-                  cursor,
-                  errorCode,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'WARNING',
+              message: errorMessage,
+              context: {
+                function: 'getMemberPostsWithAnswers',
+                memberId,
+                take,
+                cursor,
+                errorCode,
+              },
+              ...traceLogFields,
+            })
 
             throw new GraphQLError(errorMessage, {
               extensions: {
@@ -561,18 +559,17 @@ export const extendGraphqlSchema = graphql.extend(() => {
               })
             }
 
-            console.error(
-              JSON.stringify({
-                severity: 'ERROR',
-                message: errorMessage,
-                context: {
-                  function: 'getMemberPostsWithAnswers',
-                  memberId,
-                  take,
-                  cursor,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'ERROR',
+              message: errorMessage,
+              context: {
+                function: 'getMemberPostsWithAnswers',
+                memberId,
+                take,
+                cursor,
+              },
+              ...traceLogFields,
+            })
 
             throw new GraphQLError(
               'Internal server error while fetching member posts with answers',
@@ -608,6 +605,7 @@ export const extendGraphqlSchema = graphql.extend(() => {
         },
         async resolve(root, args, ctx: Context) {
           const { essayAnswerIds } = args
+          const traceLogFields = ctx.res?.locals?.traceLogFields || {}
           const memberId =
             ctx.session?.data && 'memberId' in ctx.session.data
               ? ctx.session?.data?.memberId
@@ -625,18 +623,17 @@ export const extendGraphqlSchema = graphql.extend(() => {
 
             const errorCode = isUnauthorized ? 'UNAUTHENTICATED' : 'FORBIDDEN'
 
-            console.log(
-              JSON.stringify({
-                severity: 'WARNING',
-                message: errorMessage,
-                context: {
-                  function: 'getMemberEssayAnswersHasLiked',
-                  memberId,
-                  essayAnswerIds,
-                  errorCode,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'WARNING',
+              message: errorMessage,
+              context: {
+                function: 'getMemberEssayAnswersHasLiked',
+                memberId,
+                essayAnswerIds,
+                errorCode,
+              },
+              ...traceLogFields,
+            })
 
             throw new GraphQLError(errorMessage, {
               extensions: {
@@ -696,18 +693,17 @@ export const extendGraphqlSchema = graphql.extend(() => {
               })
             }
 
-            console.error(
-              JSON.stringify({
-                severity: 'ERROR',
-                message: errorMessage,
-                context: {
-                  function: 'getMemberEssayAnswersHasLiked',
-                  memberId,
-                  essayAnswerIds,
-                  error: errorMessage,
-                },
-              })
-            )
+            emitStructured({
+              severity: 'ERROR',
+              message: errorMessage,
+              context: {
+                function: 'getMemberEssayAnswersHasLiked',
+                memberId,
+                essayAnswerIds,
+                error: errorMessage,
+              },
+              ...traceLogFields,
+            })
 
             throw new GraphQLError(
               'Internal server error while checking member essay answers has liked',

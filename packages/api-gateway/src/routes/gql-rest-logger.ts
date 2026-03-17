@@ -1,3 +1,4 @@
+import { emitStructured } from '@kids-reporter/logger'
 import express from 'express'
 
 import { slowThresholdMs, statusCodes } from './gql-rest-shared.js'
@@ -85,19 +86,17 @@ export const logResponse = (
         ? 'WARNING'
         : 'INFO'
 
-  console.log(
-    JSON.stringify({
-      severity,
-      message: 'GraphQL REST response',
-      status,
-      elapsedMs,
-      slow: isSlow,
-      operation,
-      params,
-      body: bodyForLog,
-      ...res?.locals?.globalLogFields,
-    })
-  )
+  emitStructured({
+    severity,
+    message: 'GraphQL REST response',
+    status,
+    elapsedMs,
+    slow: isSlow,
+    operation,
+    params,
+    body: bodyForLog,
+    ...res?.locals?.globalLogFields,
+  })
 }
 
 export const logAndSend = (

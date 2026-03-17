@@ -1,3 +1,4 @@
+import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 
 import {
@@ -8,7 +9,6 @@ import {
 } from '@/app/api/search/utils'
 import { ContentType, EMAIL } from '@/constants'
 import envVars from '@/environment-variables'
-import { log, LogLevel } from '@/utils'
 
 import { LoadMoreResults } from '../_components/search/load-more-results'
 import { SearchInput } from '../_components/search/search-input'
@@ -47,7 +47,7 @@ export default async function SearchPage({
       0,
       0
     )
-    log(LogLevel.WARNING, msg)
+    emitStructured({ severity: 'WARNING', message: msg })
     return (
       <SearchTitle>
         搜尋結果服務異常，請稍候再試。 若持續發生，煩請來信至

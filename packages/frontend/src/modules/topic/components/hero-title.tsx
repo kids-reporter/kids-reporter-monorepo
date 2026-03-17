@@ -1,9 +1,13 @@
 'use client'
-import { Button } from '@kids-reporter/routing-ui'
+import { Button, useMediaQuery } from '@kids-reporter/routing-ui'
 import { useRef } from 'react'
 
 import { ImageWithFallback } from '@/components/image-with-fallback'
-import { FALLBACK_IMG, STICKY_HEADER_HEIGHT } from '@/constants'
+import {
+  DESKTOP_HEADER_HEIGHT,
+  FALLBACK_IMG,
+  STICKY_HEADER_HEIGHT,
+} from '@/constants'
 import { ArrowDown } from '@/icons'
 import { Photo } from '@/types'
 import { breakpoints } from '@/utils'
@@ -31,11 +35,14 @@ function HeroTitle({
   articleCount,
 }: HeroTitleProps) {
   const ref = useRef<HTMLDivElement>(null)
+  const isDesktop = useMediaQuery('(min-width: 1024px)', {
+    defaultValue: false,
+  })
   const handleScrollToContent = () => {
     if (ref.current) {
       window.scrollTo({
         behavior: 'smooth',
-        top: ref.current.offsetHeight,
+        top: ref.current.offsetHeight + (isDesktop ? DESKTOP_HEADER_HEIGHT : 0),
       })
     }
   }

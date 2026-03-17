@@ -2,7 +2,9 @@ import type {
   GetAuthorMetaQuery,
   GetAuthorPostsQuery,
 } from '__generated__/operations/content.generated'
+import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -15,8 +17,9 @@ import {
   KIDS_URL_ORIGIN,
   POST_PER_PAGE,
 } from '@/constants'
-import { getPostSummaries, log, LogLevel } from '@/utils'
+import { getPostSummaries } from '@/utils'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
+import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export async function generateMetadata({
   params,
@@ -36,7 +39,10 @@ export async function generateMetadata({
   })
   const authorMeta = authorMetaRes?.data?.data?.author
   if (!authorMeta) {
-    log(LogLevel.WARNING, `Author meta not found! ${slug}`)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Author meta not found! ${slug}`,
+    })
     return {}
   }
 
@@ -65,9 +71,12 @@ export async function generateMetadata({
 export default async function Author({ params }: { params: { slug: any } }) {
   const slug = params.slug?.[0]
   const currentPage = !params.slug?.[1] ? 1 : Number(params.slug[1])
-
+  const traceHeaders = getServerTraceHeaders(headers())
   if (params.slug?.length > 2 || !slug || !(currentPage > 0)) {
-    log(LogLevel.WARNING, 'Incorrect author routing!')
+    emitStructured({
+      severity: 'WARNING',
+      message: 'Incorrect author routing!',
+    })
     notFound()
   }
 
@@ -86,10 +95,11 @@ export default async function Author({ params }: { params: { slug: any } }) {
       take: POST_PER_PAGE,
       skip: (currentPage - 1) * POST_PER_PAGE,
     },
+    traceHeaders,
   })
   const author = response?.data?.data?.author
   if (!author) {
-    log(LogLevel.WARNING, 'Author not found!')
+    emitStructured({ severity: 'WARNING', message: 'Author not found!' })
     notFound()
   }
   const posts = author.posts ?? []
@@ -99,10 +109,10 @@ export default async function Author({ params }: { params: { slug: any } }) {
 
   const totalPages = Math.ceil(postsCount / POST_PER_PAGE)
   if (currentPage > 1 && currentPage > totalPages) {
-    log(
-      LogLevel.WARNING,
-      `Request page(${currentPage}) exceeds total pages(${totalPages})!`
-    )
+    emitStructured({
+      severity: 'WARNING',
+      message: `Request page(${currentPage}) exceeds total pages(${totalPages})!`,
+    })
     notFound()
   }
 

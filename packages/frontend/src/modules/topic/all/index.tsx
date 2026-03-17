@@ -51,8 +51,8 @@ function TopicAllModule({
         </div>
       </div>
       <div className="w-screen bg-neutral-100 pb-14 tablet:pb-16 desktop:pb-24 hd:pb-30">
-        <div className="mx-auto flex w-full flex-col items-center justify-center gap-10 px-6 tablet:px-8 desktop:px-12 hd:max-w-300 hd:px-0">
-          <div className="relative flex w-full flex-col items-center justify-center tablet:flex-row tablet:justify-between hd:px-14">
+        <div className="mx-auto flex w-full flex-col items-center justify-center px-6 tablet:px-8 desktop:px-12 hd:max-w-300 hd:px-0">
+          <div className="relative mb-10 flex w-full flex-col items-center justify-center tablet:flex-row tablet:justify-between hd:px-14">
             <div className="relative z-2 mt-6 flex items-center gap-4 self-start tablet:mt-16 desktop:mt-20 desktop:gap-5 hd:mt-24">
               <div className="h-10 w-1 rounded-[8px] bg-red-400 desktop:h-12 desktop:w-3" />
               <h1 className="prose-h1-small font-swei! text-neutral-900 desktop:prose-h1-large">
@@ -61,10 +61,17 @@ function TopicAllModule({
             </div>
             <Image
               alt="topic illustration"
+              width={404}
+              height={280}
+              className="relative z-2 hidden h-[220px] w-[318px] tablet:mt-[10px] tablet:block tablet:h-[280px] tablet:w-[404px] desktop:mt-0 desktop:h-[360px] desktop:w-[520px]"
+              src="/assets/images/topic/illustration.svg"
+            />
+            <Image
+              alt="topic illustration"
               width={318}
               height={220}
-              className="relative z-2 h-[220px] w-[318px] tablet:mt-[10px] tablet:h-[280px] tablet:w-[404px] desktop:mt-0 desktop:h-[360px] desktop:w-[520px]"
-              src="/assets/images/topic/illustration.svg"
+              className="relative z-2 h-[220px] w-[318px] tablet:hidden"
+              src="/assets/images/topic/illustration_s.svg"
             />
 
             <div className="absolute top-0 left-1/2 z-1 h-full w-screen -translate-x-1/2 bg-neutral-white"></div>
@@ -108,7 +115,7 @@ function TopicAllModule({
           </div>
 
           {topicsForListing.length > 0 && (
-            <div className="flex w-full flex-col items-center justify-center gap-10 tablet:grid tablet:grid-cols-4 tablet:gap-6 desktop:gap-8 hd:gap-10 hd:px-14">
+            <div className="mt-10 mb-5 flex w-full flex-col items-center justify-center gap-6 tablet:mt-12 tablet:mb-8 tablet:grid tablet:grid-cols-4 tablet:gap-x-6 tablet:gap-y-8 desktop:mt-14 desktop:mb-10 desktop:gap-x-8 desktop:gap-y-10 hd:mt-20 hd:mb-12 hd:gap-y-14 hd:px-14">
               {topicsForListing.map((topic, index) => {
                 const isLastOddTopic =
                   index === topicsForListing.length - 1 &&
