@@ -34,23 +34,15 @@ function PositionedTitle({
   return (
     <div
       className={cn(
-        'absolute text-neutral-white',
+        'absolute text-neutral-white text-shadow-[0_2px_8px_rgba(0,0,0,0.45)] tablet:text-shadow-[0_2px_10px_rgba(0,0,0,0.60)]',
         getTitleClassname(titlePosition)
       )}
-      style={{
-        textShadow: '0 2px 10px rgba(0, 0, 0, 0.60)',
-      }}
     >
       {titlePosition.startsWith('left') && (
         <p className="mb-4 prose-p1-bold">{`${publishedDate} 最後更新 | 共 ${articleCount} 篇文章`}</p>
       )}
 
-      <h1
-        className="mb-2 prose-h1-small font-swei! desktop:prose-h1-large"
-        style={{
-          textShadow: '0 2px 10px rgba(0, 0, 0, 0.60)',
-        }}
-      >
+      <h1 className="mb-2 prose-h1-small font-swei! desktop:prose-h1-large">
         {title}
       </h1>
       {subtitle && (

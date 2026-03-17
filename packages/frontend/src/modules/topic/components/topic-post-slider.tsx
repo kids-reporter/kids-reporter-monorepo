@@ -106,7 +106,7 @@ function TopicPostSlider({ posts }: { posts: PostSummary[] }) {
       </Swiper>
       {slideCount > 1 && (
         <div
-          className="flex shrink-0 items-center gap-3 tablet:mt-5"
+          className="flex shrink-0 items-center gap-3 tablet:mt-1 desktop:mt-5"
           role="tablist"
           aria-label="投影片分頁"
         >

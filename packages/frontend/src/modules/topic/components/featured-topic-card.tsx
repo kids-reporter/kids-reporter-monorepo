@@ -30,10 +30,7 @@ function FeaturedTopicCard({
           src={topic.image ?? FALLBACK_IMG}
           loading="lazy"
         />
-        <p
-          className="text-p2 absolute top-5 left-5 leading-[1.6] font-medium tracking-[0.07em] text-white tablet:top-[34px] tablet:left-8 desktop:top-8 desktop:left-8"
-          style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.80)' }}
-        >
+        <p className="text-p2 absolute top-5 left-5 prose-p1 text-white text-shadow-[0_2px_6px_rgba(0,0,0,0.55)] tablet:top-[34px] tablet:left-8 tablet:text-shadow-[0_2px_8px_rgba(0,0,0,0.80)] desktop:top-8 desktop:left-8">
           {metaText}
         </p>
         <div
@@ -41,17 +38,11 @@ function FeaturedTopicCard({
           aria-hidden
         />
         <div className="absolute right-5 bottom-5 left-5 flex flex-col gap-2 tablet:right-8 tablet:bottom-8 tablet:left-8 desktop:right-8 desktop:bottom-8 desktop:left-8">
-          <h2
-            className="prose-h3-small font-swei text-white tablet:prose-h3-large"
-            style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.80)' }}
-          >
+          <h2 className="prose-h3-small font-swei text-white text-shadow-[0_2px_6px_rgba(0,0,0,0.55)] tablet:prose-h3-large tablet:text-shadow-[0_2px_8px_rgba(0,0,0,0.80)]">
             {topic.title}
           </h2>
           <div className="flex items-center gap-4 tablet:gap-8">
-            <p
-              className="line-clamp-3 min-w-0 flex-1 prose-p1 text-white"
-              style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.80)' }}
-            >
+            <p className="line-clamp-3 min-w-0 flex-1 prose-p1 text-white text-shadow-[0_2px_6px_rgba(0,0,0,0.55)] tablet:text-shadow-[0_2px_8px_rgba(0,0,0,0.80)]">
               {topic.desc}
             </p>
             <Button className="size-11 shrink-0 rounded-full border-2 border-neutral-white p-0">
