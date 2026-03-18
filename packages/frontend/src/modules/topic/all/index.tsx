@@ -118,7 +118,7 @@ function TopicAllModule({
             <div
               className={cn(
                 'mt-10 mb-5 flex w-full flex-col items-center justify-center gap-6 tablet:mt-12 tablet:mb-8 tablet:grid tablet:grid-cols-4 tablet:gap-x-6 tablet:gap-y-8 desktop:mt-14 desktop:mb-10 desktop:gap-x-8 desktop:gap-y-10 hd:mt-20 hd:mb-12 hd:gap-y-14 hd:px-14',
-                !featuredTopic && 'mt-0'
+                !featuredTopic && 'mt-0 tablet:mt-0 desktop:mt-0 hd:mt-0'
               )}
             >
               {topicsForListing.map((topic, index) => {
