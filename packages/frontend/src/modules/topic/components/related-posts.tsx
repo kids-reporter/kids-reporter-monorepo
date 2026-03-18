@@ -1,6 +1,6 @@
 'use client'
 
-import { useMediaQuery } from '@kids-reporter/routing-ui'
+import { cn, useMediaQuery } from '@kids-reporter/routing-ui'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
@@ -10,8 +10,35 @@ import { FALLBACK_IMG } from '@/constants'
 import { Breakpoint } from '@/types'
 import { getFormattedDate } from '@/utils'
 
-import { RELATED_POSTS_PER_ROW } from '../constants'
-import { groupPostsByRow } from '../utils'
+function getRelatedPostGridColumn(
+  viewPort: Breakpoint,
+  index: number,
+  total: number
+): string {
+  if (viewPort === 'mobile') return ''
+  if (viewPort === 'tablet') {
+    const perRow = 2
+    const lastRowCount = total % perRow || perRow
+    const lastRowStart = total - lastRowCount
+    if (index >= lastRowStart && lastRowCount === 1) {
+      return 'tablet:col-start-2 tablet:col-end-4'
+    }
+    return ''
+  }
+  // desktop (and hd)
+  const perRow = 3
+  const lastRowCount = total % perRow || perRow
+  const lastRowStart = total - lastRowCount
+  if (index < lastRowStart) return ''
+  if (lastRowCount === 1) return 'desktop:col-start-3 desktop:col-end-5'
+  if (lastRowCount === 2) {
+    const posInLastRow = index - lastRowStart
+    return posInLastRow === 0
+      ? 'desktop:col-start-2 desktop:col-end-4'
+      : 'desktop:col-start-4 desktop:col-end-6'
+  }
+  return ''
+}
 
 const ImageWithFallback = dynamic(
   () => import('@/components/image-with-fallback'),
@@ -78,33 +105,20 @@ function RelatedPosts({ posts = [] }: RelatedPostsProps) {
     return null
   }
 
-  const groupedPosts = groupPostsByRow(posts, viewPort)
-  const perRow = RELATED_POSTS_PER_ROW[viewPort]
-
   return (
     <section className="mx-auto w-screen bg-neutral-100 px-6 py-10 tablet:px-8 tablet:py-16 desktop:px-12 desktop:py-20 hd:px-0">
-      <div className="flex flex-col gap-6 tablet:gap-8 desktop:gap-10 hd:gap-14">
-        {groupedPosts.map((row, index) => {
-          return (
-            <div
-              key={`row-${index}`}
-              className="mx-auto flex max-w-300 justify-center gap-8 hd:px-14"
-            >
-              {row.map((post) => (
-                <div
-                  key={post.url}
-                  className="min-w-0 shrink-0 grow-0"
-                  style={{
-                    // 100% - (perRow - 1) * gapPx / perRow
-                    flexBasis: `calc((100% - (${perRow - 1} * 32px)) / ${perRow})`,
-                  }}
-                >
-                  <RelatedPostCard post={post} />
-                </div>
-              ))}
-            </div>
-          )
-        })}
+      <div className="mx-auto grid max-w-300 grid-cols-1 gap-x-6 gap-y-6 tablet:grid-cols-4 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-6 desktop:gap-x-8 desktop:gap-y-10 hd:gap-x-8 hd:gap-y-14 hd:px-14">
+        {posts.map((post, index) => (
+          <div
+            key={post.url}
+            className={cn(
+              'min-w-0 tablet:col-span-2 desktop:col-span-2',
+              getRelatedPostGridColumn(viewPort, index, posts.length)
+            )}
+          >
+            <RelatedPostCard post={post} />
+          </div>
+        ))}
       </div>
     </section>
   )
