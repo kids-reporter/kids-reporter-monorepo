@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, useMediaQuery } from '@kids-reporter/routing-ui'
+import { Button, cn, useMediaQuery } from '@kids-reporter/routing-ui'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
@@ -53,7 +53,7 @@ function FeatureIntroDialog() {
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="top-1/2 left-1/2 mx-auto h-min w-[calc(100vw-48px)] max-w-120 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[30px] bg-neutral-white tablet:h-min tablet:w-[480px] tablet:max-w-none desktop:flex desktop:h-min desktop:w-[864px] desktop:flex-row hd:h-min"
+        className="top-auto right-0 bottom-0 left-0 mx-auto h-min w-full max-w-none gap-0 overflow-hidden rounded-t-[30px] rounded-b-none bg-neutral-white tablet:top-1/2 tablet:left-1/2 tablet:h-min tablet:w-[480px] tablet:max-w-none tablet:-translate-x-1/2 tablet:-translate-y-1/2 tablet:gap-4 tablet:rounded-[30px] desktop:flex desktop:h-min desktop:w-[864px] desktop:flex-row hd:h-min"
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -64,12 +64,12 @@ function FeatureIntroDialog() {
             src={currentImageSrc}
             alt={`Onboarding step ${step}`}
             fill
-            className="object-cover"
+            className={cn(step === 1 ? 'object-contain' : 'object-cover')}
             priority
           />
         </div>
 
-        <div className="flex min-h-[338px] flex-col gap-5 px-6 pt-6 pb-6 tablet:min-h-[322px] tablet:gap-6 tablet:px-8 tablet:pt-8 tablet:pb-8 desktop:order-1 desktop:min-h-[480px] desktop:min-w-120 desktop:flex-1 desktop:gap-8 desktop:py-14 desktop:pl-12">
+        <div className="flex min-h-[328px] flex-col gap-5 px-6 pt-6 pb-0 tablet:min-h-[322px] tablet:gap-6 tablet:px-8 tablet:pt-8 tablet:pb-8 desktop:order-1 desktop:min-h-[480px] desktop:min-w-120 desktop:flex-1 desktop:gap-8 desktop:py-14 desktop:pl-12">
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-1">
               <h2 className="prose-h3-small font-swei text-neutral-900 desktop:prose-h3-large">
@@ -90,13 +90,13 @@ function FeatureIntroDialog() {
             </div>
           </div>
 
-          <div className="mt-auto flex items-center justify-center gap-8 desktop:justify-start">
+          <div className="mt-auto flex items-center justify-center gap-8 pb-5 tablet:pb-6 desktop:justify-start">
             <IndicatorDots current={step} total={totalSteps} />
             <Button
               variant="primary"
               size={44}
               onClick={handleNext}
-              className="w-30 desktop:order-[-1]"
+              className="w-30 desktop:-order-1"
               aria-label={step === totalSteps ? '完成' : '下一步'}
             >
               {step === totalSteps ? '完成' : '下一步'}
