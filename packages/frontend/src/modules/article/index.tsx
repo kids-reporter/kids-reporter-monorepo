@@ -193,7 +193,7 @@ const ArticleModule = ({
         isOpen: true,
         content: showLoginDialog
           ? `想知道其他讀者的答案嗎？
-大家送出的思辨題答案都會顯示在「小讀者觀點大集合」頁面喔～`
+大家送出的思辨題答案都會顯示在「小讀者思辨牆」頁面喔～`
           : '登入帳號完成閱讀設定，還可以挑戰更多隱藏版的思辨題唷！',
         cancelText: '跳過',
         confirmText: showLoginDialog ? '立即前往' : '立即登入',
