@@ -47,6 +47,22 @@ function JoinUsCard({ card }: JoinUsCardProps) {
     )
   }
 
+  const getExtraButtonContent = () => {
+    if (card.extraButtonText && card.extraActionValue) {
+      return (
+        <a
+          href={card.extraActionValue}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-2 prose-p1-bold text-neutral-900 underline underline-offset-[3px] transition-colors duration-200 hover:text-red-400"
+        >
+          {card.extraButtonText}
+        </a>
+      )
+    }
+    return null
+  }
+
   return (
     <div
       id={card.anchorId}
@@ -69,7 +85,10 @@ function JoinUsCard({ card }: JoinUsCardProps) {
         <p className="mb-4 prose-p1 text-neutral-700 desktop:mb-5">
           {card.description}
         </p>
-        <div className="mt-auto">{getButtonContent()}</div>
+        <div className="mt-auto flex items-center gap-2">
+          {getButtonContent()}
+          {getExtraButtonContent()}
+        </div>
       </div>
     </div>
   )

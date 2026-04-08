@@ -99,7 +99,7 @@ export const ADDITIONAL_MENU_ITEMS: MenuItem[] = [
     hideInFooter: true,
   },
   {
-    label: '小讀者觀點大集合',
+    label: '小讀者思辨牆',
     href: '/idea-hub',
     subItems: [],
     hideInFooter: true,

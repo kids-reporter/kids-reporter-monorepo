@@ -28,7 +28,7 @@ function IdeaHub() {
             <IdeaHubIconLarge className="hidden desktop:block" />
           </div>
           <h2 className="prose-h2-small font-swei text-neutral-900 desktop:prose-h2-large hd:prose-h1-large">
-            小讀者觀點大集合
+            小讀者思辨牆
           </h2>
         </div>
         <span className="text-center prose-h6-small desktop:prose-h6-large">

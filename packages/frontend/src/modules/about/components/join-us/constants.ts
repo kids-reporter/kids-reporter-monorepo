@@ -6,6 +6,8 @@ export type Card = {
   buttonText: string
   actionType: 'dialog' | 'external' | 'mailto'
   actionValue: string
+  extraButtonText?: string
+  extraActionValue?: string
   icon: string
 }
 
@@ -19,6 +21,9 @@ export const JOIN_US_CARDS: Card[] = [
     buttonText: '了解更多',
     actionType: 'dialog',
     actionValue: '',
+    extraButtonText: 'AI應用說明',
+    extraActionValue:
+      'https://kids.twreporter.org/article/kids-ai-use-guideline',
     icon: '/assets/images/about/join-us/call_baodaozai.svg',
   },
   {
