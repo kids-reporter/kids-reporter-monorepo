@@ -1,6 +1,5 @@
 import { CallBaodaozaiIntroPageType } from '__generated__/types'
 
-import { Theme } from '@/constants'
 import { CategorySlug } from '@/types'
 
 const isValidPageNumber = (pageNumber: string): boolean => {
@@ -121,18 +120,5 @@ export const mapCategorySlugToIntroPageType = (
       return 'classroom'
     default:
       return undefined
-  }
-}
-
-export const mapCategoryThemeToClassName = (theme: Theme): string => {
-  switch (theme) {
-    case Theme.YELLOW:
-      return 'theme-yellow'
-    case Theme.RED:
-      return 'theme-red'
-    case Theme.BLUE:
-      return 'theme-blue'
-    default:
-      return ''
   }
 }

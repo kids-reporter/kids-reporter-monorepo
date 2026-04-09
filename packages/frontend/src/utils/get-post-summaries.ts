@@ -1,7 +1,7 @@
 import { Post } from '__generated__/types'
 
 import { PostSummary } from '@/components/types'
-import { DEFAULT_THEME_COLOR, FALLBACK_IMG, Theme } from '@/constants'
+import { FALLBACK_IMG } from '@/constants'
 import { DeepPartial } from '@/types/utils'
 
 export const getPostSummaries = (posts: DeepPartial<Post>[]): PostSummary[] => {
@@ -16,8 +16,6 @@ export const getPostSummaries = (posts: DeepPartial<Post>[]): PostSummary[] => {
       category: subSubcategory?.subcategory?.name ?? '',
       subSubcategory: subSubcategory?.name ?? '',
       publishedDate: post.publishedDate ?? '',
-      theme: (subSubcategory?.subcategory?.category?.themeColor ??
-        DEFAULT_THEME_COLOR) as Theme,
     }
   })
 }

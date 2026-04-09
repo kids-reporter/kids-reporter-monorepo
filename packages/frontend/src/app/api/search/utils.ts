@@ -9,7 +9,7 @@ import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 
 import { CardProp } from '@/app/(general)/_components/search/card'
-import { ContentType, Theme } from '@/constants'
+import { ContentType } from '@/constants'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
 const client = customsearch('v1')
@@ -55,7 +55,6 @@ export async function transferItemsToCards(
         url: item?.link || metaTag?.['og:url'],
         category: metaTag?.['category'] ?? '',
         subSubcategory: metaTag?.['subSubcategory'] ?? '',
-        theme: Theme.BLUE,
         postCount: 0,
       }
 

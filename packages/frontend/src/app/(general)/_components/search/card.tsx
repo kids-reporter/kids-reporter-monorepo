@@ -109,9 +109,7 @@ export const Card = ({ className, content }: CardProp) => {
     content && (
       <Link
         href={content.url}
-        className={`flex w-full flex-col-reverse justify-start gap-3 rounded-2xl bg-transparent md:flex-row md:gap-5 md:gap-6 theme-${
-          content.theme
-        } ${className ?? ''}`}
+        className={`flex w-full flex-col-reverse justify-start gap-3 rounded-2xl bg-transparent md:flex-row md:gap-5 md:gap-6 ${className ?? ''}`}
       >
         {textPart}
         {imagePart}

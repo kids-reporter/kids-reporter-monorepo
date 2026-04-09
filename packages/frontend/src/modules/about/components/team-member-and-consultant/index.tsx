@@ -2,9 +2,9 @@
 
 import Image from 'next/image'
 
-import { Author } from '@/components/author-card'
 import { AuthorRole } from '@/constants'
 
+import { Author } from '../../types'
 import MemberCard from './team-member-card'
 
 type TeamMemberAndConsultantProps = {

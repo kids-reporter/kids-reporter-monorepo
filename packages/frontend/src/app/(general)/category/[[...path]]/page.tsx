@@ -1,6 +1,5 @@
 import { Post } from '__generated__/types'
 import { emitStructured } from '@kids-reporter/logger'
-import { cn } from '@kids-reporter/routing-ui'
 import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
@@ -13,28 +12,20 @@ import {
 } from '@/api/category'
 import { getSubSubcategoryPosts } from '@/api/sub-subcategory'
 import { getSubcategoryPosts } from '@/api/subcategory'
-import Pagination from '@/components/pagination'
-import PostList from '@/components/post-list'
 import {
-  CATEGORY_IMAGES,
-  DEFAULT_THEME_COLOR,
+  CATEGORY_DISPLAY_NAME_FALLBACK,
   ERROR_PAGE,
   GENERAL_DESCRIPTION,
   POST_PER_PAGE,
-  Theme,
 } from '@/constants'
-import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
+import CategoryCollectionModule from '@/modules/category-collection'
 import { DeepPartial } from '@/types/utils'
 import { getPostSummaries } from '@/utils'
 import {
   mapCategorySlugToIntroPageType,
-  mapCategoryThemeToClassName,
   parseCategoryInfoFromPath,
 } from '@/utils/category'
 import { getServerTraceHeaders } from '@/utils/trace-context'
-
-import Navigator from '../../_components/category/navigator'
-import CategoryModule from './_components/module'
 
 function isPost(
   post: DeepPartial<Post> | null | undefined
@@ -169,7 +160,6 @@ export default async function Category({
     notFound()
   }
 
-  const imageURL = CATEGORY_IMAGES[category]
   const pageEnum = mapCategorySlugToIntroPageType(category)
 
   const introContent = pageEnum
@@ -189,7 +179,8 @@ export default async function Category({
     emitStructured({ severity: 'WARNING', message: 'Incorrect category!' })
     notFound()
   }
-  const theme = (categoryData.themeColor || DEFAULT_THEME_COLOR) as Theme
+  const collectionTitle =
+    categoryData.name?.trim() || CATEGORY_DISPLAY_NAME_FALLBACK[category]
   const subcategories =
     categoryData.subcategories?.map((sub) => {
       return {
@@ -198,10 +189,18 @@ export default async function Category({
       }
     }) ?? []
 
+  const activeCategoryPath = `/category/${category}${
+    subcategory ? `/${subcategory}` : ''
+  }`
+
   const navigationItems = [
     { name: '所有文章', path: `/category/${category}` },
     ...subcategories,
-  ]
+  ].map((item) => ({
+    name: item.name,
+    path: item.path,
+    active: item.path === activeCategoryPath,
+  }))
 
   // Fetch related posts of subSubcategory/subcategory/category
   const postsRes = await getPosts(
@@ -271,50 +270,16 @@ export default async function Category({
   })()
 
   return (
-    <main
-      style={{ width: '95vw' }}
-      className="mx-auto mb-10 flex flex-col items-center justify-center"
-    >
-      <div
-        className={cn(
-          mapCategoryThemeToClassName(theme),
-          'flex w-full flex-col items-center justify-center gap-10'
-        )}
-      >
-        <img className="w-full max-w-xl" src={imageURL} loading="lazy" />
-        {pageEnum && (
-          <>
-            <BaodaozaiVisibilitySetter show={true} />
-            <CategoryModule introContent={introContent ?? ''} />
-          </>
-        )}
-        <div className="flex flex-row flex-wrap justify-center gap-2.5">
-          {navigationItems?.map(
-            (item, index) =>
-              item && (
-                <Navigator
-                  key={`category-navigation-${index}`}
-                  name={item.name}
-                  path={item.path}
-                  active={
-                    item.path ===
-                    `/category/${category}${
-                      subcategory ? `/${subcategory}` : ''
-                    }`
-                  }
-                />
-              )
-          )}
-        </div>
-        <PostList posts={posts} />
-        {totalPages > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            routingPrefix={routingPrefix}
-          />
-        )}
-      </div>
-    </main>
+    <CategoryCollectionModule
+      categorySlug={category}
+      title={collectionTitle}
+      introContent={introContent ?? ''}
+      showIntro={Boolean(pageEnum)}
+      posts={posts}
+      navigationItems={navigationItems}
+      totalPages={totalPages}
+      currentPage={currentPage}
+      routingPrefix={routingPrefix}
+    />
   )
 }

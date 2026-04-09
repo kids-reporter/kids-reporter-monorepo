@@ -93,6 +93,7 @@ export const GET_CATEGORY_SUBCATEGORIES_AND_THEME_COLOR_QUERY = gql`
     $where: CategoryWhereUniqueInput!
   ) {
     category(where: $where) {
+      name
       subcategories {
         name
         slug

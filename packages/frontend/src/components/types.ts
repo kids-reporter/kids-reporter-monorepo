@@ -1,5 +1,3 @@
-import { Theme } from '@/constants'
-
 export type PostSummary = {
   image: string
   title: string
@@ -8,7 +6,6 @@ export type PostSummary = {
   category: string
   subSubcategory: string
   publishedDate: string
-  theme: Theme
 }
 
 export enum Loading {

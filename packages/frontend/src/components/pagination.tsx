@@ -9,6 +9,7 @@ type PaginationProp = {
   currentPage: number
   totalPages: number
   routingPrefix: string
+  className?: string
 }
 
 /* Figma: 32px circles, 12px gap, red-400 active, neutral-200 inactive */
@@ -20,7 +21,7 @@ export const Pagination = (props: PaginationProp) => {
   const currentPage = props?.currentPage
   const totalPages = props?.totalPages
   const routingPrefix = props?.routingPrefix
-
+  const className = props?.className
   if (!totalPages || !currentPage || !routingPrefix) {
     return null
   }
@@ -147,7 +148,10 @@ export const Pagination = (props: PaginationProp) => {
   return (
     totalPages > 0 && (
       <nav
-        className="flex w-full flex-row flex-wrap items-center justify-center gap-3"
+        className={cn(
+          'flex w-full flex-row flex-wrap items-center justify-center gap-3',
+          className
+        )}
         role="navigation"
         aria-label="分頁導航"
       >
