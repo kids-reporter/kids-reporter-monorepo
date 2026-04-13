@@ -42,7 +42,6 @@ function CategoryCollectionModule({
   const illustrations = CATEGORY_COLLECTION_ILLUSTRATIONS[categorySlug]
   const showSubcategoryNav =
     categorySlug !== 'classroom' && navigationItems.length > 0
-
   return (
     <main>
       {showIntro && (

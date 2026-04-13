@@ -70,11 +70,11 @@ function CommonCollection(props: CommonCollectionProps) {
   const { hero, morePostsMode, posts, subcategoryNav } = props
   return (
     <div className="w-screen bg-neutral-100 pb-14 tablet:pb-16 desktop:pb-24 hd:pb-30">
-      <div className="mx-auto flex w-full flex-col items-center justify-center px-6 tablet:px-8 desktop:px-12 hd:max-w-300 hd:px-0">
+      <div className="mx-auto flex w-full flex-col items-center justify-center px-6 tablet:px-8 desktop:max-w-300 desktop:px-12 hd:px-0">
         {hero.type === 'illustrated' && (
           <CommonCollectionHeroShell className="flex flex-col items-center justify-center tablet:flex-row tablet:justify-between hd:px-14">
             <div className="relative z-2 mt-6 flex items-center gap-4 self-start tablet:mt-16 desktop:mt-20 desktop:gap-5 hd:mt-24">
-              <div className="h-10 w-1 rounded-[8px] bg-red-400 desktop:h-12 desktop:w-3" />
+              <div className="h-10 w-2 rounded-[8px] bg-red-400 desktop:h-12 desktop:w-3" />
               <h1 className="prose-h1-small font-swei! text-neutral-900 desktop:prose-h1-large">
                 {hero.title}
               </h1>
@@ -103,17 +103,15 @@ function CommonCollection(props: CommonCollectionProps) {
         )}
 
         {subcategoryNav != null && (
-          <div className="mb-14 w-full px-6 tablet:px-8 desktop:px-12 hd:max-w-300 hd:px-0">
+          <div className="mb-14 w-full">
             <div className="hd:px-14">{subcategoryNav}</div>
           </div>
         )}
 
-        <div className="px-6 tablet:px-8 desktop:px-12 hd:max-w-300 hd:px-0">
-          <div className="grid w-full grid-cols-1 gap-y-6 tablet:grid-cols-2 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-3 desktop:gap-x-8 desktop:gap-y-10 hd:gap-y-14 hd:px-14">
-            {posts.map((post) => (
-              <CommonCollectionPostCard key={post.url} post={post} />
-            ))}
-          </div>
+        <div className="grid w-full grid-cols-1 gap-y-6 tablet:grid-cols-2 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-3 desktop:gap-x-8 desktop:gap-y-10 hd:gap-y-14 hd:px-14">
+          {posts.map((post) => (
+            <CommonCollectionPostCard key={post.url} post={post} />
+          ))}
         </div>
 
         {morePostsMode === 'pagination' && props.totalPages > 0 && (

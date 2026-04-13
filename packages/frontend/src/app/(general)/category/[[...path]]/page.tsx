@@ -274,7 +274,7 @@ export default async function Category({
       categorySlug={category}
       title={collectionTitle}
       introContent={introContent ?? ''}
-      showIntro={Boolean(pageEnum)}
+      showIntro={Boolean(pageEnum) && currentPage === 1}
       posts={posts}
       navigationItems={navigationItems}
       totalPages={totalPages}

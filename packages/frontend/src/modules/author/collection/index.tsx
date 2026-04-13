@@ -48,7 +48,7 @@ export default function AuthorCollectionModule({
                     {author.email != null && author.email !== '' && (
                       <a
                         href={`mailto:${author.email}`}
-                        className="prose-p2 text-blue-400 underline decoration-neutral-400 underline-offset-2 desktop:prose-p1"
+                        className="prose-p2 text-blue-400 underline decoration-neutral-400 decoration-1 underline-offset-3 transition-all duration-300 hover:decoration-blue-400 desktop:prose-p1"
                       >
                         {author.email}
                       </a>

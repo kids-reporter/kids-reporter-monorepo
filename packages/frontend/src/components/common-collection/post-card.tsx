@@ -14,7 +14,7 @@ function CommonCollectionPostCard({ post }: CommonCollectionPostCardProps) {
   return (
     <div
       className={
-        'min-h-30 w-[calc(100vw-96px)] flex-shrink-0 snap-start tablet:min-h-auto tablet:w-auto'
+        'min-h-30 w-[calc(100vw-48px)] flex-shrink-0 snap-start tablet:min-h-auto tablet:w-auto'
       }
     >
       <Link href={post.url} className="group relative flex h-full flex-col">
