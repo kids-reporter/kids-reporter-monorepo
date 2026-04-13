@@ -8,8 +8,8 @@ import { customsearch_v1 } from '@googleapis/customsearch/v1'
 import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
 
-import { CardProp } from '@/app/(general)/_components/search/card'
 import { ContentType } from '@/constants'
+import type { SearchCardContent, SearchCardItem } from '@/modules/search/types'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
 const client = customsearch('v1')
@@ -31,9 +31,9 @@ const validContentTypes = Object.values(ContentType)
 export async function transferItemsToCards(
   items: customsearch_v1.Schema$Result[],
   traceHeaders?: Headers | Record<string, string | undefined>
-): Promise<CardProp[]> {
+): Promise<SearchCardItem[]> {
   if (!Array.isArray(items)) {
-    return items
+    return []
   }
 
   const cardItems = await Promise.all(
@@ -46,8 +46,8 @@ export async function transferItemsToCards(
       }
 
       const creativeWork = item?.pagemap?.creativework?.[0]
-      const contentSummary = {
-        type: contentType,
+      const contentSummary: SearchCardContent = {
+        type: contentType as ContentType,
         image: creativeWork?.image || metaTag?.['og:image'],
         title: creativeWork?.headline || metaTag?.['og:title'],
         desc: metaTag?.['og:description'],
@@ -114,7 +114,9 @@ export async function transferItemsToCards(
     })
   )
 
-  return cardItems.filter((item): item is CardProp => Boolean(item))
+  return cardItems.filter(
+    (item): item is NonNullable<typeof item> => item !== null
+  )
 }
 
 async function getSearchResults({

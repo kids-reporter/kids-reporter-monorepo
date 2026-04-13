@@ -1,23 +1,58 @@
 import { emitStructured } from '@kids-reporter/logger'
 import errors from '@twreporter/errors'
+import type { Metadata } from 'next'
 
 import {
   defaultCount,
+  defaultStart,
   getFilteredSearchResults,
   SearchResult,
   transferItemsToCards,
 } from '@/app/api/search/utils'
-import { ContentType, EMAIL } from '@/constants'
+import {
+  ContentType,
+  EMAIL,
+  GENERAL_DESCRIPTION,
+  KIDS_URL_ORIGIN,
+  OG_SUFFIX,
+} from '@/constants'
 import envVars from '@/environment-variables'
-
-import { LoadMoreResults } from '../_components/search/load-more-results'
-import { SearchInput } from '../_components/search/search-input'
-import { SearchTitle } from '../_components/search/styled'
+import SearchModule from '@/modules/search'
 
 // Filtering search output: https://developers.google.com/custom-search/docs/structured_search
 const filterParams = Object.values(ContentType)
   .map((type) => `more:pagemap:metatags-contenttype:${type}`)
   .join(' OR ')
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { q?: string }
+}): Promise<Metadata> {
+  const q = (
+    Array.isArray(searchParams.q) ? searchParams.q[0] : searchParams.q
+  )?.trim()
+  const title = q ? `搜尋「${q}」 - ${OG_SUFFIX}` : `搜尋 - ${OG_SUFFIX}`
+  const description = q ? `搜尋「${q}」的結果。` : GENERAL_DESCRIPTION
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: q
+        ? `${KIDS_URL_ORIGIN}/search?q=${encodeURIComponent(q)}`
+        : `${KIDS_URL_ORIGIN}/search`,
+    },
+    openGraph: {
+      title,
+      description,
+    },
+    robots: {
+      index: false,
+      follow: true,
+    },
+  }
+}
 
 export default async function SearchPage({
   searchParams,
@@ -27,7 +62,17 @@ export default async function SearchPage({
   }
 }) {
   if (!searchParams.q) {
-    return <SearchTitle>請輸入要搜尋的字串。</SearchTitle>
+    return (
+      <SearchModule
+        query=""
+        cardItems={[]}
+        emptyState={
+          <h1 className="mt-20 text-center prose-h3-small text-neutral-900 md:prose-h3-large">
+            請輸入要搜尋的字串。
+          </h1>
+        }
+      />
+    )
   }
 
   let data: SearchResult | undefined
@@ -49,43 +94,40 @@ export default async function SearchPage({
     )
     emitStructured({ severity: 'WARNING', message: msg })
     return (
-      <SearchTitle>
-        搜尋結果服務異常，請稍候再試。 若持續發生，煩請來信至
-        {EMAIL}。
-      </SearchTitle>
+      <SearchModule
+        query={searchParams.q}
+        cardItems={[]}
+        emptyState={
+          <h1 className="mt-20 text-center prose-h3-small text-neutral-900 md:prose-h3-large">
+            搜尋結果服務異常，請稍候再試。 若持續發生，煩請來信至{EMAIL}。
+          </h1>
+        }
+      />
     )
   }
-
-  const searchImg = (
-    <img
-      className="px-3 md:px-4"
-      src="/assets/images/search-result.png"
-      loading="lazy"
-    />
-  )
-
-  const resultCount = data?.totalResults && (
-    <p
-      style={{ letterSpacing: '0.08em', color: '#595959' }}
-      className="w-full border-t-2 border-gray-200 pt-4 text-left text-sm font-medium"
-    >
-      找到 {data.totalResults} 項結果
-    </p>
-  )
 
   const cardItems = Array.isArray(data?.items)
     ? await transferItemsToCards(data.items)
     : []
 
+  const apiQuery = `${searchParams.q} (${filterParams})`
+
   return (
-    <div className="mx-auto flex max-w-full flex-col items-center justify-center px-4 pt-8 md:max-w-2xl xl:max-w-4xl">
-      {searchImg}
-      <SearchInput value={searchParams.q} />
-      {resultCount}
-      <LoadMoreResults
-        currentCardItems={cardItems}
-        nextQuery={data.nextQuery}
-      />
-    </div>
+    <SearchModule
+      query={searchParams.q}
+      totalResults={data?.totalResults}
+      cardItems={cardItems}
+      nextQuery={data?.nextQuery}
+      initialPageRequest={{
+        q: apiQuery,
+        start: defaultStart,
+        count: defaultCount,
+      }}
+      emptyState={
+        <p className="pt-8 text-center prose-p1 text-neutral-600">
+          沒有找到結果
+        </p>
+      }
+    />
   )
 }

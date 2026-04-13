@@ -127,7 +127,7 @@ function CommonCollection(props: CommonCollectionProps) {
         {morePostsMode === 'loadingMore' && props.hasMore && (
           <Button
             onClick={props.onLoadMore}
-            disabled={props.isLoading}
+            isLoading={props.isLoading}
             variant="secondary"
             size={44}
             className="mt-6 w-[300px] tablet:mt-8 tablet:w-[200px] desktop:mt-10 desktop:w-[240px] hd:mt-14"
