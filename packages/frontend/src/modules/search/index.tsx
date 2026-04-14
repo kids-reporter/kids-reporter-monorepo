@@ -24,7 +24,7 @@ function SearchModule({
   emptyState?: ReactNode
 }) {
   return (
-    <main className="relative mx-auto flex w-full max-w-300 flex-col items-center px-6 pt-8 pb-14 tablet:px-8 tablet:pt-12 tablet:pb-16 desktop:px-12 desktop:pt-16 desktop:pb-24 hd:pt-20 hd:pb-30">
+    <main className="relative mx-auto flex w-full max-w-[950px] flex-col items-center px-6 pt-8 pb-14 tablet:px-8 tablet:pt-12 tablet:pb-16 desktop:px-12 desktop:pt-16 desktop:pb-24 hd:pt-20 hd:pb-30">
       <div className="flex w-full flex-col items-center">
         <SearchHero />
         <SearchInput value={query} />
@@ -50,7 +50,7 @@ function SearchModule({
         <div className="w-full">{emptyState}</div>
       )}
 
-      <div className="absolute right-0 bottom-0 left-0">
+      <div className="absolute right-0 bottom-0 left-1/2 w-screen -translate-x-1/2">
         <Divider />
       </div>
     </main>

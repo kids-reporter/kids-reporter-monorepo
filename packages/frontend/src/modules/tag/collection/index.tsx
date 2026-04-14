@@ -22,8 +22,8 @@ export default function TagCollectionModule({
         hero={{
           type: 'customized',
           content: (
-            <div className="flex h-[260px] w-full items-start justify-center desktop:h-[320px] hd:mb-10">
-              <h1 className="mt-20 px-6 text-center prose-h1-small font-swei! text-neutral-900 desktop:mt-24 desktop:prose-h1-large">
+            <div className="flex h-[200px] w-full items-start justify-center tablet:h-[260px] desktop:h-[320px] hd:mb-10">
+              <h1 className="mt-12 px-6 text-center prose-h1-small font-swei! text-neutral-900 tablet:mt-20 desktop:mt-24 desktop:prose-h1-large">
                 {`#${tagName}`}
               </h1>
             </div>
