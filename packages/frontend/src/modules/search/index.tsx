@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react'
 
 import type { SearchPageRequest } from '@/api-utils/react-query/hooks/search-results-infinite'
+import Divider from '@/components/divider'
 
 import LoadMoreResults from './components/load-more-results'
 import SearchHero from './components/search-hero'
 import SearchInput from './components/search-input'
 import type { SearchCardItem, SearchNextQuery } from './types'
 
-export function SearchModule({
+function SearchModule({
   query,
   totalResults,
   cardItems,
@@ -23,7 +24,7 @@ export function SearchModule({
   emptyState?: ReactNode
 }) {
   return (
-    <main className="mx-auto flex w-full max-w-desktop flex-col items-center px-6 pt-12 pb-16 tablet:px-8">
+    <main className="relative mx-auto flex w-full max-w-300 flex-col items-center px-6 pt-8 pb-14 tablet:px-8 tablet:pt-12 tablet:pb-16 desktop:px-12 desktop:pt-16 desktop:pb-24 hd:pt-20 hd:pb-30">
       <div className="flex w-full flex-col items-center">
         <SearchHero />
         <SearchInput value={query} />
@@ -31,8 +32,8 @@ export function SearchModule({
 
       {totalResults ? (
         <div className="w-full">
-          <div className="h-px w-full bg-neutral-400" />
-          <p className="pt-6 text-left prose-p2 text-neutral-600 tablet:pt-10 desktop:pt-12">
+          <Divider />
+          <p className="pt-4 text-left prose-p2 text-neutral-600">
             找到 {totalResults} 項結果
           </p>
         </div>
@@ -48,6 +49,10 @@ export function SearchModule({
       ) : (
         <div className="w-full">{emptyState}</div>
       )}
+
+      <div className="absolute right-0 bottom-0 left-0">
+        <Divider />
+      </div>
     </main>
   )
 }

@@ -66,7 +66,7 @@ function ResultCard({ content }: { content: SearchCardContent }) {
           <h2
             className={cn(
               isTagOrAuthor ? 'line-clamp-1' : 'line-clamp-2',
-              'w-full overflow-hidden text-left prose-h5-small tracking-[1px] text-neutral-900 transition-colors duration-300 group-hover:text-red-400 tablet:prose-h5-large'
+              'w-full overflow-hidden text-left prose-h5-small text-neutral-900 transition-colors duration-300 group-hover:text-red-400 desktop:prose-h5-large'
             )}
           >
             {content.type === ContentType.TAG ? '#' : ''}
@@ -85,7 +85,7 @@ function ResultCard({ content }: { content: SearchCardContent }) {
         </div>
       </div>
 
-      <div className="relative order-1 h-[183px] w-full shrink-0 overflow-hidden rounded-[40px] tablet:order-3 tablet:h-[160px] tablet:w-[284px] tablet:rounded-2xl">
+      <div className="relative order-1 h-[183px] w-full shrink-0 overflow-hidden rounded-[16px] tablet:order-3 tablet:h-[160px] tablet:w-[284px] tablet:rounded-2xl">
         <img
           className="size-full object-cover transition-transform duration-300 group-hover:scale-120"
           src={content.image ?? fallbackImg}

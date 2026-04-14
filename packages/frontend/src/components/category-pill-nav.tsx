@@ -22,8 +22,10 @@ function CategoryPillNav({ items }: CategoryPillNavProps) {
           key={`category-pill-${item.path}-${index}`}
           href={item.path}
           className={cn(
-            'inline-flex shrink-0 items-center rounded-[30px] px-3 py-1 prose-p1-bold transition-all duration-300 hover:bg-neutral-300 hover:text-neutral-900',
-            item.active ? 'bg-red-400 text-neutral-white' : 'text-neutral-900'
+            'inline-flex shrink-0 items-center rounded-[30px] px-3 py-1 prose-p1-bold transition-all duration-300 hover:bg-neutral-200 hover:text-neutral-900',
+            item.active
+              ? 'bg-red-400 text-neutral-white hover:bg-red-400 hover:text-neutral-white'
+              : 'text-neutral-900'
           )}
         >
           {item.name}

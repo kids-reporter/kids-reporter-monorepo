@@ -24,7 +24,7 @@ function SearchInput({ value }: { value: string }) {
           value={input}
           onChange={setInput}
           onClear={() => setInput('')}
-          className="w-full"
+          className="w-full border-neutral-400 bg-neutral-100 data-[input-state=focus]:border-neutral-600 desktop:bg-neutral-100"
         />
       </form>
     </>

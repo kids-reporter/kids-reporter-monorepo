@@ -3,7 +3,7 @@ import ResultCard from './result-card'
 
 function ResultCards({ items }: { items: SearchCardItem[] }) {
   return (
-    <ul className="flex w-full list-none flex-col gap-10 py-6 tablet:gap-8 tablet:py-10 desktop:py-12">
+    <ul className="flex w-full list-none flex-col gap-10 py-6 tablet:gap-8 tablet:py-10 desktop:gap-11 desktop:py-12">
       {items.map((item, idx) => {
         if (!item?.content?.url) {
           return null
