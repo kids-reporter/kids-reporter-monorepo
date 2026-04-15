@@ -12,7 +12,7 @@ import { type DocumentNode, print } from 'graphql'
 
 import { formatAxiosError } from '../utils/format-axios-error.js'
 import { logResponse } from './gql-rest-logger.js'
-import { errors, statusCodes } from './gql-rest-shared.js'
+import { clientGqlErrorCodes, errors, statusCodes } from './gql-rest-shared.js'
 
 type BuildVariables = (input: { name: string }) => Record<string, unknown>
 
@@ -281,13 +281,22 @@ export const createMultipartRewriteHandler = ({
           | { data?: unknown; errors?: unknown }
           | undefined
 
-        if (gqlPayload?.errors) {
-          // This gateway owns the operation/variables; treat CMS GraphQL errors as server-side faults.
+        if (Array.isArray(gqlPayload?.errors) && gqlPayload?.errors?.length) {
+          const gqlErrors = gqlPayload.errors
+          const hasClientError = gqlPayload.errors.some(
+            (error: { extensions?: { code?: string } }) =>
+              clientGqlErrorCodes.has(error?.extensions?.code ?? '')
+          )
+          // Mirror gql-rest.ts: 400 for client GraphQL error codes, otherwise treat as server-side fault.
+          const status = hasClientError
+            ? statusCodes.badRequest
+            : statusCodes.internalServerError
           return respond(
-            statusCodes.internalServerError,
+            status,
             {
               status: 'error',
               message: 'CMS GraphQL responded with errors',
+              errors: gqlErrors,
             },
             errors.helpers.wrap(
               undefined,
@@ -295,7 +304,7 @@ export const createMultipartRewriteHandler = ({
               'CMS GraphQL responded with errors',
               {
                 context: {
-                  errors: gqlPayload.errors,
+                  errors: gqlErrors,
                 },
               }
             )
