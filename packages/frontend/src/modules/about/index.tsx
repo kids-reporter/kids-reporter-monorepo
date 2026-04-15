@@ -1,6 +1,5 @@
 'use client'
 
-import { Author } from '@/components/author-card'
 import SupportAction from '@/components/support-action'
 import { TableOfContentSideMenu } from '@/components/table-of-content'
 
@@ -14,6 +13,7 @@ import RelatedProducts from './components/related-products'
 import SupportActionContent from './components/support-action-content'
 import TeamMemberAndConsultant from './components/team-member-and-consultant'
 import { ABOUT_TOC_INDEXES } from './constants'
+import { Author } from './types'
 
 type AboutModuleProps = {
   teamMembers: Author[]

@@ -8,6 +8,8 @@ import {
   GetPostQueryVariables,
   GetPostsEssayAnswersWithLikesQuery,
   GetPostsEssayAnswersWithLikesQueryVariables,
+  GetPostsQuery,
+  GetPostsQueryVariables,
 } from '__generated__/operations/content.generated'
 
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
@@ -80,4 +82,17 @@ export const getPostEssayQuestionsByPostSlug = async ({
     traceHeaders,
   })
   return response?.data?.data?.post
+}
+
+export const getPostsPaged = async (
+  variables: GetPostsQueryVariables,
+  traceHeaders?: Record<string, string>
+) => {
+  const postsRes = await sendRestGqlRequest<GetPostsQuery>({
+    operation: 'posts-paged',
+    method: 'GET',
+    variables,
+    traceHeaders,
+  })
+  return postsRes?.data?.data?.posts
 }

@@ -42,7 +42,7 @@ const inputVariants = cva(
       },
       mode: {
         default: 'rounded-[12px] border-neutral-400 bg-neutral-100',
-        search: 'rounded-full border-transparent desktop:border-neutral-600',
+        search: 'rounded-full border-transparent desktop:border-neutral-400',
       },
     },
     compoundVariants: [
@@ -70,17 +70,18 @@ const inputVariants = cva(
       {
         state: 'default',
         mode: 'search',
-        className: 'bg-neutral-100',
+        className: 'bg-neutral-100 desktop:border-neutral-400',
       },
       {
         state: 'focus',
         mode: 'search',
-        className: 'border-neutral-600',
+        className:
+          'border-neutral-600 bg-neutral-100 desktop:border-neutral-600 desktop:bg-transparent',
       },
       {
         state: 'active',
         mode: 'search',
-        className: 'border-neutral-600',
+        className: 'border-neutral-600 desktop:border-neutral-600',
       },
     ],
     defaultVariants: {
@@ -189,7 +190,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="gap-2 flex flex-col">
-        <div className={inputClasses} ref={ref}>
+        <div
+          className={inputClasses}
+          ref={ref}
+          data-input-state={currentState}
+          data-input-mode={mode}
+        >
           <div className="text-neutral-600">
             {isSearchMode && <SearchIconSmall />}
           </div>
@@ -201,7 +207,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             onBlur={handleBlur}
             placeholder={placeholder}
             className={cn(
-              'flex-1 flex-shrink-1 bg-transparent text-neutral-900 placeholder:prose-p1 placeholder:text-neutral-400 focus:outline-none disabled:text-neutral-400',
+              'flex-1 shrink bg-transparent text-neutral-900 placeholder:prose-p1 placeholder:text-neutral-400 focus:outline-none disabled:text-neutral-400',
               isSearchMode && 'ml-2 max-w-[72%]'
             )}
             aria-describedby={
@@ -226,7 +232,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={handleClear}
-              className="p-1/2 ml-auto flex-shrink-0 cursor-pointer rounded-full text-neutral-400 transition-colors hover:text-neutral-600 active:bg-neutral-200"
+              className="p-1/2 ml-auto shrink-0 cursor-pointer rounded-full text-neutral-400 transition-colors hover:text-neutral-600 active:bg-neutral-200"
               aria-label="Clear input"
             >
               <CloseIcon />

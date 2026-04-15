@@ -19,7 +19,7 @@ function PopularKeywords({ keywords }: PopularKeywordsProp) {
         {keywords.map((keyword) => (
           <li key={keyword.name} className="h-max list-none">
             <Link
-              href={`/search?q=${encodeURIComponent(keyword.name)}`}
+              href={`/tag/${keyword.slug}`}
               className="cursor-pointer rounded-full bg-neutral-200 px-3 py-1 prose-p2 font-bold text-neutral-900 transition-colors duration-200 hover:bg-red-500 hover:text-neutral-white"
             >
               #{keyword.name}

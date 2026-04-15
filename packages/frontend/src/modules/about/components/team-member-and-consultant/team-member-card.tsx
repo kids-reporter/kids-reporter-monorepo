@@ -6,10 +6,11 @@ import Link from 'next/link'
 import { useRef, useState } from 'react'
 
 import { useAuthorAvatarQuery } from '@/api-utils/react-query/hooks/author-avatar'
-import type { Author } from '@/components/author-card'
 import { DEFAULT_AVATAR } from '@/constants'
 import useClickOutside from '@/hooks/use-click-outside'
 import { ArrowRight } from '@/icons/arrow'
+
+import { Author } from '../../types'
 
 type MemberCardProps = {
   member: Author

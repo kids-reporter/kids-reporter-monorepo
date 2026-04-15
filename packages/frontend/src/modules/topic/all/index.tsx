@@ -51,10 +51,10 @@ function TopicAllModule({
         </div>
       </div>
       <div className="w-screen bg-neutral-100 pb-14 tablet:pb-16 desktop:pb-24 hd:pb-30">
-        <div className="mx-auto flex w-full flex-col items-center justify-center px-6 tablet:px-8 desktop:px-12 hd:max-w-300 hd:px-0">
+        <div className="mx-auto flex w-full flex-col items-center justify-center px-6 tablet:px-8 desktop:max-w-300 desktop:px-12 hd:px-0">
           <div className="relative mb-5 flex w-full flex-col items-center justify-center tablet:flex-row tablet:justify-between hd:mb-10 hd:px-14">
             <div className="relative z-2 mt-6 flex items-center gap-4 self-start tablet:mt-16 desktop:mt-20 desktop:gap-5 hd:mt-24">
-              <div className="h-10 w-1 rounded-[8px] bg-red-400 desktop:h-12 desktop:w-3" />
+              <div className="h-10 w-2 rounded-[8px] bg-red-400 desktop:h-12 desktop:w-3" />
               <h1 className="prose-h1-small font-swei! text-neutral-900 desktop:prose-h1-large">
                 專題
               </h1>
@@ -76,10 +76,10 @@ function TopicAllModule({
 
             <div className="absolute top-0 left-1/2 z-1 h-full w-screen -translate-x-1/2 bg-neutral-white"></div>
 
-            <div className="absolute bottom-0 left-1/2 z-3 h-16 w-screen -translate-x-1/2 bg-[url(/assets/images/topic/wave_s.svg)] bg-[length:375px_64px] bg-center bg-repeat-x tablet:hidden" />
-            <div className="absolute bottom-0 left-1/2 z-3 hidden h-[114px] w-screen -translate-x-1/2 bg-[url(/assets/images/topic/wave_m.svg)] bg-[length:768px_114px] bg-center bg-repeat-x tablet:block desktop:hidden" />
-            <div className="absolute bottom-0 left-1/2 z-3 hidden h-[120px] w-screen -translate-x-1/2 bg-[url(/assets/images/topic/wave_l.svg)] bg-[length:1024px_120px] bg-center bg-repeat-x desktop:block hd:hidden" />
-            <div className="absolute bottom-0 left-1/2 z-3 hidden h-[120px] w-screen -translate-x-1/2 bg-[url(/assets/images/topic/wave_xl.svg)] bg-[length:1440px_120px] bg-center bg-repeat-x hd:block" />
+            <div className="absolute bottom-0 left-1/2 z-3 h-16 w-screen -translate-x-1/2 bg-[url(/assets/images/common-collection/wave_s.svg)] bg-[length:375px_64px] bg-center bg-repeat-x tablet:hidden" />
+            <div className="absolute bottom-0 left-1/2 z-3 hidden h-[114px] w-screen -translate-x-1/2 bg-[url(/assets/images/common-collection/wave_m.svg)] bg-[length:768px_114px] bg-center bg-repeat-x tablet:block desktop:hidden" />
+            <div className="absolute bottom-0 left-1/2 z-3 hidden h-[120px] w-screen -translate-x-1/2 bg-[url(/assets/images/common-collection/wave_l.svg)] bg-[length:1024px_120px] bg-center bg-repeat-x desktop:block hd:hidden" />
+            <div className="absolute bottom-0 left-1/2 z-3 hidden h-[120px] w-screen -translate-x-1/2 bg-[url(/assets/images/common-collection/wave_xl.svg)] bg-[length:1440px_120px] bg-center bg-repeat-x hd:block" />
           </div>
           {featuredTopic && (
             <div className="w-full hd:px-4">

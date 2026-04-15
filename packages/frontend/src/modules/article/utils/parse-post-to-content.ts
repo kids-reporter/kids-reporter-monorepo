@@ -1,17 +1,10 @@
 import { GetPostQuery } from '__generated__/operations/content.generated'
 
-import { Author } from '@/components/author-card'
 import { PostSummary } from '@/components/types'
-import {
-  AUTHOR_ROLES_IN_ORDER,
-  AuthorRole,
-  DEFAULT_AVATAR,
-  DEFAULT_THEME_COLOR,
-  Theme,
-} from '@/constants'
+import { AUTHOR_ROLES_IN_ORDER, AuthorRole, DEFAULT_AVATAR } from '@/constants'
 import { getPostSummaries } from '@/utils'
 
-import { AuthorGroup } from '../types'
+import { Author, AuthorGroup } from '../types'
 
 function parsePostToContent(post: NonNullable<GetPostQuery['post']>) {
   // Assemble authors for brief
@@ -106,7 +99,6 @@ function parsePostToContent(post: NonNullable<GetPostQuery['post']>) {
     category?.slug && subcategory?.slug && subSubcategory?.slug
       ? `/category/${category.slug}/${subcategory.slug}/${subSubcategory.slug}`
       : ''
-  const theme = (category?.themeColor || DEFAULT_THEME_COLOR) as Theme
 
   const twReporterRelatedPosts: PostSummary[] =
     post?.TWReporterRelatedPostsJSON?.map(
@@ -124,12 +116,10 @@ function parsePostToContent(post: NonNullable<GetPostQuery['post']>) {
         category: '',
         subSubcategory: '',
         publishedDate: twReporterPost.publishedDate,
-        theme: DEFAULT_THEME_COLOR,
       })
     ) ?? []
 
   return {
-    theme,
     topicURL,
     mainTopic,
     subSubcategory,

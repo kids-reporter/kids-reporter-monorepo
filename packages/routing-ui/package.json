@@ -1,7 +1,7 @@
 {
   "name": "@kids-reporter/routing-ui",
   "license": "MIT",
-  "version": "0.1.22",
+  "version": "0.1.24",
   "description": "Routing UI for Kids Reporter",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

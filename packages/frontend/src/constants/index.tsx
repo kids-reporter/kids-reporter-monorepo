@@ -39,26 +39,12 @@ export enum FontSizeLevel {
   LARGE = 'large',
 }
 
-export enum Theme {
-  YELLOW = 'yellow',
-  BLUE = 'blue',
-  RED = 'red',
-}
-
-export enum ThemeColor {
-  YELLOW = '#f8c341',
-  BLUE = '#27b3f5',
-  RED = '#f76977',
-}
-
 export enum Color {
   DARK_GRAY = '#404040',
   LIGHT_GRAY = '#eaeaea',
   FONT_GRAY = '#808080',
   BORDER_GRAY = '#F8F8F8',
 }
-
-export const DEFAULT_THEME_COLOR = ThemeColor.YELLOW
 
 export enum ContentType {
   ARTICLE = 'article',
@@ -117,7 +103,7 @@ export const DEFAULT_AVATAR = '/assets/images/avatar_default.svg'
 export const FIRST_PAGE_TOPIC_PER_PAGE = 9
 export const OTHER_PAGE_TOPIC_PER_PAGE = 8
 
-export const POST_PER_PAGE = 9
+export const POST_PER_PAGE = 12
 
 export const SEARCH_PLACEHOLDER = '搜尋更多新聞、議題'
 
@@ -131,10 +117,36 @@ export const STICKY_HEADER_HEIGHT = 64
 
 export const DESKTOP_HEADER_HEIGHT = 128
 
-export const CATEGORY_IMAGES: Record<CategorySlug, string> = {
-  news: '/assets/images/category_news.svg',
-  storytelling: '/assets/images/category_storytelling.svg',
-  campus: '/assets/images/category_campus.svg',
-  classroom: '/assets/images/category_classroom.svg',
-  'listening-news': '/assets/images/category_listening_news.svg',
+export const CATEGORY_COLLECTION_ILLUSTRATIONS: Record<
+  CategorySlug,
+  { illustration: string; illustrationSmall: string }
+> = {
+  news: {
+    illustration: '/assets/images/news/illustration.svg',
+    illustrationSmall: '/assets/images/news/illustration_s.svg',
+  },
+  storytelling: {
+    illustration: '/assets/images/storytelling/illustration.svg',
+    illustrationSmall: '/assets/images/storytelling/illustration_s.svg',
+  },
+  campus: {
+    illustration: '/assets/images/campus/illustration.svg',
+    illustrationSmall: '/assets/images/campus/illustration_s.svg',
+  },
+  classroom: {
+    illustration: '/assets/images/classroom/illustration.svg',
+    illustrationSmall: '/assets/images/classroom/illustration_s.svg',
+  },
+  'listening-news': {
+    illustration: '/assets/images/podcast/illustration.svg',
+    illustrationSmall: '/assets/images/podcast/illustration_s.svg',
+  },
+}
+
+export const CATEGORY_DISPLAY_NAME_FALLBACK: Record<CategorySlug, string> = {
+  news: '新聞',
+  storytelling: '多媒體',
+  campus: '校園',
+  classroom: '教案',
+  'listening-news': 'Podcast',
 }
