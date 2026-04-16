@@ -1444,6 +1444,10 @@ type EditorPicksSetting {
   editorPicksOfPostsCount(where: PostWhereInput! = {}): Int
   editorPicksOfPostsOrderJson: JSON
   editorPicksOfPostsOrdered(take: Int! = 12, skip: Int! = 0): [Post!]
+  popularKeywords(where: PopularKeywordWhereInput! = {}, orderBy: [PopularKeywordOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PopularKeywordWhereUniqueInput): [PopularKeyword!]
+  popularKeywordsCount(where: PopularKeywordWhereInput! = {}): Int
+  popularKeywordsOrderJson: JSON
+  popularKeywordsOrdered(take: Int! = 12, skip: Int! = 0): [PopularKeyword!]
   editorPicksOfProjects(where: ProjectWhereInput! = {}, orderBy: [ProjectOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ProjectWhereUniqueInput): [Project!]
   editorPicksOfProjectsCount(where: ProjectWhereInput! = {}): Int
   editorPicksOfTags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
@@ -1465,10 +1469,17 @@ input EditorPicksSettingWhereInput {
   name: StringFilter
   nameForCMS: StringFilter
   editorPicksOfPosts: PostManyRelationFilter
+  popularKeywords: PopularKeywordManyRelationFilter
   editorPicksOfProjects: ProjectManyRelationFilter
   editorPicksOfTags: TagManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
+}
+
+input PopularKeywordManyRelationFilter {
+  every: PopularKeywordWhereInput
+  some: PopularKeywordWhereInput
+  none: PopularKeywordWhereInput
 }
 
 input EditorPicksSettingOrderByInput {
@@ -1484,10 +1495,19 @@ input EditorPicksSettingUpdateInput {
   nameForCMS: String
   editorPicksOfPosts: PostRelateToManyForUpdateInput
   editorPicksOfPostsOrderJson: JSON
+  popularKeywords: PopularKeywordRelateToManyForUpdateInput
+  popularKeywordsOrderJson: JSON
   editorPicksOfProjects: ProjectRelateToManyForUpdateInput
   editorPicksOfTags: TagRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input PopularKeywordRelateToManyForUpdateInput {
+  disconnect: [PopularKeywordWhereUniqueInput!]
+  set: [PopularKeywordWhereUniqueInput!]
+  create: [PopularKeywordCreateInput!]
+  connect: [PopularKeywordWhereUniqueInput!]
 }
 
 input EditorPicksSettingUpdateArgs {
@@ -1500,10 +1520,17 @@ input EditorPicksSettingCreateInput {
   nameForCMS: String
   editorPicksOfPosts: PostRelateToManyForCreateInput
   editorPicksOfPostsOrderJson: JSON
+  popularKeywords: PopularKeywordRelateToManyForCreateInput
+  popularKeywordsOrderJson: JSON
   editorPicksOfProjects: ProjectRelateToManyForCreateInput
   editorPicksOfTags: TagRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input PopularKeywordRelateToManyForCreateInput {
+  create: [PopularKeywordCreateInput!]
+  connect: [PopularKeywordWhereUniqueInput!]
 }
 
 type PDF {
@@ -2210,7 +2237,6 @@ input PostEssayAnswerRelateToOneForCreateInput {
 type PopularKeyword {
   id: ID!
   name: String
-  order: Int
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -2225,7 +2251,6 @@ input PopularKeywordWhereInput {
   NOT: [PopularKeywordWhereInput!]
   id: IDFilter
   name: StringFilter
-  order: IntNullableFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -2233,14 +2258,12 @@ input PopularKeywordWhereInput {
 input PopularKeywordOrderByInput {
   id: OrderDirection
   name: OrderDirection
-  order: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
 
 input PopularKeywordUpdateInput {
   name: String
-  order: Int
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -2252,7 +2275,6 @@ input PopularKeywordUpdateArgs {
 
 input PopularKeywordCreateInput {
   name: String
-  order: Int
   createdAt: DateTime
   updatedAt: DateTime
 }

@@ -15,5 +15,7 @@ export const getPopularKeywords = async (
     variables: variables ?? {},
     traceHeaders,
   })
-  return response?.data?.data?.popularKeywords
+  return (
+    response?.data?.data?.editorPicksSettings?.[0]?.popularKeywordsOrdered ?? []
+  )
 }

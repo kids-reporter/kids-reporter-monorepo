@@ -1,5 +1,5 @@
 import { list } from '@keystone-6/core'
-import { integer, text, timestamp } from '@keystone-6/core/fields'
+import { text, timestamp } from '@keystone-6/core/fields'
 import type { ListConfig } from '@keystone-6/core/types'
 
 import {
@@ -13,10 +13,6 @@ const listConfigurations: ListConfig<any> = list({
     name: text({
       label: '關鍵字',
       validation: { isRequired: true },
-    }),
-    order: integer({
-      label: '排序（由小至大排列）',
-      defaultValue: 0,
     }),
     createdAt: timestamp({
       defaultValue: { kind: 'now' },
@@ -37,8 +33,8 @@ const listConfigurations: ListConfig<any> = list({
   },
   ui: {
     listView: {
-      initialColumns: ['name', 'order'],
-      initialSort: { field: 'order', direction: 'ASC' },
+      initialColumns: ['name'],
+      initialSort: { field: 'name', direction: 'ASC' },
     },
   },
 })

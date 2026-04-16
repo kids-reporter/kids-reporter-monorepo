@@ -20,6 +20,16 @@ const editorPicksOfPosts: OrderedRelationshipConfig = {
   refLabelField: 'title',
 }
 
+const popularKeywords: OrderedRelationshipConfig = {
+  fieldName: 'popularKeywords',
+  relationshipConfig: {
+    label: '選取',
+    ref: 'PopularKeyword',
+    many: true,
+  },
+  refLabelField: 'name',
+}
+
 const listConfigurations: ListConfig<any> = list({
   fields: {
     name: text({
@@ -39,6 +49,13 @@ const listConfigurations: ListConfig<any> = list({
       description: '首頁按順序呈現精選文章5篇',
       fields: {
         ...relationshipUtil.relationshipAndExtendedFields(editorPicksOfPosts),
+      },
+    }),
+    ...group({
+      label: '熱門關鍵字',
+      description: 'Header 搜尋建議：可自訂顯示與順序',
+      fields: {
+        ...relationshipUtil.relationshipAndExtendedFields(popularKeywords),
       },
     }),
     editorPicksOfProjects: relationship({
@@ -79,6 +96,12 @@ const listConfigurations: ListConfig<any> = list({
   hooks: {
     resolveInput: async ({ inputData, item, resolvedData, context }) => {
       await relationshipUtil.mutateOrderFieldHook(editorPicksOfPosts)({
+        inputData,
+        item,
+        resolvedData,
+        context,
+      })
+      await relationshipUtil.mutateOrderFieldHook(popularKeywords)({
         inputData,
         item,
         resolvedData,
