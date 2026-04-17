@@ -29,7 +29,7 @@ function AnswerCard({
   return (
     <div className="p-5 desktop:p-0 desktop:px-5 desktop:first:pt-5 desktop:last:pb-5">
       <div
-        className="flex cursor-pointer flex-col gap-3 transition-all duration-300 hover:bg-neutral-200 desktop:m-5"
+        className="flex cursor-pointer flex-col gap-3 transition-all duration-300 hover:bg-neutral-100 desktop:p-5"
         onClick={onClick}
         role="button"
         aria-label={`View answer: ${content}`}
