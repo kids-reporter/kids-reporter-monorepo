@@ -3,6 +3,7 @@
 import { Fragment, memo } from 'react'
 
 import { useAllPostEssayAnswersQuery } from '@/api-utils/react-query/hooks/post-essay-answer'
+import Divider from '@/components/divider'
 
 import { getMemberDisplayName } from '../utils'
 import AnswerCard from './answer-card'
@@ -38,7 +39,7 @@ function LatestAnswers({ onOpenModal }: LatestAnswersProps) {
   }
 
   return (
-    <div className="mt-10 mb-14 flex w-[calc(100%+48px)] flex-col gap-6 tablet:mt-12 tablet:mb-16 tablet:w-full tablet:gap-8 desktop:mt-18 desktop:mb-24 desktop:w-screen desktop:max-w-300 desktop:gap-10 desktop:px-14 hd:mt-24 hd:mb-30 hd:max-w-none hd:px-[calc(50vw-600px+56px)]">
+    <div className="mt-10 mb-14 flex w-[calc(100%+48px)] flex-col gap-6 tablet:mt-12 tablet:mb-16 tablet:w-full tablet:gap-8 desktop:mt-18 desktop:mb-24 desktop:w-200 desktop:max-w-300 desktop:gap-10 desktop:px-14 hd:mt-24 hd:mb-30 hd:w-220 hd:max-w-none">
       <div className="flex items-center gap-3 pl-6 tablet:pl-0">
         <div className="h-8 w-1.5 rounded-md bg-yellow-400" />
         <h3 className="prose-h3-small font-swei! text-neutral-900 desktop:prose-h3-large">
@@ -62,9 +63,7 @@ function LatestAnswers({ onOpenModal }: LatestAnswersProps) {
           <div className="flex flex-col">
             {answers.map((answer, index) => (
               <Fragment key={answer.id}>
-                {index > 0 && (
-                  <hr className="mx-5 border-t border-neutral-200" />
-                )}
+                {index > 0 && <Divider className="mx-5 w-auto desktop:mx-10" />}
                 <AnswerCard
                   {...answer}
                   onClick={() => handleAnswerCardClick(answer.postSlug)}
