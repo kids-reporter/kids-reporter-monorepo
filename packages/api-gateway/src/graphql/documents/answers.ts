@@ -63,11 +63,13 @@ export const GET_ALL_POST_ESSAY_ANSWERS_QUERY = gql`
   ) {
     postEssayAnswers(orderBy: $orderBy, take: $take) {
       id
+      createdAt
       question {
         id
         post {
           slug
         }
+        title
       }
       member {
         id

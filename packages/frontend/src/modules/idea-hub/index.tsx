@@ -32,7 +32,7 @@ function IdeaHub() {
           </h2>
         </div>
         <span className="text-center prose-h6-small desktop:prose-h6-large">
-          看看大家的觀點，一起想，一起長大！
+          看看大家的觀點，一起對話，一起長大！
         </span>
         <LatestAnswers onOpenModal={handleOpenModal} />
         <AllAnswers onOpenModal={handleOpenModal} />
