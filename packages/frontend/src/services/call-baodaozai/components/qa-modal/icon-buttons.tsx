@@ -2,10 +2,15 @@ import { cn } from '@kids-reporter/routing-ui'
 
 type IconButtonProps = {
   onClick: () => void
+  ariaLabel: string
   className?: string
 }
 
-export function MinimizeButton({ onClick, className }: IconButtonProps) {
+export function MinimizeButton({
+  onClick,
+  className,
+  ariaLabel,
+}: IconButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -13,6 +18,7 @@ export function MinimizeButton({ onClick, className }: IconButtonProps) {
         'flex h-8 w-8 cursor-pointer items-center justify-center text-neutral-600 transition-colors hover:text-neutral-800',
         className
       )}
+      aria-label={ariaLabel}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +40,11 @@ export function MinimizeButton({ onClick, className }: IconButtonProps) {
   )
 }
 
-export function MaximizeButton({ onClick, className }: IconButtonProps) {
+export function MaximizeButton({
+  onClick,
+  className,
+  ariaLabel,
+}: IconButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -42,6 +52,7 @@ export function MaximizeButton({ onClick, className }: IconButtonProps) {
         'flex h-8 w-8 cursor-pointer items-center justify-center text-neutral-600 transition-colors hover:text-neutral-800',
         className
       )}
+      aria-label={ariaLabel}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +74,11 @@ export function MaximizeButton({ onClick, className }: IconButtonProps) {
   )
 }
 
-export function FullscreenButton({ onClick, className }: IconButtonProps) {
+export function FullscreenButton({
+  onClick,
+  className,
+  ariaLabel,
+}: IconButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -71,6 +86,7 @@ export function FullscreenButton({ onClick, className }: IconButtonProps) {
         'flex h-8 w-8 cursor-pointer items-center justify-center text-neutral-600 transition-colors hover:text-neutral-800',
         className
       )}
+      aria-label={ariaLabel}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +107,11 @@ export function FullscreenButton({ onClick, className }: IconButtonProps) {
   )
 }
 
-export function FullscreenExitButton({ onClick, className }: IconButtonProps) {
+export function FullscreenExitButton({
+  onClick,
+  className,
+  ariaLabel,
+}: IconButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -99,6 +119,7 @@ export function FullscreenExitButton({ onClick, className }: IconButtonProps) {
         'flex h-8 w-8 cursor-pointer items-center justify-center text-neutral-600 transition-colors hover:text-neutral-800',
         className
       )}
+      aria-label={ariaLabel}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +140,11 @@ export function FullscreenExitButton({ onClick, className }: IconButtonProps) {
   )
 }
 
-export function CloseButton({ onClick, className }: IconButtonProps) {
+export function CloseButton({
+  onClick,
+  className,
+  ariaLabel,
+}: IconButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -127,6 +152,7 @@ export function CloseButton({ onClick, className }: IconButtonProps) {
         'flex h-8 w-8 cursor-pointer items-center justify-center text-neutral-600 transition-colors hover:text-neutral-800',
         className
       )}
+      aria-label={ariaLabel}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

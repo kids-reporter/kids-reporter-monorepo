@@ -95,7 +95,8 @@ function QAModal({
   }, [isOpen, isMobile])
 
   const isContentVisible =
-    displayState !== 'minimized' && displayState !== 'mobile-collapsed'
+    isLeaving ||
+    (displayState !== 'minimized' && displayState !== 'mobile-collapsed')
 
   const shouldLockScroll =
     isOpen &&
@@ -596,22 +597,38 @@ function QAModal({
     if (isLeaving) return null
 
     if (isMobile) {
-      return <CloseButton onClick={handleLeaving} />
+      return (
+        <div
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+        >
+          <CloseButton onClick={handleLeaving} ariaLabel="Close" />
+        </div>
+      )
     }
 
     return (
-      <div className="flex items-center gap-2">
+      <div
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
+        className="flex items-center gap-2"
+      >
         {displayState === 'minimized' ? (
-          <MaximizeButton onClick={handleMaximize} />
+          <MaximizeButton onClick={handleMaximize} ariaLabel="Maximize" />
         ) : (
-          <MinimizeButton onClick={handleMinimize} />
+          <MinimizeButton onClick={handleMinimize} ariaLabel="Minimize" />
         )}
         {displayState === 'fullscreen' ? (
-          <FullscreenExitButton onClick={handleFullscreenExit} />
+          <FullscreenExitButton
+            onClick={handleFullscreenExit}
+            ariaLabel="Fullscreen Exit"
+          />
         ) : (
-          <FullscreenButton onClick={handleFullscreen} />
+          <FullscreenButton onClick={handleFullscreen} ariaLabel="Fullscreen" />
         )}
-        <CloseButton onClick={handleLeaving} />
+        <CloseButton onClick={handleLeaving} ariaLabel="Close" />
       </div>
     )
   }, [
