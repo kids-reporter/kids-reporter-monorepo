@@ -1,8 +1,13 @@
 'use client'
 
-import { Button, cn, useBodyScrollLock } from '@kids-reporter/routing-ui'
+import {
+  Button,
+  cn,
+  useBodyScrollLock,
+  useMediaQuery,
+} from '@kids-reporter/routing-ui'
 import { useRiveFile } from '@rive-app/react-webgl2'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import envVars from '@/environment-variables'
 
@@ -10,7 +15,14 @@ import { CallBaodaozaiProps, useCallBaodaozaiContext } from '../../context'
 import { BaodaozaiAction, BaodaozaiQuestions } from '../../types'
 import { UPDATE_QA_MODAL_OVERRIDES } from './constants'
 import EnlightenBaodaozai from './enlighten-baodaozai'
-import { QAModalMode } from './types'
+import {
+  CloseButton,
+  FullscreenButton,
+  FullscreenExitButton,
+  MaximizeButton,
+  MinimizeButton,
+} from './icon-buttons'
+import { QAModalDisplayState, QAModalMode } from './types'
 import {
   getDefaultAnswerFromQuestions,
   getModalStepsFromQuestions,
@@ -40,6 +52,8 @@ type QAModalProps = {
   mode?: QAModalMode
 }
 
+const SWIPE_THRESHOLD = 50
+
 function QAModal({
   questions,
   onClose,
@@ -67,6 +81,76 @@ function QAModal({
   }, [answers, defaultAnswers])
 
   const [isLeaving, setIsLeaving] = useState(false)
+
+  const isMobile = useMediaQuery('(max-width: 767px)')
+
+  const [displayState, setDisplayState] = useState<QAModalDisplayState>(
+    isMobile ? 'mobile-expanded' : 'fullscreen'
+  )
+
+  useEffect(() => {
+    if (isOpen) {
+      setDisplayState(isMobile ? 'mobile-expanded' : 'fullscreen')
+    }
+  }, [isOpen, isMobile])
+
+  const isContentVisible =
+    displayState !== 'minimized' && displayState !== 'mobile-collapsed'
+
+  const shouldLockScroll =
+    isOpen &&
+    (displayState === 'fullscreen' || displayState === 'mobile-expanded')
+
+  const touchStartY = useRef<number | null>(null)
+
+  const handleTitleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isMobile) return
+      touchStartY.current = e.touches[0].clientY
+    },
+    [isMobile]
+  )
+
+  const handleTitleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isMobile || touchStartY.current === null) return
+      const deltaY = e.changedTouches[0].clientY - touchStartY.current
+      touchStartY.current = null
+
+      if (displayState === 'mobile-expanded' && deltaY > SWIPE_THRESHOLD) {
+        setDisplayState('mobile-collapsed')
+      } else if (
+        displayState === 'mobile-collapsed' &&
+        deltaY < -SWIPE_THRESHOLD
+      ) {
+        setDisplayState('mobile-expanded')
+      }
+    },
+    [isMobile, displayState]
+  )
+
+  const handleTitleClick = useCallback(() => {
+    if (!isMobile) return
+    if (displayState === 'mobile-collapsed') {
+      setDisplayState('mobile-expanded')
+    }
+  }, [isMobile, displayState])
+
+  const handleMinimize = useCallback(() => {
+    setDisplayState('minimized')
+  }, [])
+
+  const handleMaximize = useCallback(() => {
+    setDisplayState('docked')
+  }, [])
+
+  const handleFullscreen = useCallback(() => {
+    setDisplayState('fullscreen')
+  }, [])
+
+  const handleFullscreenExit = useCallback(() => {
+    setDisplayState('docked')
+  }, [])
 
   const {
     baodaozaiProps: {
@@ -152,7 +236,7 @@ function QAModal({
   }, [defaultAnswers])
 
   useBodyScrollLock({
-    toLock: isOpen,
+    toLock: shouldLockScroll,
     lockID: 'call-baodaozai-qa-modal',
   })
 
@@ -331,7 +415,6 @@ function QAModal({
               </div>
             </div>
 
-            {/* Answer Section */}
             <div className="w-full bg-neutral-100 p-6 pb-10 tablet:pb-6">
               <div className="mb-4">
                 <p className="mb-4 prose-p1 text-neutral-700">正確解答：</p>
@@ -376,7 +459,7 @@ function QAModal({
               <div className="mb-4">
                 <p className="mb-4 prose-p1 text-neutral-700">你送出的回答：</p>
                 <div className="w-full rounded-2xl border-2 border-neutral-200 bg-white p-4">
-                  <span className="prose-p1-bold text-wrap break-words text-neutral-900">
+                  <span className="prose-p1-bold text-wrap wrap-break-word text-neutral-900">
                     {currentAnswer}
                   </span>
                 </div>
@@ -488,13 +571,14 @@ function QAModal({
   ])
 
   const renderBaodaozai = useMemo(() => {
+    if (!isContentVisible) return null
     if (isLeaving) return null
     if (!currentModalStep) return null
     switch (currentModalStep.type) {
       case 'choice':
       case 'essay':
         return (
-          <div className="pointer-events-none absolute -top-20 -left-12 z-4 tablet:-top-18 tablet:-left-6">
+          <div className="pointer-events-none absolute -top-24 -left-12 -z-1 tablet:-left-10">
             {riveFile && (
               <EnlightenBaodaozai state="enlighten-ask" riveFile={riveFile} />
             )}
@@ -506,65 +590,117 @@ function QAModal({
       default:
         return null
     }
-  }, [currentModalStep, isLeaving, riveFile])
+  }, [currentModalStep, isLeaving, riveFile, isContentVisible])
+
+  const renderTitleBarButtons = useMemo(() => {
+    if (isLeaving) return null
+
+    if (isMobile) {
+      return <CloseButton onClick={handleLeaving} />
+    }
+
+    return (
+      <div className="flex items-center gap-2">
+        {displayState === 'minimized' ? (
+          <MaximizeButton onClick={handleMaximize} />
+        ) : (
+          <MinimizeButton onClick={handleMinimize} />
+        )}
+        {displayState === 'fullscreen' ? (
+          <FullscreenExitButton onClick={handleFullscreenExit} />
+        ) : (
+          <FullscreenButton onClick={handleFullscreen} />
+        )}
+        <CloseButton onClick={handleLeaving} />
+      </div>
+    )
+  }, [
+    isLeaving,
+    isMobile,
+    displayState,
+    handleLeaving,
+    handleMinimize,
+    handleMaximize,
+    handleFullscreen,
+    handleFullscreenExit,
+  ])
 
   if (!isOpen) return null
 
+  const showBackdrop = displayState === 'fullscreen'
+
   return (
-    <div className="fixed inset-0 z-modal flex scrollbar-thin items-end justify-center tablet:items-center">
-      <div className="absolute inset-0 z-0 bg-neutral-black/20" />
+    <div
+      className={cn(
+        'fixed z-modal',
+        displayState === 'fullscreen' &&
+          'inset-0 flex items-center justify-center',
+        displayState === 'mobile-expanded' &&
+          'inset-0 flex items-end justify-center',
+        displayState === 'mobile-collapsed' && 'right-0 bottom-0 left-0',
+        displayState === 'docked' && 'right-8 bottom-0',
+        displayState === 'minimized' && 'right-8 bottom-0'
+      )}
+    >
+      {showBackdrop && (
+        <div className="absolute inset-0 z-0 bg-neutral-black/20" />
+      )}
       <div
         className={cn(
-          'relative z-1 flex h-[calc(100vh-80px)] w-full flex-col rounded-t-[30px] shadow-[0px_2px_16px_0px_rgba(0,0,0,0.15)] tablet:h-144 tablet:w-120 tablet:rounded-[30px]',
-          isLeaving && 'h-auto tablet:h-auto'
+          'relative z-1 flex flex-col shadow-baodaozai-card transition-all duration-300',
+          displayState === 'mobile-expanded' &&
+            'h-[calc(100vh-80px)] w-full rounded-t-[30px]',
+          displayState === 'mobile-collapsed' && 'h-16 w-full rounded-t-[30px]',
+          displayState === 'fullscreen' && 'h-144 w-120 rounded-[30px]',
+          displayState === 'docked' && 'h-144 w-120 rounded-t-[30px]',
+          displayState === 'minimized' && 'h-16 w-80 rounded-t-[30px]',
+          isLeaving && isContentVisible && 'h-auto tablet:h-auto'
         )}
       >
-        <div className="relative flex flex-col items-center rounded-t-[30px] border-b-2 border-neutral-200 bg-neutral-white px-6 py-5 tablet:rounded-t-[30px] tablet:px-6 tablet:py-5">
-          <span className="prose-h6-large text-neutral-900">
+        <div
+          className={cn(
+            'relative flex items-center rounded-t-[30px] border-b-2 border-neutral-200 bg-red-100 px-6 py-5',
+            isMobile && 'touch-none'
+          )}
+          onTouchStart={handleTitleTouchStart}
+          onTouchEnd={handleTitleTouchEnd}
+          onClick={handleTitleClick}
+        >
+          <span
+            className={cn(
+              'flex-1 prose-h6-large text-neutral-900',
+              !isMobile && 'prose-h5-small'
+            )}
+          >
             {renderModalTitle}
           </span>
-          {!isLeaving && (
-            <button
-              onClick={handleLeaving}
-              className="absolute top-5 right-6 flex h-8 w-8 cursor-pointer items-center justify-center text-neutral-600 transition-colors hover:text-neutral-800"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-                fill="none"
-              >
-                <path
-                  d="M6.80748 6.80748C7.4909 6.12407 8.59894 6.12407 9.28236 6.80748L15.9999 13.525L22.7174 6.80748C23.4008 6.12407 24.5088 6.12407 25.1923 6.80748C25.8757 7.4909 25.8757 8.59894 25.1923 9.28236L18.4747 15.9999L25.1923 22.7174C25.8757 23.4008 25.8757 24.5088 25.1923 25.1923C24.5088 25.8757 23.4008 25.8757 22.7174 25.1923L15.9999 18.4747L9.28236 25.1923C8.59894 25.8757 7.4909 25.8757 6.80748 25.1923C6.12407 24.5088 6.12407 23.4008 6.80748 22.7174L13.525 15.9999L6.80748 9.28236C6.12407 8.59894 6.12407 7.4909 6.80748 6.80748Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          )}
+          {renderTitleBarButtons}
           {renderBaodaozai}
         </div>
 
-        <div
-          className={
-            'flex flex-1 flex-col overflow-hidden bg-neutral-white tablet:rounded-b-[30px]'
-          }
-        >
-          <div className="flex flex-1 flex-col items-center overflow-y-auto">
-            {renderModalContent}
-          </div>
+        {isContentVisible && (
           <div
             className={cn(
-              'flex w-full flex-col justify-end px-6 pt-5 pb-6 tablet:pt-6',
-              (currentModalStep?.type === 'choice-result' ||
-                currentModalStep?.type === 'essay-result') &&
-                'bg-neutral-100',
-              isLeaving && 'pt-0 tablet:pt-0'
+              'flex flex-1 flex-col overflow-hidden bg-neutral-white',
+              displayState === 'fullscreen' && 'rounded-b-[30px]'
             )}
           >
-            {renderModalButtons}
+            <div className="flex flex-1 flex-col items-center overflow-y-auto">
+              {renderModalContent}
+            </div>
+            <div
+              className={cn(
+                'flex w-full flex-col justify-end px-6 pt-5 pb-6 tablet:pt-6',
+                (currentModalStep?.type === 'choice-result' ||
+                  currentModalStep?.type === 'essay-result') &&
+                  'bg-neutral-100',
+                isLeaving && 'pt-0 tablet:pt-0'
+              )}
+            >
+              {renderModalButtons}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
