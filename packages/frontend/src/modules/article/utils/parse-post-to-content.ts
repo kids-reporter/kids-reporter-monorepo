@@ -103,19 +103,21 @@ function parsePostToContent(post: NonNullable<GetPostQuery['post']>) {
   const twReporterRelatedPosts: PostSummary[] =
     post?.TWReporterRelatedPostsJSON?.map(
       (twReporterPost: {
-        ogTitle: string
+        ogTitle?: string
         src: string
-        ogImgSrc: string
-        ogDescription: string
-        publishedDate: string
+        ogImgSrc?: string
+        ogDescription?: string
+        publishedDate?: string
+        subcategory?: string
+        category?: string
       }) => ({
-        title: twReporterPost.ogTitle,
+        title: twReporterPost.ogTitle ?? '',
         url: twReporterPost.src,
-        image: twReporterPost.ogImgSrc,
-        desc: twReporterPost.ogDescription,
-        category: '',
-        subSubcategory: '',
-        publishedDate: twReporterPost.publishedDate,
+        image: twReporterPost.ogImgSrc ?? '',
+        desc: twReporterPost.ogDescription ?? '',
+        category: twReporterPost.category ?? '',
+        subSubcategory: twReporterPost.subcategory ?? '',
+        publishedDate: twReporterPost.publishedDate ?? '',
       })
     ) ?? []
 

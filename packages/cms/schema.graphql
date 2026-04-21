@@ -2535,9 +2535,19 @@ type Query {
   popularKeywordsCount(where: PopularKeywordWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
-  searchTWReporterPosts(keywords: String!): [JSON]
+  searchTWReporterPosts(keywords: String!): [searchTWReporterPostsResult]
   getMemberPostsWithAnswers(take: Int = 5, cursor: String): JSON
   getMemberEssayAnswersHasLiked(essayAnswerIds: [ID]): [getMemberEssayAnswersHasLikedResult]
+}
+
+type searchTWReporterPostsResult {
+  src: String
+  ogImgSrc: String
+  ogTitle: String
+  ogDescription: String
+  publishedDate: String
+  subcategory: String
+  category: String
 }
 
 type getMemberEssayAnswersHasLikedResult {

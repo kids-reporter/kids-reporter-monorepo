@@ -1,3 +1,4 @@
+import { cn } from '@kids-reporter/routing-ui'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 
@@ -43,11 +44,14 @@ function ArticleCard({ article, showOverImageCover = false }: ArticleCardProp) {
 
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex items-center justify-between gap-4 self-stretch">
-            {hasCategoryOrSubcategory && (
-              <span className="inline-flex items-center rounded-full bg-neutral-200 px-3 py-1 prose-p3-bold text-neutral-900">
-                {article.subSubcategory ?? article.category}
-              </span>
-            )}
+            <span
+              className={cn(
+                'inline-flex items-center rounded-full prose-p3-bold text-neutral-900',
+                hasCategoryOrSubcategory && 'bg-neutral-200 px-3 py-1'
+              )}
+            >
+              {article.subSubcategory ?? article.category}
+            </span>
 
             <span className="prose-p2 text-neutral-500">
               {getFormattedDate(article.publishedDate)}
