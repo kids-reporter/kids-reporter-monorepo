@@ -19,7 +19,8 @@ type ArticleCardProp = {
 }
 
 function ArticleCard({ article, showOverImageCover = false }: ArticleCardProp) {
-  const hasCategoryOrSubcategory = article.subSubcategory ?? article.category
+  const displayCategory = article.subSubcategory || article.category
+  const hasCategoryOrSubcategory = !!displayCategory
 
   return (
     <Link href={article.url} className="group block">
@@ -50,7 +51,7 @@ function ArticleCard({ article, showOverImageCover = false }: ArticleCardProp) {
                 hasCategoryOrSubcategory && 'bg-neutral-200 px-3 py-1'
               )}
             >
-              {article.subSubcategory || article.category}
+              {displayCategory}
             </span>
 
             <span className="prose-p2 text-neutral-500">
