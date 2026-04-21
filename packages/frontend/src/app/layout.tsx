@@ -2,6 +2,7 @@ import '../globals.css'
 
 import { Footer } from '@kids-reporter/routing-ui'
 import { GoogleTagManager } from '@next/third-parties/google'
+import { Viewport } from 'next'
 import { Noto_Sans_TC } from 'next/font/google'
 import localFont from 'next/font/local'
 import { headers } from 'next/headers'
@@ -24,6 +25,11 @@ const swei = localFont({
   variable: '--font-swei-marker',
 })
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -33,6 +39,7 @@ export default function RootLayout({
   return (
     <html className={`${notoSansTC.variable} ${swei.variable}`}>
       <GoogleTagManager gtmId={GTM_ID} />
+
       <body>
         <Providers traceHeaders={traceHeaders}>
           <FeatureIntroDialog />
