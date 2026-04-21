@@ -50,7 +50,7 @@ function ArticleCard({ article, showOverImageCover = false }: ArticleCardProp) {
                 hasCategoryOrSubcategory && 'bg-neutral-200 px-3 py-1'
               )}
             >
-              {article.subSubcategory ?? article.category}
+              {article.subSubcategory || article.category}
             </span>
 
             <span className="prose-p2 text-neutral-500">
