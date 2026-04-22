@@ -630,7 +630,7 @@ function QAModal({
   const renderTitleBarButtons = useMemo(() => {
     if (isLeaving) return null
 
-    if (isMobile) {
+    if (isMobile || mode === 'update') {
       return (
         <div
           onClick={(e) => {
@@ -668,12 +668,13 @@ function QAModal({
   }, [
     isLeaving,
     isMobile,
+    mode,
     displayState,
-    handleLeaving,
-    handleMinimize,
     handleMaximize,
-    handleFullscreen,
+    handleMinimize,
     handleFullscreenExit,
+    handleFullscreen,
+    handleLeaving,
   ])
 
   if (!isOpen) return null
@@ -711,11 +712,12 @@ function QAModal({
         <div
           className={cn(
             'relative flex cursor-pointer items-center rounded-t-[30px] border-b-2 border-neutral-200 bg-red-100 px-6 py-[15px]',
-            isMobile && 'touch-none'
+            isMobile && 'touch-none',
+            mode === 'update' && 'cursor-default'
           )}
-          onTouchStart={handleTitleTouchStart}
-          onTouchEnd={handleTitleTouchEnd}
-          onClick={handleTitleClick}
+          onTouchStart={mode === 'update' ? undefined : handleTitleTouchStart}
+          onTouchEnd={mode === 'update' ? undefined : handleTitleTouchEnd}
+          onClick={mode === 'update' ? undefined : handleTitleClick}
         >
           <div
             className={cn(
