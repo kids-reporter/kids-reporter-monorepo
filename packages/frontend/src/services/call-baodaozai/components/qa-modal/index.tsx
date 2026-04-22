@@ -130,20 +130,20 @@ function QAModal({
     [isMobile, displayState]
   )
 
-  const previousNonMobileDisplayState =
-    useRef<QAModalDisplayState>(displayState)
+  const [previousNonMobileDisplayState, setPreviousNonMobileDisplayState] =
+    useState<QAModalDisplayState>(displayState)
   const displayStateBeforeLeaving = useRef<QAModalDisplayState>(displayState)
 
   const handleTitleClick = useCallback(() => {
     switch (displayState) {
       case 'docked':
       case 'fullscreen': {
-        previousNonMobileDisplayState.current = displayState
+        setPreviousNonMobileDisplayState(displayState)
         setDisplayState('minimized')
         return
       }
       case 'minimized': {
-        setDisplayState(previousNonMobileDisplayState.current)
+        setDisplayState(previousNonMobileDisplayState)
         return
       }
       case 'mobile-collapsed': {
@@ -153,25 +153,20 @@ function QAModal({
       default:
         return
     }
-  }, [displayState])
+  }, [displayState, previousNonMobileDisplayState])
 
   const handleMinimize = useCallback(() => {
     setDisplayState('minimized')
   }, [])
 
-  const handleMaximize = useCallback(() => {
-    setDisplayState('docked')
-    previousNonMobileDisplayState.current = 'docked'
-  }, [])
-
   const handleFullscreen = useCallback(() => {
     setDisplayState('fullscreen')
-    previousNonMobileDisplayState.current = 'fullscreen'
+    setPreviousNonMobileDisplayState('fullscreen')
   }, [])
 
   const handleFullscreenExit = useCallback(() => {
     setDisplayState('docked')
-    previousNonMobileDisplayState.current = 'docked'
+    setPreviousNonMobileDisplayState('docked')
   }, [])
 
   const {
@@ -359,7 +354,7 @@ function QAModal({
                     )
                   }
                   className={cn(
-                    'w-full cursor-pointer rounded-2xl border-2 bg-white px-5 py-4 text-left transition-all',
+                    'w-full cursor-pointer rounded-2xl border-2 bg-white px-5 py-4 text-left transition-all duration-300',
                     answers[currentModalStep.questionIndex] === index.toString()
                       ? 'border-neutral-600'
                       : 'border-neutral-200 hover:border-neutral-300 hover:bg-neutral-100'
@@ -649,19 +644,43 @@ function QAModal({
         }}
         className="flex items-center gap-2"
       >
-        {displayState === 'minimized' ? (
-          <MaximizeButton onClick={handleMaximize} ariaLabel="Maximize" />
-        ) : (
+        {displayState !== 'minimized' && (
           <MinimizeButton onClick={handleMinimize} ariaLabel="Minimize" />
         )}
-        {displayState === 'fullscreen' ? (
+        {displayState === 'minimized' &&
+          previousNonMobileDisplayState === 'fullscreen' && (
+            <MaximizeButton onClick={handleFullscreen} ariaLabel="Fullscreen" />
+          )}
+        {displayState === 'minimized' &&
+          previousNonMobileDisplayState === 'docked' && (
+            <MaximizeButton
+              onClick={handleFullscreenExit}
+              ariaLabel="Fullscreen Exit"
+            />
+          )}
+        {displayState === 'fullscreen' && (
           <FullscreenExitButton
             onClick={handleFullscreenExit}
             ariaLabel="Fullscreen Exit"
           />
-        ) : (
+        )}
+        {displayState === 'docked' && (
           <FullscreenButton onClick={handleFullscreen} ariaLabel="Fullscreen" />
         )}
+        {displayState === 'minimized' &&
+          previousNonMobileDisplayState !== 'fullscreen' && (
+            <FullscreenButton
+              onClick={handleFullscreen}
+              ariaLabel="Fullscreen"
+            />
+          )}
+        {displayState === 'minimized' &&
+          previousNonMobileDisplayState !== 'docked' && (
+            <FullscreenExitButton
+              onClick={handleFullscreenExit}
+              ariaLabel="Fullscreen Exit"
+            />
+          )}
         <CloseButton onClick={handleLeaving} ariaLabel="Close" />
       </div>
     )
@@ -670,9 +689,9 @@ function QAModal({
     isMobile,
     mode,
     displayState,
-    handleMaximize,
     handleMinimize,
     handleFullscreenExit,
+    previousNonMobileDisplayState,
     handleFullscreen,
     handleLeaving,
   ])
@@ -699,7 +718,7 @@ function QAModal({
       )}
       <div
         className={cn(
-          'relative z-1 flex flex-col shadow-baodaozai-card transition-all duration-300',
+          'relative z-1 flex flex-col shadow-baodaozai-card',
           displayState === 'mobile-expanded' &&
             'h-[calc(100dvh-106px)] w-full rounded-t-[30px]',
           displayState === 'mobile-collapsed' && 'h-16 w-full rounded-t-[30px]',
@@ -722,7 +741,7 @@ function QAModal({
           <div
             className={cn(
               'flex h-full flex-1 items-center text-neutral-900',
-              isLeaving && 'text-center'
+              isLeaving && 'justify-center'
             )}
           >
             {renderModalTitle}
