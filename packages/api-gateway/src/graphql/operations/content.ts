@@ -228,6 +228,7 @@ export const operations: Record<string, Operation> = {
   'posts-essay-answers-with-likes': {
     method: 'GET',
     auth: 'public',
+    maskEmails: true,
     operationName: 'GetPostsEssayAnswersWithLikes',
     document: GET_POSTS_ESSAY_ANSWERS_WITH_LIKES_QUERY,
     buildVariables: (input) => {

@@ -6,6 +6,7 @@ import { buildAuthContext } from '../graphql/auth.js'
 import { callCmsGraphql } from '../graphql/cms-client.js'
 import { operations } from '../graphql/operations.js'
 import { ensureRecord, parseVars } from '../graphql/operations/shared.js'
+import { maskEmailsInData } from '../utils/mask-email.js'
 import { logAndSend } from './gql-rest-logger.js'
 import { createMemberAvatarUploadHandler } from './gql-rest-member-avatar-upload.js'
 import { clientGqlErrorCodes, errors, statusCodes } from './gql-rest-shared.js'
@@ -178,9 +179,16 @@ export function createGqlRestRouter({
             )
           }
 
+          const data = op.maskEmails
+            ? (maskEmailsInData(gqlPayload?.data ?? {}) as Record<
+                string,
+                unknown
+              >)
+            : (gqlPayload?.data ?? {})
+
           const payload = {
             status: 'success',
-            data: gqlPayload?.data ?? {},
+            data,
           }
           return logAndSend(
             res,

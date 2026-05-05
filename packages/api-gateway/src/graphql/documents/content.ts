@@ -353,6 +353,7 @@ export const GET_POSTS_ESSAY_ANSWERS_WITH_LIKES_QUERY = gql`
         hint
         answers(orderBy: $answerOrderBy, take: $answerTake) {
           id
+          createdAt
           content
           member {
             id

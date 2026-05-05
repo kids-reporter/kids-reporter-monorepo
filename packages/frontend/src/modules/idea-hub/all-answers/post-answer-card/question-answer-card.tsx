@@ -1,10 +1,17 @@
+'use client'
+
 import Image from 'next/image'
 
 import { DEFAULT_AVATAR } from '@/constants'
 import { LightbulbIcon, StarIcon } from '@/icons/miscellaneous'
+import { useAuthStore } from '@/services/auth/auth-store'
 
 import { PostWithTwoTopLikesAnswersPerQuestion } from '../../types'
-import { getDisplayLikesCount, getMemberDisplayName } from '../../utils'
+import {
+  formatChineseDate,
+  getDisplayLikesCount,
+  getMemberDisplayName,
+} from '../../utils'
 
 type QuestionAnswerCardProps = {
   question: PostWithTwoTopLikesAnswersPerQuestion['posts'][number]['postEssayQuestions'][number]
@@ -19,6 +26,7 @@ function QuestionAnswerCard({
   postSlug,
   onOpenModal,
 }: QuestionAnswerCardProps) {
+  const memberId = useAuthStore((s) => s.member?.id ?? '')
   const visibleAnswers = question.answers.slice(0, MAX_VISIBLE_ANSWERS)
   const hasMoreAnswers = question.answers.length > MAX_VISIBLE_ANSWERS
 
@@ -43,7 +51,7 @@ function QuestionAnswerCard({
               <div className="flex flex-col gap-2">
                 <div className="flex w-full items-center justify-between gap-2">
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                    <div className="relative size-10 flex-shrink-0 overflow-hidden rounded-full border-2 border-neutral-200">
+                    <div className="relative size-10 shrink-0 overflow-hidden rounded-full border-2 border-neutral-200">
                       <Image
                         src={answer.member?.avatar?.fileUrl || DEFAULT_AVATAR}
                         alt={memberDisplayName}
@@ -52,9 +60,17 @@ function QuestionAnswerCard({
                         sizes="40px"
                       />
                     </div>
-                    <span className="truncate prose-p2-bold text-neutral-900">
-                      {memberDisplayName}
-                    </span>
+                    <div className="flex min-w-0 flex-col">
+                      <div className="flex min-w-0 items-center gap-1 prose-p2-bold text-neutral-900">
+                        <span className="truncate">{memberDisplayName}</span>
+                        {!!memberId && answer.member?.id === memberId && (
+                          <span className="shrink-0">(你)</span>
+                        )}
+                      </div>
+                      <span className="prose-p2 text-neutral-600">
+                        {formatChineseDate(answer.createdAt)}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex w-14 items-center gap-1 text-neutral-600">
                     <StarIcon />

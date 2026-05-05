@@ -23,14 +23,14 @@ type ModalQuestionCardProps = {
   questionId: string
   questionTitle: string
   onScrollChange?: (questionId: string, isScrolled: boolean) => void
-  isAnyCardScrolled?: boolean
+  isSelfScrolled?: boolean
 }
 
 function ModalQuestionCard({
   questionId,
   questionTitle,
   onScrollChange,
-  isAnyCardScrolled,
+  isSelfScrolled,
 }: ModalQuestionCardProps) {
   const { member, tokens } = useAuthStore()
   const memberId = member?.id ?? ''
@@ -110,13 +110,13 @@ function ModalQuestionCard({
         <div
           className={cn(
             'min-w-0 flex-1 overflow-hidden transition-all duration-300 ease-in-out',
-            isAnyCardScrolled ? 'max-h-[1.8em]' : 'max-h-auto'
+            isSelfScrolled ? 'max-h-[1.8em]' : 'max-h-auto'
           )}
         >
           <p
             className={cn(
               'text-left prose-p1-bold text-neutral-900',
-              isAnyCardScrolled && 'line-clamp-1'
+              isSelfScrolled && 'line-clamp-1'
             )}
           >
             {questionTitle}
@@ -124,7 +124,7 @@ function ModalQuestionCard({
         </div>
       </div>
     )
-  }, [questionTitle, isAnyCardScrolled])
+  }, [questionTitle, isSelfScrolled])
 
   const [isScrolledState, setIsScrolledState] = useState(false)
   const debouncedIsScrolled = useDebounceValue(isScrolledState, 150)

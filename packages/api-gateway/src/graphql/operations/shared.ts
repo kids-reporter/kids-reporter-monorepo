@@ -4,6 +4,11 @@ export type Operation = {
   method: 'GET' | 'POST'
   cacheTtl?: number
   auth: 'public' | 'auth'
+  /**
+   * If true, recursively masks any `email` field in successful responses.
+   * Used for public idea-hub endpoints that may return member emails.
+   */
+  maskEmails?: boolean
   operationName: string
   document: DocumentNode
   buildVariables: (input: Record<string, unknown>) => Record<string, unknown>
