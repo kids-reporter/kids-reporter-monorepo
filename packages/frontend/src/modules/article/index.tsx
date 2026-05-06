@@ -388,7 +388,7 @@ const ArticleModule = ({
       />
       {postQuestions && (
         <BaodaozaiQAModal
-          memberDisplayName={getMemberDisplayName(member)}
+          memberDisplayName={getMemberDisplayName(member, true)}
           questions={postQuestions}
           onClose={handleQAModalClose}
           onSubmit={handleQAModalSubmit}

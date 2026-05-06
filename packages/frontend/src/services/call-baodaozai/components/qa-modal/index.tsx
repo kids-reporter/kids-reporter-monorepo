@@ -498,8 +498,8 @@ function QAModal({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {memberDisplayName}
-                  </Link>
+                    {memberDisplayName} (你)
+                  </Link>{' '}
                   送出的回答：
                 </p>
                 <div className="w-full rounded-2xl border-2 border-neutral-200 bg-white p-4">

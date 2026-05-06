@@ -126,7 +126,7 @@ function EssayAnswerItem({
           onSubmit={handleSubmit}
           isOpen={isOpen}
           mode="update"
-          memberDisplayName={getMemberDisplayName(member)}
+          memberDisplayName={getMemberDisplayName(member, true)}
         />
       </CallBaodaozaiProvider>
     </>
