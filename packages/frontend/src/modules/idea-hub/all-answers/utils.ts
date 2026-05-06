@@ -26,6 +26,7 @@ export function transformInfinitePostsEssayAnswersWithLikesDataToPosts(
                 const member = answer?.member
                 return {
                   id: answer.id,
+                  createdAt: answer.createdAt || '',
                   content: answer.content || '',
                   likesCount: answer.likesCount || 0,
                   member: {

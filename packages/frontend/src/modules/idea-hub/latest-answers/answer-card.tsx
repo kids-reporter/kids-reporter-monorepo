@@ -14,6 +14,7 @@ type AnswerCardProps = {
   likesCount: number
   createdAt: string
   questionTitle: string
+  isOwnAnswer?: boolean
   onClick?: () => void
 }
 
@@ -24,6 +25,7 @@ function AnswerCard({
   likesCount,
   createdAt,
   questionTitle,
+  isOwnAnswer,
   onClick,
 }: AnswerCardProps) {
   return (
@@ -46,9 +48,16 @@ function AnswerCard({
               />
             </div>
             <div className="flex flex-col">
-              <span className="prose-p1-bold text-neutral-900 desktop:prose-h6-small desktop:font-swei!">
-                {memberName}
-              </span>
+              <div className="flex items-center gap-1">
+                <span className="prose-p1-bold text-neutral-900 desktop:prose-h6-small desktop:font-swei!">
+                  {memberName}
+                </span>
+                {isOwnAnswer && (
+                  <span className="prose-p1-bold text-neutral-900 desktop:prose-h6-small desktop:font-swei!">
+                    (你)
+                  </span>
+                )}
+              </div>
               <span className="prose-p2 text-neutral-600">
                 {formatChineseDate(createdAt)}
               </span>

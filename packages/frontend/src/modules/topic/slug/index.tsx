@@ -35,7 +35,7 @@ function TopicSlugModule({
   relatedPosts,
 }: TopicSlugModuleProps) {
   return (
-    <div>
+    <div className="w-full">
       <HeaderPostTitleSetter postTitle={title} />
       <HeroTitle
         title={title}

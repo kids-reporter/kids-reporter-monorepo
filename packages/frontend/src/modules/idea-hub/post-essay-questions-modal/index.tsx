@@ -237,7 +237,9 @@ function PostEssayQuestionsModal({
                       questionId={question.id.toString()}
                       questionTitle={question.title ?? ''}
                       onScrollChange={handleQuestionCardScrollChange}
-                      isAnyCardScrolled={isAnyQuestionCardScrolled}
+                      isSelfScrolled={scrolledQuestionIds.has(
+                        question.id.toString()
+                      )}
                     />
                   ))}
                 </div>

@@ -1,12 +1,25 @@
 import { Member } from '__generated__/types'
 
 import { DEFAULT_TEXT_HOLDER } from '@/constants/input-field'
+import maskEmail from '@/utils/mask-email'
 
 type MemberDisplay = Partial<Pick<Member, 'nickname' | 'name' | 'email'>>
 
-export const getMemberDisplayName = (member: MemberDisplay | undefined) => {
+export const getMemberDisplayName = (
+  member: MemberDisplay | undefined,
+  shouldMaskEmail = false
+) => {
   if (!member) return DEFAULT_TEXT_HOLDER
-  return member.nickname || member.name || member.email || DEFAULT_TEXT_HOLDER
+  if (member.nickname) {
+    return member.nickname
+  }
+  if (member.name) {
+    return member.name
+  }
+  if (member.email) {
+    return shouldMaskEmail ? maskEmail(member.email) : member.email
+  }
+  return DEFAULT_TEXT_HOLDER
 }
 
 export const formatChineseDate = (dateStr: string) => {

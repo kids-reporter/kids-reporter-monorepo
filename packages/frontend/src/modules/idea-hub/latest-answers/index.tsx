@@ -4,6 +4,7 @@ import { Fragment, memo } from 'react'
 
 import { useAllPostEssayAnswersQuery } from '@/api-utils/react-query/hooks/post-essay-answer'
 import Divider from '@/components/divider'
+import { useAuthStore } from '@/services/auth/auth-store'
 
 import { getMemberDisplayName } from '../utils'
 import AnswerCard from './answer-card'
@@ -14,6 +15,7 @@ type LatestAnswersProps = {
 }
 
 function LatestAnswers({ onOpenModal }: LatestAnswersProps) {
+  const memberId = useAuthStore((s) => s.member?.id ?? '')
   const { data: latestEssayAnswers = [], isPending: isLoading } =
     useAllPostEssayAnswersQuery({
       orderBy: [{ createdAt: 'desc' }],
@@ -31,6 +33,7 @@ function LatestAnswers({ onOpenModal }: LatestAnswersProps) {
       postSlug: question?.post?.slug ?? '',
       createdAt: answer.createdAt ?? '',
       questionTitle: question?.title ?? '',
+      isOwnAnswer: !!memberId && answer.member?.id === memberId,
     }
   })
 

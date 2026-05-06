@@ -57,6 +57,7 @@ export const operations: Record<string, Operation> = {
     method: 'GET',
     cacheTtl: 60,
     auth: 'public',
+    maskEmails: true,
     operationName: 'GetAllPostEssayAnswers',
     document: GET_ALL_POST_ESSAY_ANSWERS_QUERY,
     buildVariables: (input) => {
@@ -91,6 +92,7 @@ export const operations: Record<string, Operation> = {
   'post-essay-question-answers': {
     method: 'GET',
     auth: 'public',
+    maskEmails: true,
     operationName: 'GetEssayQuestionEssayAnswers',
     document: GET_ESSAY_QUESTION_ESSAY_ANSWERS_QUERY,
     buildVariables: (input) => {
