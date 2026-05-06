@@ -32,6 +32,7 @@ import {
 import getLoginUrl from '@/utils/get-login-url'
 
 import SupportAction from '../../components/support-action'
+import { getMemberDisplayName } from '../idea-hub/utils'
 import ArticleBaodaozaiEventTrigger from './components/article-baodaozai-event-trigger'
 import ArticleSummary from './components/article-summary'
 import Authors from './components/authors'
@@ -387,6 +388,7 @@ const ArticleModule = ({
       />
       {postQuestions && (
         <BaodaozaiQAModal
+          memberDisplayName={getMemberDisplayName(member)}
           questions={postQuestions}
           onClose={handleQAModalClose}
           onSubmit={handleQAModalSubmit}

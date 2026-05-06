@@ -15,7 +15,10 @@ import {
 } from '@/api-utils/react-query/hooks/post-essay-answer'
 import Divider from '@/components/divider'
 import { StarIcon } from '@/icons/miscellaneous'
-import { getDisplayLikesCount } from '@/modules/idea-hub/utils'
+import {
+  getDisplayLikesCount,
+  getMemberDisplayName,
+} from '@/modules/idea-hub/utils'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import BaodaozaiQAModal from '@/services/call-baodaozai/components/qa-modal'
 import { CallBaodaozaiProvider } from '@/services/call-baodaozai/context'
@@ -123,6 +126,7 @@ function EssayAnswerItem({
           onSubmit={handleSubmit}
           isOpen={isOpen}
           mode="update"
+          memberDisplayName={getMemberDisplayName(member)}
         />
       </CallBaodaozaiProvider>
     </>
