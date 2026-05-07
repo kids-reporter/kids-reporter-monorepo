@@ -36,8 +36,8 @@ function AnswerCard({
         role="button"
         aria-label={`View answer: ${content}`}
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <div className="relative size-[52px] shrink-0 overflow-hidden rounded-full border-2 border-neutral-200">
               <Image
                 src={memberAvatar || DEFAULT_AVATAR}
@@ -47,13 +47,13 @@ function AnswerCard({
                 sizes="52px"
               />
             </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1">
-                <span className="prose-p1-bold text-neutral-900 desktop:prose-h6-small desktop:font-swei!">
+            <div className="flex min-w-0 flex-col">
+              <div className="flex min-w-0 items-center gap-1">
+                <span className="truncate prose-p1-bold text-neutral-900 desktop:prose-h6-small desktop:font-swei!">
                   {memberName}
                 </span>
                 {isOwnAnswer && (
-                  <span className="prose-p1-bold text-neutral-900 desktop:prose-h6-small desktop:font-swei!">
+                  <span className="shrink-0 prose-p1-bold text-neutral-900 desktop:prose-h6-small desktop:font-swei!">
                     (你)
                   </span>
                 )}
