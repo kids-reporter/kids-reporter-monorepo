@@ -10,7 +10,11 @@ import { DEFAULT_AVATAR } from '@/constants'
 import { DEFAULT_TEXT_HOLDER } from '@/constants/input-field'
 import { StarIcon, StarIconUnfilled } from '@/icons/miscellaneous'
 
-import { getDisplayLikesCount, getMemberDisplayName } from '../utils'
+import {
+  formatChineseDate,
+  getDisplayLikesCount,
+  getMemberDisplayName,
+} from '../utils'
 import useOptimisticLikeAnswer from './hooks/use-optimistic-like-answer'
 
 export const QUESTION_ANSWER_ITEM_TAKE = 5
@@ -78,11 +82,23 @@ function ModalAnswerItem({
                   sizes="40px"
                 />
               </div>
-              <span className="w-0 min-w-0 flex-1 overflow-hidden prose-p2-bold text-ellipsis whitespace-nowrap text-neutral-900">
-                {answer.member
-                  ? getMemberDisplayName(answer.member as Member)
-                  : DEFAULT_TEXT_HOLDER}
-              </span>
+              <div className="flex min-w-0 flex-col">
+                <div className="flex min-w-0 items-center gap-1 prose-p2-bold text-neutral-900">
+                  <span className="truncate">
+                    {answer.member
+                      ? getMemberDisplayName(answer.member as Member)
+                      : DEFAULT_TEXT_HOLDER}
+                  </span>
+                  {!!memberId && answer.member?.id === memberId && (
+                    <span className="shrink-0">(你)</span>
+                  )}
+                </div>
+                {answer.createdAt && (
+                  <span className="prose-p2 text-neutral-600">
+                    {formatChineseDate(answer.createdAt)}
+                  </span>
+                )}
+              </div>
             </div>
             <button
               onClick={handleLikeClick}

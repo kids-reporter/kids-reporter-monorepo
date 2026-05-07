@@ -120,6 +120,7 @@ export const GET_ESSAY_QUESTION_ESSAY_ANSWERS_QUERY = gql`
       answers(orderBy: $answerOrderBy, take: $answerTake, skip: $answerSkip) {
         id
         content
+        createdAt
         member {
           id
           avatar {
