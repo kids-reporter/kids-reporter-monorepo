@@ -1,6 +1,6 @@
 {
   "name": "@kids-reporter/cms-core",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "description": "",
   "main": "lib/index.js",
   "types": "src/index.ts",
@@ -36,7 +36,7 @@
     "@keystone-ui/button": "^7.0.2",
     "@keystone-ui/fields": "^7.2.0",
     "@keystone-ui/modals": "^6.0.3",
-    "@kids-reporter/draft-editor": "^1.0.31",
+    "@kids-reporter/draft-editor": "^1.0.32",
     "@twreporter/errors": "^1.1.1",
     "axios": "^0.26.0",
     "draft-convert": "^2.1.12",
