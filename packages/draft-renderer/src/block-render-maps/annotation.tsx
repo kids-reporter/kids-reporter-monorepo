@@ -9,24 +9,24 @@ import { Atomic, Heading, List, Paragraph } from './article-content'
 const HeadingForAnnotation = styled(Heading)`
   margin: 0 auto 40px auto;
 
-  margin-bottom: 0px;
+  margin-bottom: 0px !important;
 
   ${mediaQuery.smallOnly} {
     padding-left: 0px;
     padding-right: 0px;
-    margin-bottom: 0px;
+    margin-bottom: 0px !important;
   }
 `
 
 const ListForAnnotation = styled(List)`
   color: #575757;
 
-  margin-bottom: 0px;
+  margin-bottom: 0px !important;
 
   ${mediaQuery.smallOnly} {
     padding-left: 0px;
     padding-right: 0px;
-    margin-bottom: 0px;
+    margin-bottom: 0px !important;
   }
 `
 
