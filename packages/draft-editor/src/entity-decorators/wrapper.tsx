@@ -3,14 +3,20 @@ import styled from 'styled-components'
 
 const Wrapper = styled.span`
   display: inline;
+  padding-right: 1.25em;
   color: #8e8e8e;
 `
 
-const EditButton = styled.div`
-  display: inline;
+const EditButton = styled.span`
+  position: absolute;
+  right: -20px;
   cursor: pointer;
-  padding-left: 2px;
-  padding-right: 2px;
+  user-select: none;
+`
+
+const IconAnchor = styled.span`
+  display: inline;
+  position: relative;
 `
 
 export const EditableWrapper = (props: {
@@ -20,9 +26,15 @@ export const EditableWrapper = (props: {
   return (
     <Wrapper>
       {props.component}
-      <EditButton onClick={props.onClick}>
-        <i className="fas fa-pen"></i>
-      </EditButton>
+      <IconAnchor>
+        <EditButton
+          contentEditable={false}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={props.onClick}
+        >
+          <i className="fas fa-pen"></i>
+        </EditButton>
+      </IconAnchor>
     </Wrapper>
   )
 }

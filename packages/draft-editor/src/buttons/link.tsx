@@ -3,6 +3,7 @@ import { EditorState, RichUtils } from 'draft-js'
 import { useState } from 'react'
 
 import { LinkEditor } from '../entity-decorators/link'
+import { appendLinkCreateTrailingBuffer } from '../utils/link-trailing-buffer'
 
 export const LinkButton = (props: {
   className?: string
@@ -35,13 +36,13 @@ export const LinkButton = (props: {
     const newEditorState = EditorState.set(editorState, {
       currentContent: contentStateWithEntity,
     })
-    onChange(
-      RichUtils.toggleLink(
-        newEditorState,
-        newEditorState.getSelection(),
-        entityKey
-      )
+    let next = RichUtils.toggleLink(
+      newEditorState,
+      newEditorState.getSelection(),
+      entityKey
     )
+    next = appendLinkCreateTrailingBuffer(next)
+    onChange(next)
 
     setToShowUrlInput(false)
     props.onEditFinish()
