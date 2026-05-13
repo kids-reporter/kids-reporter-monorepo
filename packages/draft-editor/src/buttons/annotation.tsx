@@ -3,6 +3,7 @@ import { convertToRaw, EditorState, RichUtils } from 'draft-js'
 import { useState } from 'react'
 
 import { AnnotationEditor } from '../entity-decorators/annotation'
+import { appendLinkCreateTrailingBuffer } from '../utils/link-trailing-buffer'
 
 type AnnotationButtonProps = {
   className?: string
@@ -42,9 +43,13 @@ export const AnnotationButton = (props: AnnotationButtonProps) => {
       currentContent: contentStateWithEntity,
     })
 
-    onChange(
-      toggleEntity(newEditorState, newEditorState.getSelection(), entityKey)
+    let next = toggleEntity(
+      newEditorState,
+      newEditorState.getSelection(),
+      entityKey
     )
+    next = appendLinkCreateTrailingBuffer(next)
+    onChange(next)
 
     setToShowInput(false)
     props.onEditFinish()
