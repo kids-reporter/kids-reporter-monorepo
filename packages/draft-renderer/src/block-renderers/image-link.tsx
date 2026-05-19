@@ -103,6 +103,35 @@ const FigureCaption = styled.figcaption<{ $alignment?: string }>`
             text-align: left;
           }
         `
+      case 'left':
+        return `
+          text-align: left;
+          ${mediaQuery.smallOnly} {
+            max-width: 240px;
+            margin-left: 16px;
+          }
+
+          ${mediaQuery.mediumAbove} {
+            margin-left: 0px;
+            margin-right: 0px;
+          }
+
+          ${mediaQuery.desktopAbove} {
+            max-width: 128px;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-left: 0px;
+          }
+
+          ${mediaQuery.largeOnly} {
+            max-width: 240px;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            margin-left: 0px;
+          }
+        `
       case 'right':
         return `
           text-align: left;
@@ -268,6 +297,26 @@ const ArticleBodyContainer = styled.div<{ $alignment?: string }>`
 
           ${mediaQuery.largeOnly} {
             max-width: 680px;
+          }
+        `
+      case 'left':
+        return `
+        ${mediaQuery.mediumAbove} {
+            width: 361px;
+            float: left;
+            margin: 0px 24px 20px 32px;
+          }
+
+          ${mediaQuery.desktopAbove} {
+            width: 368px;
+            float: left;
+            margin: 0px 32px 0px 0px;
+          }
+
+          ${mediaQuery.largeOnly} {
+            width: 451px;
+            float: left;
+            margin: 0px 40px 0px 0px;
           }
         `
       case 'right':
