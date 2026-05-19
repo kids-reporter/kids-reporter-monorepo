@@ -4,9 +4,13 @@ function trimEmptyBlocks(raw: RawDraftContentState): RawDraftContentState {
   const { blocks, entityMap } = raw
   if (blocks.length === 0) return raw
 
-  const filtered = blocks.filter(
-    (block) => !(block.type === 'unstyled' && block.text.trim() === '')
-  )
+  const filtered = blocks.filter((block) => {
+    return (
+      block.type !== 'unstyled' ||
+      block.text.trim() !== '' ||
+      block.entityRanges.length !== 0
+    )
+  })
   if (filtered.length === blocks.length) return raw
 
   return { blocks: filtered, entityMap }
