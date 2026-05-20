@@ -40,11 +40,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const path = params.path
   const { category, subcategory } = parseCategoryInfoFromPath(path)
+  const traceHeaders = getServerTraceHeaders(headers())
 
-  const categoryData = await getCategoryMetadata({
-    categoryWhere: { slug: category },
-    subcategoryWhere: { slug: { equals: subcategory } },
-  })
+  const categoryData = await getCategoryMetadata(
+    {
+      categoryWhere: { slug: category },
+      subcategoryWhere: { slug: { equals: subcategory } },
+    },
+    traceHeaders
+  )
 
   if (!categoryData) {
     emitStructured({
@@ -97,7 +101,7 @@ function getPosts(
     subSubcategory?: string
     currentPage: number
   },
-  traceHeaders?: Record<string, string>
+  traceHeaders?: Headers | Record<string, string | undefined>
 ) {
   const commonVariables = {
     take: POST_PER_PAGE,
@@ -118,16 +122,22 @@ function getPosts(
     )
   }
   if (subcategory) {
-    return getSubcategoryPosts({
-      where: { slug: subcategory },
-      ...commonVariables,
-    })
+    return getSubcategoryPosts(
+      {
+        where: { slug: subcategory },
+        ...commonVariables,
+      },
+      traceHeaders
+    )
   }
 
-  return getCategoryPosts({
-    where: { slug: category },
-    ...commonVariables,
-  })
+  return getCategoryPosts(
+    {
+      where: { slug: category },
+      ...commonVariables,
+    },
+    traceHeaders
+  )
 }
 
 export default async function Category({

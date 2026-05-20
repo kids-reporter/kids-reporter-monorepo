@@ -1,0 +1,51 @@
+{
+  "name": "@kids-reporter/content-api",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "make dev",
+    "build": "make build",
+    "start": "make start",
+    "lint": "make lint",
+    "clean": "make clean",
+    "lint:check": "eslint src --ext .ts,.js",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "postinstall": "bash -c 'SKIP_BUILD_DEPS=\"${SKIP_BUILD_DEPS:-}\" DB_GENERATE_LOCAL=\"${DB_GENERATE_LOCAL:-\"true\"}\" make postinstall'"
+  },
+  "dependencies": {
+    "@kids-reporter/api-types": "^0.0.1",
+    "@kids-reporter/db": "^0.0.1",
+    "@kids-reporter/logger": "^0.0.2",
+    "@prisma/client": "5.22.0",
+    "@twreporter/errors": "^1.1.2",
+    "axios": "^1.4.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv-cli": "^10.0.0",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.1.1",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "resolutions": {
+    "@types/express": "4.17.20",
+    "@types/express-serve-static-core": "4.19.5"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.6",
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^2.1.0",
+    "@types/supertest": "^6.0.3",
+    "@types/swagger-ui-express": "^4.1.8",
+    "nodemon": "^3.1.10",
+    "prisma": "5.22.0",
+    "supertest": "^7.1.4",
+    "typescript": "5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "license": "MIT"
+}

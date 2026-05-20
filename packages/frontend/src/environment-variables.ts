@@ -3,6 +3,13 @@ const apiGatewayEndpoint =
 const internalApiGatewayEndpoint =
   process.env.INTERNAL_API_GATEWAY_ENDPOINT || apiGatewayEndpoint
 
+const contentApiEndpoint =
+  process.env.NEXT_PUBLIC_CONTENT_API_ENDPOINT || apiGatewayEndpoint
+const internalContentApiEndpoint =
+  process.env.INTERNAL_CONTENT_API_ENDPOINT || contentApiEndpoint
+
+const useContentApi = process.env.NEXT_PUBLIC_USE_CONTENT_API === 'true'
+
 const isProduction = process.env.NEXT_PUBLIC_RELEASE_ENV === 'prod'
 
 const searchAPIKey = process.env.SEARCH_API_KEY || ''
@@ -32,6 +39,9 @@ const requestTimeoutMs =
 const environmentVariables = {
   internalApiGatewayEndpoint,
   apiGatewayEndpoint,
+  internalContentApiEndpoint,
+  contentApiEndpoint,
+  useContentApi,
   isProduction,
   searchAPIKey,
   searchEngineID,

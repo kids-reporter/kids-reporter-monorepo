@@ -42,7 +42,7 @@ runs:
           packages/**/__generated__
           packages/**/*.tsbuildinfo
           **/*.tsbuildinfo
-        key: ${{ runner.os }}-build-${{ hashFiles('packages/*/package.json','packages/*/tsconfig.json','packages/cms/schema.graphql','packages/frontend/codegen.ts','packages/frontend/src/api/graphql/**/*.ts','packages/routing-ui/scripts/build.sh','packages/routing-ui/src/index.ts','packages/core/src/index.ts','packages/draft-editor/src/index.ts','packages/draft-renderer/src/index.ts') }}
+        key: ${{ runner.os }}-build-${{ hashFiles('packages/*/package.json','packages/*/tsconfig.json','packages/api-types/src/**/*.ts','packages/cms/schema.graphql','packages/frontend/codegen.ts','packages/frontend/src/api/graphql/**/*.ts','packages/routing-ui/scripts/build.sh','packages/routing-ui/src/index.ts','packages/core/src/index.ts','packages/draft-editor/src/index.ts','packages/draft-renderer/src/index.ts') }}
         restore-keys: |
           ${{ runner.os }}-build-
 
