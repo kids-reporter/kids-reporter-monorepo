@@ -18,6 +18,7 @@
   "dependencies": {
     "@googleapis/customsearch": "^1.0.4",
     "@hookform/resolvers": "^5.2.2",
+    "@kids-reporter/api-types": "^0.0.1",
     "@kids-reporter/draft-renderer": "^1.0.13",
     "@kids-reporter/logger": "^0.0.2",
     "@kids-reporter/routing-ui": "0.1.24",

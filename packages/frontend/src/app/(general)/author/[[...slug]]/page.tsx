@@ -22,8 +22,11 @@ export async function generateMetadata({
   params: { slug: any }
 }): Promise<Metadata> {
   const slug = params.slug?.[0]
+  const traceHeaders = getServerTraceHeaders(headers())
 
-  const authorMeta = slug ? await getAuthorMetaBySlug({ slug }) : null
+  const authorMeta = slug
+    ? await getAuthorMetaBySlug({ slug, traceHeaders })
+    : null
   if (!authorMeta) {
     emitStructured({
       severity: 'WARNING',

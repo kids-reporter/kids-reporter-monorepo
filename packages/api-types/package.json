@@ -1,0 +1,36 @@
+{
+  "name": "@kids-reporter/api-types",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "./scripts/build.sh",
+    "type-check": "tsc --noEmit -p tsconfig.json",
+    "lint:check": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.1.0",
+    "@babel/runtime": "^7.18.5",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.18.5",
+    "@babel/core": "^7.18.5",
+    "@babel/plugin-transform-runtime": "^7.18.5",
+    "@babel/preset-env": "^7.18.2",
+    "@babel/preset-typescript": "^7.17.12",
+    "typescript": "5.9.2"
+  }
+}

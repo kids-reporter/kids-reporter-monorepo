@@ -6,6 +6,10 @@ import { CategorySlug } from '@/types'
 export const ACCESS_TOKEN_ENDPOINT = `${envVars.apiGatewayEndpoint}/auth/access-token`
 export const REST_GQL_ENDPOINT = `${envVars.apiGatewayEndpoint}/api/rest`
 export const INTERNAL_REST_GQL_ENDPOINT = `${envVars.internalApiGatewayEndpoint}/api/rest`
+
+export const CONTENT_ACCESS_TOKEN_ENDPOINT = `${envVars.contentApiEndpoint}/auth/access-token`
+export const CONTENT_API_ORIGIN = envVars.contentApiEndpoint
+export const INTERNAL_CONTENT_API_ORIGIN = envVars.internalContentApiEndpoint
 export const LOGOUT_ENDPOINT = '/api/logout'
 
 export const KIDS_URL_ORIGIN = 'https://kids.twreporter.org'
