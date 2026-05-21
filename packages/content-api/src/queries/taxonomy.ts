@@ -77,7 +77,7 @@ export async function fetchSubcategoriesList(): Promise<V1SubcategoriesResponse>
   return result
 }
 
-/** `GET /v1/categories/by-slug/:slug/metadata` */
+/** `GET /v1/categories/:slug/metadata` */
 export async function fetchCategoryMetadata(
   slug: string,
   subcategorySlug: string | undefined
@@ -112,7 +112,7 @@ export async function fetchCategoryMetadata(
   return result
 }
 
-/** `GET /v1/categories/by-slug/:slug/subcategories-theme` */
+/** `GET /v1/categories/:slug/subcategories-theme` */
 export async function fetchCategorySubcategoriesTheme(
   slug: string
 ): Promise<V1CategoryBySlugSubcategoriesThemeResponse | null> {
@@ -147,7 +147,7 @@ async function collectSubSubcategoryIdsForCategorySlug(
   return rows.map((r) => r.id)
 }
 
-/** `GET /v1/categories/by-slug/:slug/posts` (unknown category → empty feed; not 404). */
+/** `GET /v1/categories/:slug/posts` (unknown category → empty feed; not 404). */
 export async function fetchCategoryFeedPosts(
   slug: string,
   opts: FeedPagination
@@ -174,7 +174,7 @@ export async function fetchCategoryFeedPosts(
   return result
 }
 
-/** `GET /v1/subcategories/by-slug/:slug/posts` (404 when subcategory missing). */
+/** `GET /v1/subcategories/:slug/posts` (404 when subcategory missing). */
 export async function fetchSubcategoryFeedPosts(
   slug: string,
   opts: FeedPagination
@@ -217,7 +217,7 @@ export async function fetchSubcategoryFeedPosts(
   return result
 }
 
-/** `GET /v1/sub-subcategories/by-slug/:slug/posts` (404 when sub-subcategory missing). */
+/** `GET /v1/sub-subcategories/:slug/posts` (404 when sub-subcategory missing). */
 export async function fetchSubSubcategoryFeedPosts(
   slug: string,
   opts: FeedPagination,

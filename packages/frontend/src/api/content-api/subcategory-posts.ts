@@ -21,7 +21,7 @@ export async function getSubcategoryPostsContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/subcategories/by-slug/${enc}/posts`,
+    path: `/v1/subcategories/${enc}/posts`,
     query: { take, skip },
     traceHeaders,
   })

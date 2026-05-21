@@ -23,7 +23,7 @@ export async function getAuthorMetaContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/authors/by-slug/${enc}/meta`,
+    path: `/v1/authors/${enc}/meta`,
     traceHeaders,
   })
   const parsed = V1AuthorBySlugMetaResponseSchema.safeParse(response)
@@ -51,7 +51,7 @@ export async function getAuthorPostsCountContentApi({
   try {
     const enc = encodeURIComponent(slug)
     const response = await sendContentApiRequest({
-      path: `/v1/authors/by-slug/${enc}/posts-count`,
+      path: `/v1/authors/${enc}/posts-count`,
       traceHeaders,
     })
     const parsed = V1AuthorPostsCountResponseSchema.safeParse(response)
@@ -87,7 +87,7 @@ export async function getAuthorPostsContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/authors/by-slug/${enc}/posts`,
+    path: `/v1/authors/${enc}/posts`,
     query: { take, skip, orderBy: orderBy ?? 'publishedDate:desc' },
     traceHeaders,
   })

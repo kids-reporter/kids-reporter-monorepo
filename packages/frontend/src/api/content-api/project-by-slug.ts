@@ -24,7 +24,7 @@ export async function getProjectMetaContentApi({
 }): Promise<GetProjectMetaQuery['project'] | undefined> {
   try {
     const response = await sendContentApiRequest({
-      path: `/v1/projects/by-slug/${encodeURIComponent(slug)}/meta`,
+      path: `/v1/projects/${encodeURIComponent(slug)}/meta`,
       method: 'GET',
       traceHeaders,
     })
@@ -59,7 +59,7 @@ export async function getProjectDetailContentApi({
 }): Promise<GetProjectQuery['project'] | undefined> {
   try {
     const response = await sendContentApiRequest({
-      path: `/v1/projects/by-slug/${encodeURIComponent(slug)}`,
+      path: `/v1/projects/${encodeURIComponent(slug)}`,
       method: 'GET',
       traceHeaders,
     })
@@ -88,7 +88,7 @@ export async function getProjectRelatedPostsCountContentApi({
 }): Promise<GetProjectRelatedPostsCountQuery['project'] | undefined> {
   try {
     const response = await sendContentApiRequest({
-      path: `/v1/projects/by-slug/${encodeURIComponent(slug)}/related-posts-count`,
+      path: `/v1/projects/${encodeURIComponent(slug)}/related-posts-count`,
       method: 'GET',
       traceHeaders,
     })

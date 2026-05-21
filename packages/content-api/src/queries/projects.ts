@@ -105,7 +105,7 @@ export async function fetchPublishedProjects(
   return result
 }
 
-/** `GET /v1/projects/by-slug/:slug/related-posts-count` returns null when the project is not found. */
+/** `GET /v1/projects/:slug/related-posts-count` returns null when the project is not found. */
 export async function fetchPublishedProjectRelatedPostsCount(
   slug: string,
   now: Date

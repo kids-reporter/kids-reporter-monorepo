@@ -20,7 +20,7 @@ export async function getTagMetaContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/tags/by-slug/${enc}/meta`,
+    path: `/v1/tags/${enc}/meta`,
     traceHeaders,
   })
   const parsed = V1TagBySlugMetaResponseSchema.safeParse(response)
@@ -54,7 +54,7 @@ export async function getTagPostsContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/tags/by-slug/${enc}/posts`,
+    path: `/v1/tags/${enc}/posts`,
     query: { take, skip, orderBy: orderBy ?? 'publishedDate:desc' },
     traceHeaders,
   })

@@ -167,7 +167,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/categories/by-slug/{slug}/posts',
+  path: '/v1/categories/{slug}/posts',
   tags: ['Taxonomy'],
   description:
     'Posts for a top-level **category** slug. Aggregates all sub-subcategories under that category. Empty list if slug is unknown (no 404).',
@@ -193,7 +193,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/categories/by-slug/{slug}/metadata',
+  path: '/v1/categories/{slug}/metadata',
   tags: ['Taxonomy'],
   description:
     'OG metadata for a category, optionally filtered to one subcategory by `subcategorySlug`.',
@@ -223,7 +223,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/categories/by-slug/{slug}/subcategories-theme',
+  path: '/v1/categories/{slug}/subcategories-theme',
   tags: ['Taxonomy'],
   description:
     'Display name, theme color, and subcategory list for a category tab UI.',
@@ -246,7 +246,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/subcategories/by-slug/{slug}/posts',
+  path: '/v1/subcategories/{slug}/posts',
   tags: ['Taxonomy'],
   description:
     'Feed posts for a **subcategory** slug (published/archived, sub-subcategory membership).',
@@ -274,7 +274,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/sub-subcategories/by-slug/{slug}/posts',
+  path: '/v1/sub-subcategories/{slug}/posts',
   tags: ['Taxonomy'],
   description: 'Public posts for a **sub-subcategory** slug, latest-first.',
   request: {
@@ -303,7 +303,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/tags/by-slug/{slug}/meta',
+  path: '/v1/tags/{slug}/meta',
   tags: ['Taxonomy'],
   description: 'OG metadata for a tag page.',
   request: { params: V1FeedSlugPathParamsSchema },
@@ -323,7 +323,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/tags/by-slug/{slug}/posts',
+  path: '/v1/tags/{slug}/posts',
   tags: ['Taxonomy'],
   description: 'Public posts for a tag (with count).',
   request: {
@@ -350,7 +350,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/authors/by-slug/{slug}/meta',
+  path: '/v1/authors/{slug}/meta',
   tags: ['Taxonomy'],
   description: 'Author bio, name, and small image for a profile/SEO surface.',
   request: { params: V1FeedSlugPathParamsSchema },
@@ -370,7 +370,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/authors/by-slug/{slug}/posts',
+  path: '/v1/authors/{slug}/posts',
   tags: ['Taxonomy'],
   description: 'Author posts and profile fields for the list view.',
   request: {
@@ -397,7 +397,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/authors/by-slug/{slug}/posts-count',
+  path: '/v1/authors/{slug}/posts-count',
   tags: ['Taxonomy'],
   description:
     'Public post count for an author (matches GraphQL `GetAuthorPostsCount`).',

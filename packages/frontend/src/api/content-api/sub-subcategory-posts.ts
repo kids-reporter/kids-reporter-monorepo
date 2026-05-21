@@ -23,7 +23,7 @@ export async function getSubSubcategoryPostsContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/sub-subcategories/by-slug/${enc}/posts`,
+    path: `/v1/sub-subcategories/${enc}/posts`,
     query: { take, skip, orderBy: orderBy ?? 'publishedDate:desc' },
     traceHeaders,
   })

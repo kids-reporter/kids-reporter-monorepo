@@ -31,7 +31,7 @@ const PUBLISHED_FEED_ORDER = { publishedDate: 'desc' } as const
 const buildAuthorAvatarTinyUrl = (fileId: string | null | undefined) =>
   fileId ? `${envVar.gcs.origin}/resized/${fileId}-400.webp` : ''
 
-/** `GET /v1/authors/by-slug/:slug/meta` (404 when author missing). */
+/** `GET /v1/authors/:slug/meta` (404 when author missing). */
 export async function fetchAuthorMeta(
   slug: string
 ): Promise<V1AuthorBySlugMetaResponse | null> {
@@ -58,7 +58,7 @@ export async function fetchAuthorMeta(
   return result
 }
 
-/** `GET /v1/authors/by-slug/:slug/posts` (404 when author missing). */
+/** `GET /v1/authors/:slug/posts` (404 when author missing). */
 export async function fetchAuthorFeedPosts(
   slug: string,
   opts: { take: number; skip: number },
@@ -103,7 +103,7 @@ export async function fetchAuthorFeedPosts(
   return result
 }
 
-/** `GET /v1/authors/by-slug/:slug/posts-count` (404 when author missing). */
+/** `GET /v1/authors/:slug/posts-count` (404 when author missing). */
 export async function fetchAuthorPostsCount(
   slug: string,
   now: Date
@@ -125,7 +125,7 @@ export async function fetchAuthorPostsCount(
   return { postsCount }
 }
 
-/** `GET /v1/authors/by-slug/:slug/avatar` (always 200; empty `tiny` for unknown slugs). */
+/** `GET /v1/authors/:slug/avatar` (always 200; empty `tiny` for unknown slugs). */
 export async function fetchAuthorAvatar(
   slug: string
 ): Promise<V1AuthorAvatarResponse> {

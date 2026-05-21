@@ -17,7 +17,7 @@ type V1TagBySlugPostsResponse = z.infer<typeof V1TagBySlugPostsResponseSchema>
 
 const PUBLISHED_FEED_ORDER = { publishedDate: 'desc' } as const
 
-/** `GET /v1/tags/by-slug/:slug/meta` (404 when tag missing). */
+/** `GET /v1/tags/:slug/meta` (404 when tag missing). */
 export async function fetchTagMeta(
   slug: string
 ): Promise<V1TagBySlugMetaResponse | null> {
@@ -42,7 +42,7 @@ export async function fetchTagMeta(
   return result
 }
 
-/** `GET /v1/tags/by-slug/:slug/posts` (404 when tag missing). */
+/** `GET /v1/tags/:slug/posts` (404 when tag missing). */
 export async function fetchTagFeedPosts(
   slug: string,
   opts: { take: number; skip: number },

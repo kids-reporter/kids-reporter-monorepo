@@ -172,7 +172,7 @@ export const V1AuthorAvatarResponseSchema = z
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/authors/by-slug/{slug}/avatar',
+  path: '/v1/authors/{slug}/avatar',
   tags: ['Taxonomy'],
   description:
     'Author avatar tiny image URL by slug. `tiny` is empty when the author or avatar is missing.',
@@ -498,7 +498,7 @@ export const V1PostBySlugPathParamsSchema = z.object({
   slug: z.string().min(1),
 })
 
-/** Flat query for `GET /v1/posts/by-slug/{slug}` (news-reading order + related-posts filter are fixed server-side). */
+/** Flat query for `GET /v1/posts/{slug}` (news-reading order + related-posts filter are fixed server-side). */
 export const V1PostBySlugQuerySchema = z.object({
   take: z.coerce.number().int().min(1).max(50).optional().default(5),
   postEssayQuestionsTake: z.coerce
@@ -540,7 +540,7 @@ export const V1ProjectBySlugMetaResponseSchema = z.object({
     .nullable(),
 })
 
-/** Hero image payloads returned by `/v1/projects/by-slug/{slug}` match Prisma-mapper targets. */
+/** Hero image payloads returned by `/v1/projects/{slug}` match Prisma-mapper targets. */
 export const V1ProjectDetailPhotoResizedSchema = z.object({
   resized: z.object({
     small: z.string(),
@@ -622,7 +622,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/projects/by-slug/{slug}',
+  path: '/v1/projects/{slug}',
   tags: ['Projects'],
   description:
     'Published project detail for topic page (matches GraphQL `GetProject`).',
@@ -647,7 +647,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/projects/by-slug/{slug}/meta',
+  path: '/v1/projects/{slug}/meta',
   tags: ['Projects'],
   description:
     'Published project OG metadata (matches GraphQL `GetProjectMeta`).',
@@ -672,7 +672,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/projects/by-slug/{slug}/related-posts-count',
+  path: '/v1/projects/{slug}/related-posts-count',
   tags: ['Projects'],
   description:
     'Count of public posts linked to a published project (matches GraphQL `relatedPostsCount` on project).',
@@ -713,7 +713,7 @@ export const V1PostsEssayAnswersWithLikesQuerySchema = z.object({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/posts/by-slug/{slug}',
+  path: '/v1/posts/{slug}',
   tags: ['Posts'],
   description:
     'Single post article payload (matches GraphQL `GetPost`). Flat query: `take`, `postEssayQuestionsTake`, `postChoiceQuestionsTake` (1–50 each, defaults 5/3/3). News-reading item order and nested related-posts filter are fixed server-side.',
@@ -749,7 +749,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/posts/by-slug/{slug}/meta',
+  path: '/v1/posts/{slug}/meta',
   tags: ['Posts'],
   description:
     'Post SEO / Open Graph metadata (matches GraphQL `GetPostMeta`).',
@@ -778,7 +778,7 @@ registry.registerPath({
 
 registry.registerPath({
   method: 'get',
-  path: '/v1/posts/by-slug/{slug}/essay-questions',
+  path: '/v1/posts/{slug}/essay-questions',
   tags: ['Posts'],
   description:
     'Post card plus essay questions (matches GraphQL `GetPostEssayQuestions`).',

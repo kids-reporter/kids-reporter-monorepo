@@ -107,7 +107,7 @@ export async function getPostContentApi({
   const slug = postSlugFromWhere(variables.where)
   try {
     const response = await sendContentApiRequest({
-      path: `/v1/posts/by-slug/${encodeURIComponent(slug)}`,
+      path: `/v1/posts/${encodeURIComponent(slug)}`,
       method: 'GET',
       query: {
         take: variables.take ?? undefined,
@@ -142,7 +142,7 @@ export async function getPostMetaContentApi({
   const slug = postSlugFromMetaWhere(variables.where)
   try {
     const response = await sendContentApiRequest({
-      path: `/v1/posts/by-slug/${encodeURIComponent(slug)}/meta`,
+      path: `/v1/posts/${encodeURIComponent(slug)}/meta`,
       method: 'GET',
       traceHeaders,
     })
@@ -215,7 +215,7 @@ export async function getPostEssayQuestionsByPostSlugContentApi({
 }) {
   try {
     const response = await sendContentApiRequest({
-      path: `/v1/posts/by-slug/${encodeURIComponent(slug)}/essay-questions`,
+      path: `/v1/posts/${encodeURIComponent(slug)}/essay-questions`,
       method: 'GET',
       traceHeaders,
     })

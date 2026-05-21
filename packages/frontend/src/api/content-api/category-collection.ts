@@ -25,7 +25,7 @@ export async function getCategoryPostsContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/categories/by-slug/${enc}/posts`,
+    path: `/v1/categories/${enc}/posts`,
     query: { take, skip },
     traceHeaders,
   })
@@ -54,7 +54,7 @@ export async function getCategoryMetadataContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/categories/by-slug/${enc}/metadata`,
+    path: `/v1/categories/${enc}/metadata`,
     query: subcategorySlug ? { subcategorySlug } : undefined,
     traceHeaders,
   })
@@ -85,7 +85,7 @@ export async function getCategorySubcategoriesThemeContentApi({
 }) {
   const enc = encodeURIComponent(slug)
   const response = await sendContentApiRequest({
-    path: `/v1/categories/by-slug/${enc}/subcategories-theme`,
+    path: `/v1/categories/${enc}/subcategories-theme`,
     traceHeaders,
   })
   const parsed =

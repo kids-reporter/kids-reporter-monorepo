@@ -63,8 +63,8 @@ describe('content-api response contracts', () => {
     expect(res.body?.error?.code).toBe('invalid_request')
   })
 
-  it('GET /v1/posts/by-slug/x rejects decimal take query param', async () => {
-    const res = await request(app).get('/v1/posts/by-slug/x?take=1.5')
+  it('GET /v1/posts/x rejects decimal take query param', async () => {
+    const res = await request(app).get('/v1/posts/x?take=1.5')
     expect(res.status).toBe(400)
     expect(res.body?.error?.code).toBe('invalid_request')
   })
@@ -116,9 +116,9 @@ describe('content-api response contracts', () => {
   })
 
   describeWithDb('metadata query normalization (requires DB)', () => {
-    it('GET /v1/categories/by-slug/x/metadata uses first subcategorySlug when repeated', async () => {
+    it('GET /v1/categories/x/metadata uses first subcategorySlug when repeated', async () => {
       const res = await request(app).get(
-        '/v1/categories/by-slug/x/metadata?subcategorySlug=a&subcategorySlug=b'
+        '/v1/categories/x/metadata?subcategorySlug=a&subcategorySlug=b'
       )
       expect([200, 404]).toContain(res.status)
       if (res.status === 200) {
@@ -213,9 +213,9 @@ describe('content-api response contracts', () => {
       expect(res.body?.error?.code).toBe('not_found')
     })
 
-    it('GET /v1/categories/by-slug/unknown-feed-slug/posts success body matches category posts schema', async () => {
+    it('GET /v1/categories/unknown-feed-slug/posts success body matches category posts schema', async () => {
       await expectRouteMatchesSchema(
-        '/v1/categories/by-slug/unknown-feed-slug/posts',
+        '/v1/categories/unknown-feed-slug/posts',
         V1CategoryBySlugCategoryPostsResponseSchema
       )
     })
@@ -234,49 +234,45 @@ describe('content-api response contracts', () => {
       )
     })
 
-    it('GET /v1/projects/by-slug/unknown-topic-slug-xyz/meta returns 404', async () => {
+    it('GET /v1/projects/unknown-topic-slug-xyz/meta returns 404', async () => {
       const res = await request(app).get(
-        '/v1/projects/by-slug/unknown-topic-slug-xyz/meta'
+        '/v1/projects/unknown-topic-slug-xyz/meta'
       )
       expect(res.status).toBe(404)
       expect(RestErrorBodySchema.safeParse(res.body).success).toBe(true)
     })
 
-    it('GET /v1/projects/by-slug/unknown-topic-slug-xyz/related-posts-count returns 404', async () => {
+    it('GET /v1/projects/unknown-topic-slug-xyz/related-posts-count returns 404', async () => {
       const res = await request(app).get(
-        '/v1/projects/by-slug/unknown-topic-slug-xyz/related-posts-count'
+        '/v1/projects/unknown-topic-slug-xyz/related-posts-count'
       )
       expect(res.status).toBe(404)
       expect(RestErrorBodySchema.safeParse(res.body).success).toBe(true)
     })
 
-    it('GET /v1/authors/by-slug/unknown-author-slug-xyz/posts-count returns 404', async () => {
+    it('GET /v1/authors/unknown-author-slug-xyz/posts-count returns 404', async () => {
       const res = await request(app).get(
-        '/v1/authors/by-slug/unknown-author-slug-xyz/posts-count'
+        '/v1/authors/unknown-author-slug-xyz/posts-count'
       )
       expect(res.status).toBe(404)
       expect(RestErrorBodySchema.safeParse(res.body).success).toBe(true)
     })
 
-    it('GET /v1/posts/by-slug/unknown-post-slug-xyz returns 404', async () => {
-      const res = await request(app).get(
-        '/v1/posts/by-slug/unknown-post-slug-xyz'
-      )
+    it('GET /v1/posts/unknown-post-slug-xyz returns 404', async () => {
+      const res = await request(app).get('/v1/posts/unknown-post-slug-xyz')
       expect(res.status).toBe(404)
       expect(RestErrorBodySchema.safeParse(res.body).success).toBe(true)
     })
 
-    it('GET /v1/posts/by-slug/unknown-post-slug-xyz/meta returns 404', async () => {
-      const res = await request(app).get(
-        '/v1/posts/by-slug/unknown-post-slug-xyz/meta'
-      )
+    it('GET /v1/posts/unknown-post-slug-xyz/meta returns 404', async () => {
+      const res = await request(app).get('/v1/posts/unknown-post-slug-xyz/meta')
       expect(res.status).toBe(404)
       expect(RestErrorBodySchema.safeParse(res.body).success).toBe(true)
     })
 
-    it('GET /v1/posts/by-slug/unknown-post-slug-xyz/essay-questions returns 404', async () => {
+    it('GET /v1/posts/unknown-post-slug-xyz/essay-questions returns 404', async () => {
       const res = await request(app).get(
-        '/v1/posts/by-slug/unknown-post-slug-xyz/essay-questions'
+        '/v1/posts/unknown-post-slug-xyz/essay-questions'
       )
       expect(res.status).toBe(404)
       expect(RestErrorBodySchema.safeParse(res.body).success).toBe(true)

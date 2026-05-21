@@ -122,7 +122,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/posts/by-slug/:slug',
+    '/posts/:slug',
     asyncRoute(async (req, res) => {
       const { slug } = V1PostBySlugPathParamsSchema.parse(req.params)
       const q = V1PostBySlugQuerySchema.parse(req.query)
@@ -137,7 +137,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/posts/by-slug/:slug/meta',
+    '/posts/:slug/meta',
     asyncRoute(async (req, res) => {
       const { slug } = V1PostBySlugPathParamsSchema.parse(req.params)
       const post = await fetchPostMetaBySlug(slug, new Date())
@@ -147,7 +147,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/posts/by-slug/:slug/essay-questions',
+    '/posts/:slug/essay-questions',
     asyncRoute(async (req, res) => {
       const { slug } = V1PostBySlugPathParamsSchema.parse(req.params)
       const post = await fetchPostEssayQuestionsBySlug(slug, new Date())
@@ -175,7 +175,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/projects/by-slug/:slug',
+    '/projects/:slug',
     asyncRoute(async (req, res) => {
       const { slug } = V1PostBySlugPathParamsSchema.parse(req.params)
       const project = await fetchPublishedProjectDetailBySlug(slug, new Date())
@@ -185,7 +185,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/projects/by-slug/:slug/meta',
+    '/projects/:slug/meta',
     asyncRoute(async (req, res) => {
       const { slug } = V1PostBySlugPathParamsSchema.parse(req.params)
       const meta = await fetchPublishedProjectMetaBySlug(slug)
@@ -195,7 +195,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/projects/by-slug/:slug/related-posts-count',
+    '/projects/:slug/related-posts-count',
     asyncRoute(async (req, res) => {
       const { slug } = V1PostBySlugPathParamsSchema.parse(req.params)
       const result = await fetchPublishedProjectRelatedPostsCount(
@@ -259,7 +259,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/categories/by-slug/:slug/posts',
+    '/categories/:slug/posts',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const q = V1CategoryPostsQuerySchema.parse(req.query)
@@ -272,7 +272,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/categories/by-slug/:slug/metadata',
+    '/categories/:slug/metadata',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const { subcategorySlug } = V1CategoryBySlugMetadataQuerySchema.parse({
@@ -286,7 +286,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/categories/by-slug/:slug/subcategories-theme',
+    '/categories/:slug/subcategories-theme',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const result = await fetchCategorySubcategoriesTheme(slug)
@@ -296,7 +296,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/subcategories/by-slug/:slug/posts',
+    '/subcategories/:slug/posts',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const q = V1CategoryPostsQuerySchema.parse(req.query)
@@ -310,7 +310,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/sub-subcategories/by-slug/:slug/posts',
+    '/sub-subcategories/:slug/posts',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const q = V1SubSubcategoryBySlugPostsQuerySchema.parse(req.query)
@@ -325,7 +325,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/tags/by-slug/:slug/meta',
+    '/tags/:slug/meta',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const result = await fetchTagMeta(slug)
@@ -335,7 +335,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/tags/by-slug/:slug/posts',
+    '/tags/:slug/posts',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const q = V1SubSubcategoryBySlugPostsQuerySchema.parse(req.query)
@@ -350,7 +350,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/authors/by-slug/:slug/meta',
+    '/authors/:slug/meta',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const result = await fetchAuthorMeta(slug)
@@ -360,7 +360,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/authors/by-slug/:slug/posts',
+    '/authors/:slug/posts',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const q = V1SubSubcategoryBySlugPostsQuerySchema.parse(req.query)
@@ -375,7 +375,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/authors/by-slug/:slug/posts-count',
+    '/authors/:slug/posts-count',
     asyncRoute(async (req, res) => {
       const { slug } = V1FeedSlugPathParamsSchema.parse(req.params)
       const result = await fetchAuthorPostsCount(slug, new Date())
@@ -415,7 +415,7 @@ export function createV1Router() {
   )
 
   router.get(
-    '/authors/by-slug/:slug/avatar',
+    '/authors/:slug/avatar',
     asyncRoute(async (req, res) => {
       const { slug } = V1AuthorAvatarPathParamsSchema.parse(req.params)
       const result = await fetchAuthorAvatar(slug)
