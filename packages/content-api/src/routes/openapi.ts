@@ -10,9 +10,13 @@ export function createOpenApiRouter({ basePath = '' } = {}) {
     },
   })
 
+  const openApiDoc = {
+    ...getOpenApiDocument(),
+    servers: [{ url: basePath || '/', description: 'Content API' }],
+  }
   router.get('/openapi.json', (_req, res) => {
     res.set('Cache-Control', 'no-store')
-    res.json(getOpenApiDocument())
+    res.json(openApiDoc)
   })
 
   router.use('/docs', swaggerUi.serve, swaggerSetup)
