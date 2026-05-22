@@ -20,9 +20,13 @@ const statusCodes = consts.statusCodes
 export function createApp({
   gcpProjectId = 'kids-reporter',
   corsAllowOrigin = [],
+  enableOpenApi = false,
+  basePath = '',
 }: {
   gcpProjectId?: string
   corsAllowOrigin: string[] | string
+  enableOpenApi?: boolean
+  basePath?: string
 }) {
   const app = express()
 
@@ -60,7 +64,9 @@ export function createApp({
   app.use(cors(corsOptsPublic))
 
   app.use(createHealthRouter())
-  app.use(createOpenApiRouter())
+  if (enableOpenApi) {
+    app.use(createOpenApiRouter({ basePath }))
+  }
   app.use('/v1', createV1Router())
 
   const errorHandler: express.ErrorRequestHandler = (err, _req, res, _next) => {

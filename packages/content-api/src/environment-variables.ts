@@ -11,9 +11,18 @@ const {
   GO_API_JWT_AUDIENCE,
   IMAGES_STORAGE_PATH,
   IS_PREVIEW_SERVER,
+  CURRENT_ENVIRONMENT,
+  BASE_PATH,
 } = process.env
 
 const isPreviewServer = IS_PREVIEW_SERVER === 'true'
+
+const normalizedCurrentEnvironment = CURRENT_ENVIRONMENT?.trim().toLowerCase()
+const openApiEnabledEnvironments = new Set(['local', 'dev', 'staging'])
+// only enable OpenAPI in explicitly allowed non-production environments
+const enableOpenApi = openApiEnabledEnvironments.has(
+  normalizedCurrentEnvironment || ''
+)
 
 const parsedRequestTimeoutMs = Number(REQUEST_TIMEOUT_MS)
 const requestTimeoutMs =
@@ -67,6 +76,8 @@ const envVar = {
     storagePath: IMAGES_STORAGE_PATH || '',
   },
   isPreviewServer,
+  enableOpenApi,
+  basePath: BASE_PATH?.replace(/\/+$/, '') || '',
 }
 
 if (envVar.cors.allowOrigins === '*') {
