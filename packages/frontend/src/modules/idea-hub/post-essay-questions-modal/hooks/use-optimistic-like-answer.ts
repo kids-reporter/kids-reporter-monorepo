@@ -1,6 +1,6 @@
 import { PostEssayAnswerOrderByInput } from '__generated__/types'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { useGetMemberEssayAnswersHasLikedQuery } from '@/api-utils/react-query/hooks/extended'
 import { useAllPostEssayAnswersQuery } from '@/api-utils/react-query/hooks/post-essay-answer'
@@ -28,12 +28,23 @@ function useOptimisticLikeAnswer({
   essayAnswerIds: string[]
 }) {
   const queryClient = useQueryClient()
+  const toggleLockRef = useRef(false)
+  const [interactionLocked, setInteractionLocked] = useState(false)
 
   const createMutation = useCreatePostEssayAnswerLikeMutation({ accessToken })
   const deleteMutation = useDeletePostEssayAnswerLikeMutation({ accessToken })
 
   const toggleLike = useCallback(
     async (hasLiked: boolean) => {
+      if (
+        toggleLockRef.current ||
+        createMutation.isPending ||
+        deleteMutation.isPending
+      ) {
+        return
+      }
+      toggleLockRef.current = true
+      setInteractionLocked(true)
       const answersQueryKey =
         usePostEssayQuestionEssayAnswersInfinityQuery.getQueryKey({
           questionId,
@@ -146,6 +157,7 @@ function useOptimisticLikeAnswer({
               {
                 essayAnswerId: answerId,
                 hasLiked: !hasLiked,
+                essayAnswerLikeId: '',
               },
             ]
           }
@@ -154,15 +166,45 @@ function useOptimisticLikeAnswer({
 
       try {
         if (hasLiked) {
-          // Delete like
-          await deleteMutation.mutateAsync({
-            where: {
-              compositeKey: `${answerId}:${memberId}`,
-            },
-          })
+          const hasLikedRows =
+            queryClient.getQueryData<
+              ReturnType<typeof useGetMemberEssayAnswersHasLikedQuery>['data']
+            >(hasLikedQueryKey)
+          const row = Array.isArray(hasLikedRows)
+            ? hasLikedRows.find((r) => r?.essayAnswerId === answerId)
+            : undefined
+          const likeIdRaw = (row as { essayAnswerLikeId?: string } | undefined)
+            ?.essayAnswerLikeId
+          const likeId =
+            typeof likeIdRaw === 'string' ? likeIdRaw.trim() : undefined
+
+          if (likeId) {
+            await deleteMutation.mutateAsync({
+              where: { id: likeId },
+            })
+          } else if (likeIdRaw === '') {
+            // Create mutation still in flight after optimistic like; rollback this unlike attempt.
+            if (previousAnswersData) {
+              queryClient.setQueryData(answersQueryKey, previousAnswersData)
+            }
+            if (previousAllPostEssayAnswersData) {
+              queryClient.setQueryData(
+                allPostEssayAnswersQueryKey,
+                previousAllPostEssayAnswersData
+              )
+            }
+            if (previousHasLikedData) {
+              queryClient.setQueryData(hasLikedQueryKey, previousHasLikedData)
+            }
+            return
+          } else {
+            await deleteMutation.mutateAsync({
+              where: { compositeKey: `${answerId}:${memberId}` },
+            })
+          }
         } else {
           // Create like
-          await createMutation.mutateAsync({
+          const createdLike = await createMutation.mutateAsync({
             data: {
               answer: {
                 connect: {
@@ -171,6 +213,28 @@ function useOptimisticLikeAnswer({
               },
             },
           })
+
+          const createdLikeId = (createdLike as { id?: string } | undefined)?.id
+          if (createdLikeId) {
+            queryClient.setQueryData(
+              hasLikedQueryKey,
+              (
+                old: ReturnType<
+                  typeof useGetMemberEssayAnswersHasLikedQuery
+                >['data']
+              ) => {
+                if (!Array.isArray(old)) return old
+
+                return old.map((item) => {
+                  if (item?.essayAnswerId !== answerId) return item
+                  return {
+                    ...item,
+                    essayAnswerLikeId: createdLikeId,
+                  }
+                })
+              }
+            )
+          }
         }
       } catch (error) {
         // Rollback on error
@@ -188,6 +252,8 @@ function useOptimisticLikeAnswer({
         }
         throw error
       } finally {
+        toggleLockRef.current = false
+        setInteractionLocked(false)
         // Invalidate to refetch fresh data
         queryClient.invalidateQueries({ queryKey: answersQueryKey })
         queryClient.invalidateQueries({ queryKey: allPostEssayAnswersQueryKey })
@@ -209,7 +275,8 @@ function useOptimisticLikeAnswer({
 
   return {
     toggleLike,
-    isPending: createMutation.isPending || deleteMutation.isPending,
+    isPending:
+      createMutation.isPending || deleteMutation.isPending || interactionLocked,
   }
 }
 

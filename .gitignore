@@ -62,6 +62,7 @@ packages/frontend/graphql
 
 # cursor
 .cursor
+.context
 
 # vscode
 .vscode

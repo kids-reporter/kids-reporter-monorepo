@@ -10,6 +10,7 @@
     "dev:cms": "cd packages/cms && dotenv -e .env.local -- yarn dev",
     "dev:frontend": "cd packages/frontend && PORT=3001 yarn dev",
     "dev:api-gateway": "cd packages/api-gateway && dotenv -e .env.local -- yarn dev",
+    "dev:content-api": "cd packages/content-api && dotenv -e .env.local -- yarn dev",
     "format:write": "yarn workspaces foreach -A run prettier --write .",
     "format:check": "yarn workspaces foreach -A run prettier --check .",
     "lint:fix": "yarn workspaces foreach -A run lint:check --fix",
@@ -44,6 +45,10 @@
   },
   "lint-staged": {
     "packages/api-gateway/**/*.{js,ts,jsx,tsx}": "cd packages/api-gateway && eslint --config eslint.config.mjs --cache --fix",
+    "packages/content-api/**/*.{js,ts,jsx,tsx}": "cd packages/content-api && eslint --config eslint.config.mjs --cache --fix",
+    "packages/db/**/*.{js,ts,jsx,tsx}": "cd packages/db && eslint --config eslint.config.mjs --cache --fix",
+    "packages/api-types/**/*.{js,ts,jsx,tsx}": "cd packages/api-types && eslint --config eslint.config.mjs --cache --fix",
+    "packages/logger/**/*.{js,ts,jsx,tsx}": "cd packages/logger && eslint --config eslint.config.mjs --cache --fix",
     "packages/cms/**/*.{js,ts,jsx,tsx}": "cd packages/cms && eslint --config eslint.config.mjs --cache --fix",
     "packages/core/**/*.{js,ts,jsx,tsx}": "cd packages/core && eslint --config eslint.config.mjs --cache --fix",
     "packages/cronjob/**/*.{js,ts,jsx,tsx}": "cd packages/cronjob && eslint --config eslint.config.mjs --cache --fix",
@@ -58,7 +63,8 @@
   "resolutions": {
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "next": "14.2.35"
+    "next": "14.2.35",
+    "@types/express-serve-static-core": "4.19.5"
   },
   "version": "0.0.0",
   "packageManager": "yarn@4.9.4"

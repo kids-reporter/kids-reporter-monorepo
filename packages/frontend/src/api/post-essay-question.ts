@@ -4,6 +4,9 @@ import {
   PostEssayQuestionWhereUniqueInput,
 } from '__generated__/types'
 
+import { getPostEssayQuestionEssayAnswersContentApi } from '@/api/content-api/post-qna'
+import envVars from '@/environment-variables'
+import { logContentApiFallback } from '@/utils/log-content-api-fallback'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
 export const getPostEssayQuestionEssayAnswers = async ({
@@ -17,6 +20,19 @@ export const getPostEssayQuestionEssayAnswers = async ({
   answerTake: number
   answerSkip: number
 }) => {
+  if (envVars.useContentApi) {
+    try {
+      return await getPostEssayQuestionEssayAnswersContentApi({
+        where: { id: String(where.id) },
+        answerOrderBy,
+        answerTake,
+        answerSkip,
+      })
+    } catch (err) {
+      logContentApiFallback('getPostEssayQuestionEssayAnswers', err)
+    }
+  }
+
   const response = await sendRestGqlRequest<GetEssayQuestionEssayAnswersQuery>({
     operation: 'post-essay-question-answers',
     method: 'GET',

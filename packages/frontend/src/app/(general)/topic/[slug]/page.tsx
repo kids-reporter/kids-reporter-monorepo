@@ -8,15 +8,21 @@ import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import {
+  getProjectDetailContentApi,
+  getProjectMetaContentApi,
+} from '@/api/content-api/project-by-slug'
+import {
   ContentType,
   GENERAL_DESCRIPTION,
   KIDS_URL_ORIGIN,
   OG_SUFFIX,
 } from '@/constants'
+import envVars from '@/environment-variables'
 import TopicSlugModule from '@/modules/topic/slug'
 import { TitlePosition } from '@/modules/topic/types'
 import { normalizePhoto } from '@/modules/topic/utils'
 import { getFormattedDate, getPostSummaries } from '@/utils'
+import { logContentApiFallback } from '@/utils/log-content-api-fallback'
 import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
@@ -26,17 +32,29 @@ export async function generateMetadata({
   params: { slug: string }
 }): Promise<Metadata> {
   const slug = params.slug
+  const traceHeaders = getServerTraceHeaders(headers())
 
-  const topicOGRes = await sendRestGqlRequest<GetProjectMetaQuery>({
-    operation: 'project-meta',
-    method: 'GET',
-    variables: {
-      where: {
-        slug: slug,
+  let topicMeta: GetProjectMetaQuery['project'] | undefined
+  if (envVars.useContentApi) {
+    try {
+      topicMeta = await getProjectMetaContentApi({ slug, traceHeaders })
+    } catch (err) {
+      logContentApiFallback('topic-project-meta', err)
+    }
+  }
+  if (!topicMeta) {
+    const topicOGRes = await sendRestGqlRequest<GetProjectMetaQuery>({
+      operation: 'project-meta',
+      method: 'GET',
+      variables: {
+        where: {
+          slug: slug,
+        },
       },
-    },
-  })
-  const topicMeta = topicOGRes?.data?.data?.project
+      traceHeaders,
+    })
+    topicMeta = topicOGRes?.data?.data?.project
+  }
   if (!topicMeta) {
     emitStructured({
       severity: 'WARNING',
@@ -75,18 +93,31 @@ export default async function TopicPage({
     emitStructured({ severity: 'WARNING', message: 'Incorrect topic slug!' })
     notFound()
   }
+  let project: GetProjectQuery['project'] | undefined
   const traceHeaders = getServerTraceHeaders(headers())
-  const axiosRes = await sendRestGqlRequest<GetProjectQuery>({
-    operation: 'project-detail',
-    method: 'GET',
-    variables: {
-      where: {
+  if (envVars.useContentApi) {
+    try {
+      project = await getProjectDetailContentApi({
         slug: params.slug,
+        traceHeaders,
+      })
+    } catch (err) {
+      logContentApiFallback('topic-project-detail', err)
+    }
+  }
+  if (!project) {
+    const axiosRes = await sendRestGqlRequest<GetProjectQuery>({
+      operation: 'project-detail',
+      method: 'GET',
+      variables: {
+        where: {
+          slug: params.slug,
+        },
       },
-    },
-    traceHeaders,
-  })
-  const project = axiosRes?.data?.data?.project
+      traceHeaders,
+    })
+    project = axiosRes?.data?.data?.project
+  }
   if (!project) {
     emitStructured({ severity: 'WARNING', message: 'Empty topic!' })
     notFound()
