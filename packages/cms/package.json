@@ -1,6 +1,7 @@
 {
   "name": "@kids-reporter/cms",
   "version": "1.0.12",
+  "packageManager": "yarn@4.9.4",
   "description": "",
   "scripts": {
     "dev": "dotenv -e .env.local -- keystone dev",
@@ -9,7 +10,7 @@
     "db-migrate": "keystone prisma migrate deploy",
     "build": "keystone build",
     "lint:check": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "postinstall": "bash -c 'SKIP_BUILD_DEPS=\"${SKIP_BUILD_DEPS:-}\" SKIP_PATCH_PACKAGE=\"${SKIP_PATCH_PACKAGE:-}\" make postinstall'",
+    "postinstall": "make postinstall",
     "type-check": "tsc --noEmit"
   },
   "repository": {
