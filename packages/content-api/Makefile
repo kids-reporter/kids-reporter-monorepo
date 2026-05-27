@@ -1,4 +1,5 @@
 P := "\\033[32m[+]\\033[0m"
+DB_GENERATE_LOCAL ?= true
 ENV_FILE ?= .env.local
 DOTENV_FLAGS ?=
 DOTENV := yarn dotenv -e $(ENV_FILE) $(DOTENV_FLAGS) --

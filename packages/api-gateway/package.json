@@ -2,6 +2,7 @@
   "name": "@kids-reporter/api-gateway",
   "type": "module",
   "version": "1.0.0",
+  "packageManager": "yarn@4.9.4",
   "scripts": {
     "dev": "make dev",
     "build": "make build",

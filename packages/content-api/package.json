@@ -3,6 +3,7 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "yarn@4.9.4",
   "scripts": {
     "dev": "make dev",
     "build": "make build",
@@ -12,7 +13,7 @@
     "lint:check": "eslint src --ext .ts,.js",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
-    "postinstall": "bash -c 'SKIP_BUILD_DEPS=\"${SKIP_BUILD_DEPS:-}\" DB_GENERATE_LOCAL=\"${DB_GENERATE_LOCAL:-\"true\"}\" make postinstall'"
+    "postinstall": "make postinstall"
   },
   "dependencies": {
     "@kids-reporter/api-types": "^0.0.1",

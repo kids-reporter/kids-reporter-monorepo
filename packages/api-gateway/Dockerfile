@@ -6,14 +6,16 @@ RUN corepack enable
 
 WORKDIR /build
 
-# copy from root at build time (in cloudbuild.yaml)
+# Cloud Build stages this package dir (lockfile copied from repo root; see cloudbuild.yaml).
+# No Makefile in lean COPY: this package has no postinstall hook.
 COPY package.json yarn.lock .yarnrc.yml /build/
 
-RUN yarn install --immutable
+RUN yarn install
 
 COPY . /build/
 
-RUN yarn build
+# Relink workspace deps after source copy, then build.
+RUN yarn install && yarn build
 
 
 FROM node:${NODE_VERSION}
