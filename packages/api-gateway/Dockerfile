@@ -12,10 +12,12 @@ COPY package.json yarn.lock .yarnrc.yml /build/
 
 RUN yarn install
 
+# Preserve the post-install lockfile from being overwritten by the build context copy.
+RUN cp /build/yarn.lock /tmp/yarn.lock.bak
 COPY . /build/
+RUN mv /tmp/yarn.lock.bak /build/yarn.lock
 
-# Relink workspace deps after source copy, then build.
-RUN yarn install && yarn build
+RUN yarn build
 
 
 FROM node:${NODE_VERSION}
