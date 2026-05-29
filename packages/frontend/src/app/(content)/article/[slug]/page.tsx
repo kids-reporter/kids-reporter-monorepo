@@ -13,7 +13,7 @@ import {
 import ArticleModule from '@/modules/article'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
-const topicRelatedPostsNum = 5
+const postRelatedPostsNum = 6
 const postEssayQuestionsTake = 3
 const postChoiceQuestionsTake = 3
 
@@ -90,7 +90,7 @@ export default async function PostPage({
       },
     },
     orderBy: [{ order: 'asc' }],
-    take: topicRelatedPostsNum,
+    take: postRelatedPostsNum,
     postEssayQuestionsTake,
     postChoiceQuestionsTake,
   })
