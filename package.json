@@ -16,6 +16,7 @@
     "lint:fix": "yarn workspaces foreach -A run lint:check --fix",
     "lint:check": "yarn workspaces foreach -A run lint:check",
     "type-check": "yarn workspaces foreach -A run type-check",
+    "test": "node ./scripts/run-workspace-tests.mjs",
     "check:all": "yarn lint:check && yarn type-check"
   },
   "devDependencies": {

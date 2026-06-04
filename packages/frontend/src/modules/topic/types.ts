@@ -1,4 +1,4 @@
-import { GetProjectsQuery } from '__generated__/operations/content.generated'
+import type { ProjectListItem } from '@/types/api'
 
 export type TitlePosition =
   | 'center'
@@ -12,7 +12,5 @@ export type TopicSummary = {
   url: string
   desc: string
   publishedDate: string
-  relatedPosts?: NonNullable<
-    GetProjectsQuery['projects']
-  >[number]['relatedPostsOrdered']
+  relatedPosts?: NonNullable<ProjectListItem['relatedPostsOrdered']>
 }

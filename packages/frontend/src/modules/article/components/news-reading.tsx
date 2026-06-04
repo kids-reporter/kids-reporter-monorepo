@@ -1,15 +1,15 @@
 'use client'
 
-import { GetPostQuery } from '__generated__/operations/content.generated'
 import { cn } from '@kids-reporter/routing-ui'
 import { memo, useMemo, useState } from 'react'
 
 import Divider from '@/components/divider'
+import { PostDetail } from '@/types/api'
 import { RecursiveNonNullable } from '@/types/utils'
 
 type NewsReadingProps = {
   className?: string
-  items: RecursiveNonNullable<GetPostQuery['post']>['newsReadingGroup']['items']
+  items: RecursiveNonNullable<PostDetail>['newsReadingGroup']['items']
 }
 
 function NewsReading({ className, items }: NewsReadingProps) {
@@ -57,7 +57,7 @@ function NewsReading({ className, items }: NewsReadingProps) {
     <div className="w-full px-4">
       <div
         className={cn(
-          'mx-auto mt-10 flex max-w-[512px] flex-col rounded-[20px] border border-neutral-200 p-6 tablet:mt-20 tablet:max-w-[584px] tablet:p-9 hd:max-w-[656px]',
+          'mx-auto mt-10 flex max-w-[512px] flex-col rounded-[20px] border border-neutral-200 p-6 tablet:mt-20 tablet:max-w-[584px] tablet:p-9 desktop:max-w-[608px] hd:max-w-[680px]',
           className
         )}
       >

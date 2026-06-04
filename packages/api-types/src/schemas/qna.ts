@@ -286,11 +286,11 @@ export const V1DeletePostEssayAnswerLikeResponseSchema = z.object({
   id: z.string(),
 })
 
-const V1PostChoiceAnswerPathIdSchema = z.object({
+export const V1PostChoiceAnswerPathIdSchema = z.object({
   id: z.coerce.number().int().positive(),
 })
 
-const V1PostEssayAnswerPathIdSchema = z.object({
+export const V1PostEssayAnswerPathIdSchema = z.object({
   id: z.coerce.number().int().positive(),
 })
 

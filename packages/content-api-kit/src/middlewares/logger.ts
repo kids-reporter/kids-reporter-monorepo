@@ -3,9 +3,13 @@ import {
   getGcpTraceField,
   normalizeTraceContext,
 } from '@kids-reporter/logger'
-import express from 'express'
+import type express from 'express'
 
-import consts from '../constants.js'
+export type CreateLoggerMwOptions = {
+  projectId: string
+  /** Defaults to 5000ms. */
+  slowThresholdMs?: number
+}
 
 function getGlobalLogFields(req: express.Request, projectId: string) {
   const globalLogFields: { 'logging.googleapis.com/trace'?: string } = {}
@@ -25,12 +29,30 @@ function getGlobalLogFields(req: express.Request, projectId: string) {
   }
 }
 
-export function createLoggerMw(projectId: string): express.RequestHandler {
-  const handler: express.RequestHandler = (req, res, next) => {
-    const { globalLogFields, traceContext } = getGlobalLogFields(req, projectId)
+export function createLoggerMw(
+  projectIdOrOpts: string | CreateLoggerMwOptions
+): express.RequestHandler {
+  const opts: CreateLoggerMwOptions =
+    typeof projectIdOrOpts === 'string'
+      ? { projectId: projectIdOrOpts }
+      : (projectIdOrOpts ?? { projectId: '' })
+
+  if (!opts.projectId) {
+    throw new Error('projectId is required for createLoggerMw')
+  }
+
+  const slowThresholdMs =
+    typeof opts.slowThresholdMs === 'number' && opts.slowThresholdMs > 0
+      ? opts.slowThresholdMs
+      : 5000
+
+  return (req, res, next) => {
+    const { globalLogFields, traceContext } = getGlobalLogFields(
+      req,
+      opts.projectId
+    )
     const startAt = process.hrtime.bigint()
     let logged = false
-    const slowThresholdMs = consts.slowThresholdMs
 
     const authHeader = req.get('Authorization')
     const safeAuthHeader =
@@ -78,5 +100,4 @@ export function createLoggerMw(projectId: string): express.RequestHandler {
 
     next()
   }
-  return handler
 }

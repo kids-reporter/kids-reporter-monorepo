@@ -6,12 +6,18 @@ import {
   V1MemberPostEssayAnswersQuerySchema,
   V1PatchPostChoiceAnswerBodySchema,
   V1PatchPostEssayAnswerBodySchema,
+  V1PostChoiceAnswerPathIdSchema,
+  V1PostEssayAnswerLikePathIdSchema,
+  V1PostEssayAnswerPathIdSchema,
 } from '@kids-reporter/api-types'
+import { asyncRoute, sendJsonError } from '@kids-reporter/content-api-kit'
+import { verifyGoApiJwt } from '@kids-reporter/content-api-kit/auth/go-api-jwt'
+import { emitStructured } from '@kids-reporter/logger'
 import express from 'express'
 import { z } from 'zod'
 
 import consts from '../../constants.js'
-import { verifyGoApiJwt } from '../../middlewares/verify-go-api-jwt.js'
+import envVar from '../../environment-variables.js'
 import { findMemberIdRole } from '../../queries/members.js'
 import {
   createMemberEssayAnswerLike,
@@ -24,8 +30,6 @@ import {
   updateMemberPostChoiceAnswer,
   updateMemberPostEssayAnswer,
 } from '../../queries/qna-members.js'
-import { asyncRoute } from '../../utils/async-route.js'
-import { sendJsonError } from '../../utils/send-json-error.js'
 
 const statusCodes = consts.statusCodes
 
@@ -81,23 +85,44 @@ function sendMutationError(
   return false
 }
 
-function parseNumericIdParam(
+function parsePathIdParam(
   req: express.Request,
-  res: express.Response
+  res: express.Response,
+  schema:
+    | typeof V1PostChoiceAnswerPathIdSchema
+    | typeof V1PostEssayAnswerPathIdSchema
+    | typeof V1PostEssayAnswerLikePathIdSchema
 ): number | null {
-  const id = Number(req.params.id)
-  if (!Number.isFinite(id)) {
+  const parsed = schema.safeParse(req.params)
+  if (!parsed.success) {
     sendJsonError(res, 400, 'invalid_request', 'Invalid id', {
       reason: 'invalid_id',
     })
     return null
   }
-  return id
+  return parsed.data.id
 }
 
 export function createV1QnaMembersRouter() {
   const router = express.Router()
-  router.use(verifyGoApiJwt)
+  router.use(
+    verifyGoApiJwt({
+      secret: envVar.goApiJwt.secret,
+      issuer: envVar.goApiJwt.issuer,
+      audience: envVar.goApiJwt.audience,
+      onReject: (info, res) => {
+        emitStructured({
+          severity: 'WARNING',
+          message: 'Go API JWT request rejected',
+          goApiJwtAuthFailureReason: info.reason,
+          path: info.path,
+          method: info.method,
+          jwtLibraryErrorName: info.jwtLibraryErrorName,
+          ...res.locals?.globalLogFields,
+        })
+      },
+    })
+  )
 
   router.get(
     '/me/post-choice-answers',
@@ -158,7 +183,7 @@ export function createV1QnaMembersRouter() {
       const member = await requireMember(req, res)
       if (!member) return
 
-      const id = parseNumericIdParam(req, res)
+      const id = parsePathIdParam(req, res, V1PostChoiceAnswerPathIdSchema)
       if (id == null) return
 
       const parsed = V1PatchPostChoiceAnswerBodySchema.safeParse(req.body ?? {})
@@ -207,7 +232,7 @@ export function createV1QnaMembersRouter() {
       const member = await requireMember(req, res)
       if (!member) return
 
-      const id = parseNumericIdParam(req, res)
+      const id = parsePathIdParam(req, res, V1PostEssayAnswerPathIdSchema)
       if (id == null) return
 
       const parsed = V1PatchPostEssayAnswerBodySchema.safeParse(req.body ?? {})
@@ -258,7 +283,11 @@ export function createV1QnaMembersRouter() {
       const member = await requireMember(req, res)
       if (!member) return
 
-      const likeId = parseNumericIdParam(req, res)
+      const likeId = parsePathIdParam(
+        req,
+        res,
+        V1PostEssayAnswerLikePathIdSchema
+      )
       if (likeId == null) return
 
       const result = await deleteMemberEssayAnswerLike(member.id, likeId)

@@ -11,8 +11,6 @@ export const RestErrorCodeSchema = z.enum([
   'internal_server_error',
 ])
 
-export type RestErrorCode = z.infer<typeof RestErrorCodeSchema>
-
 export const RestErrorBodySchema = z.object({
   error: z.object({
     code: RestErrorCodeSchema,
@@ -21,8 +19,6 @@ export const RestErrorBodySchema = z.object({
     details: z.unknown().optional(),
   }),
 })
-
-export type RestErrorBody = z.infer<typeof RestErrorBodySchema>
 
 export const RestOkSchema = z.object({
   status: z.literal('success'),
@@ -46,5 +42,3 @@ export const RestEnvelopeSchema = z.union([
   RestFailSchema,
   RestErrorSchema,
 ])
-
-export type RestEnvelope = z.infer<typeof RestEnvelopeSchema>

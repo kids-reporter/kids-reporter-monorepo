@@ -1,81 +1,48 @@
 import {
-  GetMemberEssayAnswersHasLikedQuery,
-  GetMemberEssayAnswersHasLikedQueryVariables,
-  GetMemberPostsWithAnswersQueryVariables,
-} from '__generated__/operations/members.generated'
-
-import {
   getMemberEssayAnswersHasLikedContentApi,
   getMemberPostsWithAnswersContentApi,
 } from '@/api/content-api/member-activity'
-import type { GetMemberPostsWithAnswersQuerySchema } from '@/api/member-posts-with-answers-schema'
-import envVars from '@/environment-variables'
+import type {
+  MemberEssayAnswersHasLikedResponse,
+  MemberPostsWithAnswersPayload,
+  V1MemberPostsWithAnswersQuery,
+} from '@/types/api'
 import type { TraceHeaders } from '@/types/trace-headers'
-import { logContentApiFallback } from '@/utils/log-content-api-fallback'
-import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
-export type { GetMemberPostsWithAnswersQuerySchema } from '@/api/member-posts-with-answers-schema'
+export type { MemberPostsWithAnswersPayload }
 
 export const getMemberPostsWithAnswers = async (
-  variables: GetMemberPostsWithAnswersQueryVariables & { accessToken: string },
+  variables: V1MemberPostsWithAnswersQuery & { accessToken: string },
   traceHeaders?: TraceHeaders
-) => {
-  const { accessToken, ...restVariables } = variables
-  if (envVars.useContentApi) {
-    try {
-      return await getMemberPostsWithAnswersContentApi({
-        accessToken,
-        take: restVariables.take ?? undefined,
-        cursor: restVariables.nextCursor ?? undefined,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('getMemberPostsWithAnswers', err)
-    }
-  }
-  const response =
-    await sendRestGqlRequest<GetMemberPostsWithAnswersQuerySchema>({
-      operation: 'member-posts-with-answers',
-      method: 'GET',
-      variables: restVariables,
-      authToken: accessToken,
-      traceHeaders,
-    })
-  return response?.data?.data?.getMemberPostsWithAnswers
+): Promise<MemberPostsWithAnswersPayload | undefined> => {
+  const { accessToken, take, cursor } = variables
+  return getMemberPostsWithAnswersContentApi({
+    accessToken,
+    take: take ?? undefined,
+    cursor: cursor ?? undefined,
+    traceHeaders,
+  })
 }
 
 export const getMemberEssayAnswersHasLiked = async (
-  variables: GetMemberEssayAnswersHasLikedQueryVariables & {
+  variables: {
     accessToken: string
+    essayAnswerIds?: string[] | string | null
   },
   traceHeaders?: TraceHeaders
-) => {
-  const { accessToken, ...restVariables } = variables
-  if (envVars.useContentApi) {
-    try {
-      const rawIds = restVariables.essayAnswerIds
-      const essayAnswerIds = Array.isArray(rawIds)
-        ? rawIds
-        : rawIds != null
-          ? [rawIds]
-          : []
-      return await getMemberEssayAnswersHasLikedContentApi({
-        accessToken,
-        essayAnswerIds,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('getMemberEssayAnswersHasLiked', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetMemberEssayAnswersHasLikedQuery>(
-    {
-      operation: 'member-essay-answers-has-liked',
-      method: 'GET',
-      variables: restVariables,
-      authToken: accessToken,
-      traceHeaders,
-    }
-  )
-  return response?.data?.data?.getMemberEssayAnswersHasLiked
+): Promise<MemberEssayAnswersHasLikedResponse | undefined> => {
+  const { accessToken, essayAnswerIds: rawIds } = variables
+  const essayAnswerIds = Array.isArray(rawIds)
+    ? rawIds
+    : rawIds != null && rawIds !== ''
+      ? String(rawIds)
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : []
+  return getMemberEssayAnswersHasLikedContentApi({
+    accessToken,
+    essayAnswerIds,
+    traceHeaders,
+  })
 }

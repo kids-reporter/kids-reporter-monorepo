@@ -1,6 +1,5 @@
 'use client'
 
-import { PostEssayAnswer } from '__generated__/types'
 import { emitStructured } from '@kids-reporter/logger'
 import { useQueryClient } from '@tanstack/react-query'
 import errors from '@twreporter/errors'
@@ -22,13 +21,14 @@ import {
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import BaodaozaiQAModal from '@/services/call-baodaozai/components/qa-modal'
 import { CallBaodaozaiProvider } from '@/services/call-baodaozai/context'
+import type { MemberReadingEssayAnswer } from '@/types/api'
 
 function EssayAnswerItem({
   answer,
   postSlug,
   onBackToFirstPage,
 }: {
-  answer: PostEssayAnswer
+  answer: MemberReadingEssayAnswer
   postSlug: string
   onBackToFirstPage: (slug: string) => void
 }) {

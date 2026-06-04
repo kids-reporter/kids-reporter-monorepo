@@ -21,7 +21,6 @@ steps:
     entrypoint: bash
 
   # Build image
-  # TODO: Remove USE_CONTENT_API build toggle after the feature is finalized
   - name: gcr.io/cloud-builders/docker
     args:
       - '-c'
@@ -30,15 +29,6 @@ steps:
 
         cp yarn.lock packages/$_TARGET_PACKAGE
         cp .yarnrc.yml packages/$_TARGET_PACKAGE
-
-        if [[ "$_TARGET_PACKAGE" == "frontend" ]]; then
-          cp packages/cms/schema.graphql packages/frontend/schema.graphql
-          # Ensure the documents directory exists before copying so codegen has
-          # the expected workspace layout in Cloud Build.
-          mkdir -p packages/frontend/graphql/documents
-          # Copy shared GraphQL documents into the frontend package for build-time codegen.
-          cp -r packages/api-gateway/src/graphql/documents/* packages/frontend/graphql/documents/
-        fi
 
         cd packages/$_TARGET_PACKAGE
 
@@ -49,7 +39,6 @@ steps:
 
         DOCKER_BUILD_ARGS=(
           --build-arg "DEPLOYMENT_ID=${SHORT_SHA}"
-          --build-arg "USE_CONTENT_API=$_USE_CONTENT_API"
         )
 
         docker build -t \
@@ -115,4 +104,3 @@ substitutions:
   _ENV_FILE: '' # default value
   _DEPLOYMENT_TYPE: 'service' # default value
   _DOCKERFILE: 'Dockerfile' # default value
-  _USE_CONTENT_API: 'false' # default value

@@ -46,11 +46,7 @@ export default async function Topic({
     // Fetch projects of specific page
     getTopicProjectsPaged(
       {
-        orderBy: [
-          {
-            publishedDate: 'desc',
-          },
-        ],
+        orderBy: 'publishedDate:desc',
         take:
           currentPage === 1
             ? FIRST_PAGE_TOPIC_PER_PAGE
@@ -64,7 +60,7 @@ export default async function Topic({
       },
       traceHeaders
     ),
-    getCallBaodaozaiIntroContent({ where: { page: 'topics' } }, traceHeaders),
+    getCallBaodaozaiIntroContent({ page: 'topics' }, traceHeaders),
   ])
   if (projectsRes.status === 'rejected') {
     emitStructured({ severity: 'WARNING', message: 'Empty topic response!' })

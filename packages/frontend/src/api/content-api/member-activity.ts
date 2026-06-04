@@ -1,4 +1,4 @@
-import type { MemberPostsWithAnswersPayload } from '@/api/member-posts-with-answers-schema'
+import type { MemberPostsWithAnswersPayload } from '@/types/api'
 import type { TraceHeaders } from '@/types/trace-headers'
 import { sendContentApiRequest } from '@/utils/send-content-api'
 

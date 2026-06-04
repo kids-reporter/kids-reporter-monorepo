@@ -1,14 +1,11 @@
 'use client'
 
-import {
-  PostEssayAnswerOrderByInput,
-  PostOrderByInput,
-} from '__generated__/types'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 
 import { DEFAULT_PAGE_ITEM_COUNT } from '@/api-utils/react-query/constants'
 import { usePostsEssayAnswersWithLikesInfinityQuery } from '@/api-utils/react-query/hooks/post'
+import type { PostEssayAnswerOrderBy } from '@/types/api'
 
 import NavBar from './nav-bar'
 import PostAnswerCard from './post-answer-card'
@@ -38,20 +35,16 @@ function AllAnswers({ onOpenModal }: AllAnswersProps) {
     hasNextPage,
     fetchNextPage,
   } = usePostsEssayAnswersWithLikesInfinityQuery({
-    orderBy: [{ publishedDate: 'desc' }] as PostOrderByInput[],
+    orderBy: 'publishedDate:desc',
     take: DEFAULT_PAGE_ITEM_COUNT,
-    answerOrderBy: [{ likesCount: 'desc' }] as PostEssayAnswerOrderByInput[],
+    answerOrderBy: 'likesCount:desc' satisfies PostEssayAnswerOrderBy,
     answerTake: ANSWER_TAKE,
-    where: {
-      postEssayQuestions: {
-        some: {
-          answers: {
-            some: {},
-          },
-        },
-      },
-    },
-    select: transformInfinitePostsEssayAnswersWithLikesDataToPosts,
+    select:
+      transformInfinitePostsEssayAnswersWithLikesDataToPosts as NonNullable<
+        Parameters<
+          typeof usePostsEssayAnswersWithLikesInfinityQuery
+        >[0]['select']
+      >,
   })
 
   // IntersectionObserver to trigger fetchNextPage

@@ -16,7 +16,6 @@ import {
   useUploadMemberAvatarMutation,
 } from '@/api-utils/react-query/hooks/member-avatars'
 import { DEFAULT_TEXT_HOLDER } from '@/constants/input-field'
-import envVars from '@/environment-variables'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import { getFormattedDate } from '@/utils'
 
@@ -87,15 +86,6 @@ function Account() {
             file: avatarFileRef.current,
             fileName: data.name ?? '',
           })
-          // we don't have to delete old avatar in content-api since it's handled by the content-api server
-          if (!envVars.useContentApi) {
-            // delete old avatar
-            const oldAvatarId = member?.avatar?.id
-            if (oldAvatarId) {
-              await deleteMemberAvatar(oldAvatarId)
-            }
-          }
-
           avatarFileRef.current = null
         }
 

@@ -1,9 +1,10 @@
-import { Member } from '__generated__/types'
-
 import { DEFAULT_TEXT_HOLDER } from '@/constants/input-field'
+import type { QnaMemberPublic } from '@/types/api'
 import maskEmail from '@/utils/mask-email'
 
-type MemberDisplay = Partial<Pick<Member, 'nickname' | 'name' | 'email'>>
+type MemberDisplay = Partial<
+  Pick<QnaMemberPublic, 'nickname' | 'name' | 'email'>
+>
 
 export const getMemberDisplayName = (
   member: MemberDisplay | undefined,

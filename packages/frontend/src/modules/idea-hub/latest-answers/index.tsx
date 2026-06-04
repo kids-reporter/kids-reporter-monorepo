@@ -18,7 +18,7 @@ function LatestAnswers({ onOpenModal }: LatestAnswersProps) {
   const memberId = useAuthStore((s) => s.member?.id ?? '')
   const { data: latestEssayAnswers = [], isPending: isLoading } =
     useAllPostEssayAnswersQuery({
-      orderBy: [{ createdAt: 'desc' }],
+      orderBy: 'createdAt:desc',
       take: 3,
     })
 

@@ -36,7 +36,7 @@ extendZodWithOpenApi(z)
 
 const HealthOkWithTimestampSchema = z.object({ timestamp: z.string() })
 
-const MemberPostEssayAnswerInListSchema = z
+export const MemberPostEssayAnswerInListSchema = z
   .strictObject({
     id: z.string(),
     content: z.string(),
@@ -52,12 +52,12 @@ const MemberPostEssayAnswerInListSchema = z
   })
   .openapi('MemberPostEssayAnswerInList')
 
-const MemberPostChoiceOptionSchema = z.strictObject({
+export const MemberPostChoiceOptionSchema = z.strictObject({
   content: z.string(),
   isCorrectAnswer: z.boolean(),
 })
 
-const MemberPostChoiceAnswerInListSchema = z
+export const MemberPostChoiceAnswerInListSchema = z
   .strictObject({
     id: z.string(),
     choiceIndex: z.number().int(),
@@ -74,7 +74,7 @@ const MemberPostChoiceAnswerInListSchema = z
   })
   .openapi('MemberPostChoiceAnswerInList')
 
-const V1MemberPostsWithAnswersItemSchema = z
+export const V1MemberPostsWithAnswersItemSchema = z
   .object({
     id: z.string(),
     title: z.string(),

@@ -103,14 +103,8 @@ function useBatchSubmitAnswers({
                 return
               }
               await createPostEssayAnswer({
-                data: {
-                  question: {
-                    connect: {
-                      id: question.id,
-                    },
-                  },
-                  content: answers[index],
-                },
+                questionId: question.id,
+                content: answers[index],
               })
             }
             if (question.type === 'choice') {
@@ -128,14 +122,8 @@ function useBatchSubmitAnswers({
                 return
               }
               await createPostChoiceAnswer({
-                data: {
-                  question: {
-                    connect: {
-                      id: question.id,
-                    },
-                  },
-                  choiceIndex: parseInt(answers[index]),
-                },
+                questionId: question.id,
+                choiceIndex: parseInt(answers[index], 10),
               })
             }
           } catch (_err) {

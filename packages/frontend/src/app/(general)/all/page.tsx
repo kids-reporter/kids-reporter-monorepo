@@ -21,21 +21,12 @@ export default async function LatestPosts() {
   const [posts, introContent] = await Promise.all([
     getPostsPaged(
       {
-        orderBy: [
-          {
-            publishedDate: 'desc',
-          },
-        ],
+        orderBy: 'publishedDate:desc',
         take: POST_PER_PAGE,
       },
       traceHeaders
     ),
-    getCallBaodaozaiIntroContent(
-      {
-        where: { page: 'all' },
-      },
-      traceHeaders
-    ),
+    getCallBaodaozaiIntroContent({ page: 'all' }, traceHeaders),
   ])
 
   if (typeof posts === 'undefined') {

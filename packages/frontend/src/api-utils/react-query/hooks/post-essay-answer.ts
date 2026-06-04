@@ -1,8 +1,3 @@
-import {
-  CreatePostEssayAnswerMutationVariables,
-  UpdatePostEssayAnswerMutationVariables,
-} from '__generated__/operations/answers.generated'
-import { PostEssayAnswerOrderByInput } from '__generated__/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 
 import {
@@ -11,6 +6,10 @@ import {
   getPostEssayAnswersByMemberId,
   updatePostEssayAnswer,
 } from '@/api/post-essay-answer'
+import type {
+  V1AllPostEssayAnswersQuery,
+  V1CreatePostEssayAnswerBody,
+} from '@/types/api'
 
 const POST_ESSAY_ANSWERS_QUERY_KEY = 'post-essay-answers'
 
@@ -39,32 +38,24 @@ usePostEssayAnswersQuery.getQueryKey = ({
   postSlug?: string
 }) => [POST_ESSAY_ANSWERS_QUERY_KEY, memberId, postSlug ?? 'all-posts']
 
-export function useAllPostEssayAnswersQuery({
-  orderBy,
-  take,
-}: {
-  orderBy?: PostEssayAnswerOrderByInput[]
-  take?: number
-}) {
+export function useAllPostEssayAnswersQuery(
+  query?: Pick<V1AllPostEssayAnswersQuery, 'orderBy' | 'take'>
+) {
   return useQuery({
-    queryKey: useAllPostEssayAnswersQuery.getQueryKey({ orderBy, take }),
-    queryFn: () => getAllPostEssayAnswers(orderBy, take),
+    queryKey: useAllPostEssayAnswersQuery.getQueryKey(query),
+    queryFn: () => getAllPostEssayAnswers(query),
     staleTime: Infinity,
   })
 }
 
-useAllPostEssayAnswersQuery.getQueryKey = ({
-  orderBy,
-  take,
-}: {
-  orderBy?: PostEssayAnswerOrderByInput[]
-  take?: number
-}) => [
+useAllPostEssayAnswersQuery.getQueryKey = (
+  query?: Pick<V1AllPostEssayAnswersQuery, 'orderBy' | 'take'>
+) => [
   POST_ESSAY_ANSWERS_QUERY_KEY,
   'all-members',
   'all-posts',
-  ...(orderBy ? [orderBy] : []),
-  ...(take ? [take] : []),
+  query?.orderBy ?? 'createdAt:desc',
+  query?.take,
 ]
 
 export function useCreatePostEssayAnswerMutation({
@@ -73,8 +64,8 @@ export function useCreatePostEssayAnswerMutation({
   accessToken: string
 }) {
   return useMutation({
-    mutationFn: (variables: CreatePostEssayAnswerMutationVariables) =>
-      createPostEssayAnswer(variables, accessToken),
+    mutationFn: (body: V1CreatePostEssayAnswerBody) =>
+      createPostEssayAnswer(body, accessToken),
   })
 }
 
@@ -84,7 +75,9 @@ export function useUpdatePostEssayAnswerMutation({
   accessToken: string
 }) {
   return useMutation({
-    mutationFn: (variables: UpdatePostEssayAnswerMutationVariables) =>
-      updatePostEssayAnswer(variables, accessToken),
+    mutationFn: (variables: {
+      id: string | number
+      data: { content: string }
+    }) => updatePostEssayAnswer(variables, accessToken),
   })
 }

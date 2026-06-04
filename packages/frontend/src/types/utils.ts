@@ -1,4 +1,4 @@
-import { Maybe } from '__generated__/types'
+import { Maybe } from '@/types/api'
 
 export type DeepPartial<T> = T extends any[]
   ? DeepPartial<T[number]>[]

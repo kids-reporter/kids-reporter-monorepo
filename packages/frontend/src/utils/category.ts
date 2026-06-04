@@ -1,6 +1,5 @@
-import { CallBaodaozaiIntroPageType } from '__generated__/types'
-
 import { CategorySlug } from '@/types'
+import { CallBaodaozaiIntroPageType } from '@/types/api'
 
 const isValidPageNumber = (pageNumber: string): boolean => {
   return Number.isInteger(Number(pageNumber)) && Number(pageNumber) > 0

@@ -14,7 +14,7 @@ export const V1EssayAnswersHasLikedQuerySchema = z.object({
     ),
 })
 
-const V1EssayAnswersHasLikedItemSchema = z
+export const V1EssayAnswersHasLikedItemSchema = z
   .object({
     essayAnswerId: z
       .string()

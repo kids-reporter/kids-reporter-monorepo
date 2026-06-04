@@ -71,14 +71,8 @@ export default async function Author({ params }: { params: { slug: any } }) {
 
   const author = await getAuthorPostsBySlugPaged(
     {
-      where: {
-        slug: slug,
-      },
-      orderBy: [
-        {
-          publishedDate: 'desc',
-        },
-      ],
+      slug,
+      orderBy: 'publishedDate:desc',
       take: POST_PER_PAGE,
       skip: (currentPage - 1) * POST_PER_PAGE,
     },

@@ -1,99 +1,50 @@
 import {
-  GetCategoryMetadataQuery,
-  GetCategoryMetadataQueryVariables,
-  GetCategoryPostsQuery,
-  GetCategoryPostsQueryVariables,
-  GetCategorySubcategoriesAndThemeColorQuery,
-  GetCategorySubcategoriesAndThemeColorQueryVariables,
-} from '__generated__/operations/content.generated'
-
-import {
   getCategoryMetadataContentApi,
   getCategoryPostsContentApi,
   getCategorySubcategoriesThemeContentApi,
 } from '@/api/content-api/category-collection'
-import envVars from '@/environment-variables'
+import type {
+  CategoryMetadataResponse,
+  CategoryPostsResponse,
+  CategorySubcategoriesThemeResponse,
+  V1CategoryMetadataRequest,
+  V1CategoryPostsRequest,
+  V1CategorySubcategoriesThemeRequest,
+} from '@/types/api'
 import type { TraceHeaders } from '@/types/trace-headers'
-import { logContentApiFallback } from '@/utils/log-content-api-fallback'
-import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 
 export const getCategoryPosts = async (
-  variables: GetCategoryPostsQueryVariables,
+  variables: V1CategoryPostsRequest,
   traceHeaders?: TraceHeaders
-) => {
-  const slug = variables.where?.slug
-  if (envVars.useContentApi && slug) {
-    try {
-      return await getCategoryPostsContentApi({
-        slug,
-        take: variables.take ?? undefined,
-        skip: variables.skip ?? undefined,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('getCategoryPosts', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetCategoryPostsQuery>({
-    operation: 'category-posts',
-    method: 'GET',
-    variables,
+): Promise<CategoryPostsResponse | undefined> => {
+  const { slug, take, skip } = variables
+  if (!slug) return undefined
+  return getCategoryPostsContentApi({
+    slug,
+    take: take ?? undefined,
+    skip: skip ?? undefined,
     traceHeaders,
   })
-  return response?.data?.data?.category
 }
 
 export const getCategoryMetadata = async (
-  variables: GetCategoryMetadataQueryVariables,
+  variables: V1CategoryMetadataRequest,
   traceHeaders?: TraceHeaders
-) => {
-  const slug = variables.categoryWhere?.slug
-  const subRaw = variables.subcategoryWhere?.slug
-  const subcategorySlug =
-    subRaw && typeof subRaw === 'object' && 'equals' in subRaw
-      ? (subRaw as { equals?: string }).equals
-      : undefined
-  if (envVars.useContentApi && slug) {
-    try {
-      return await getCategoryMetadataContentApi({
-        slug,
-        subcategorySlug: subcategorySlug ?? undefined,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('getCategoryMetadata', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetCategoryMetadataQuery>({
-    operation: 'category-metadata',
-    method: 'GET',
-    variables,
+): Promise<CategoryMetadataResponse | undefined> => {
+  const { slug, subcategorySlug } = variables
+  if (!slug) return undefined
+  return getCategoryMetadataContentApi({
+    slug,
+    subcategorySlug: subcategorySlug ?? undefined,
     traceHeaders,
   })
-  return response?.data?.data?.category
 }
 
 export const getCategorySubcategoriesAndThemeColor = async (
-  variables: GetCategorySubcategoriesAndThemeColorQueryVariables,
+  variables: V1CategorySubcategoriesThemeRequest,
   traceHeaders?: TraceHeaders
-) => {
-  const slug = variables.where?.slug
-  if (envVars.useContentApi && slug) {
-    try {
-      return await getCategorySubcategoriesThemeContentApi({
-        slug,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('getCategorySubcategoriesAndThemeColor', err)
-    }
-  }
-  const response =
-    await sendRestGqlRequest<GetCategorySubcategoriesAndThemeColorQuery>({
-      operation: 'category-subcategories-and-theme-color',
-      method: 'GET',
-      variables,
-      traceHeaders,
-    })
-  return response?.data?.data?.category
+): Promise<CategorySubcategoriesThemeResponse | undefined> => {
+  const { slug } = variables
+  if (!slug) return undefined
+  return getCategorySubcategoriesThemeContentApi({ slug, traceHeaders })
 }

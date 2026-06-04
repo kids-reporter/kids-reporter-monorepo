@@ -69,8 +69,6 @@ export const PostContentSchema = z
   })
   .openapi('PostContent')
 
-export type PostContent = z.infer<typeof PostContentSchema>
-
 export const SubcategoryItemSchema = z
   .object({
     id: z.union([z.string(), z.number().int()]),

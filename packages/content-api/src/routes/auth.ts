@@ -1,3 +1,8 @@
+import { sendJsonError } from '@kids-reporter/content-api-kit'
+import {
+  type GoApiAccessTokenPayload,
+  verifyGoApiAccessToken,
+} from '@kids-reporter/content-api-kit/auth/go-api-jwt'
 import { prisma } from '@kids-reporter/db'
 import { emitStructured } from '@kids-reporter/logger'
 import axios from 'axios'
@@ -5,11 +10,6 @@ import express from 'express'
 
 import consts from '../constants.js'
 import envVar from '../environment-variables.js'
-import {
-  type GoApiAccessTokenPayload,
-  verifyGoApiAccessToken,
-} from '../go-api-jwt.js'
-import { sendJsonError } from '../utils/send-json-error.js'
 
 const statusCodes = consts.statusCodes
 
@@ -146,7 +146,11 @@ export function createAuthRouter({
 
         let decoded: GoApiAccessTokenPayload
         try {
-          decoded = verifyGoApiAccessToken(accessToken)
+          decoded = verifyGoApiAccessToken(accessToken, {
+            secret: envVar.goApiJwt.secret,
+            issuer: envVar.goApiJwt.issuer,
+            audience: envVar.goApiJwt.audience,
+          })
         } catch {
           emitStructured({
             severity: 'INFO',

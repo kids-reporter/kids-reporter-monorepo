@@ -1,18 +1,4 @@
 import {
-  GetLatestPostsQuery,
-  GetLatestPostsQueryVariables,
-  GetPostEssayQuestionsQuery,
-  GetPostMetaQuery,
-  GetPostMetaQueryVariables,
-  GetPostQuery,
-  GetPostQueryVariables,
-  GetPostsEssayAnswersWithLikesQuery,
-  GetPostsEssayAnswersWithLikesQueryVariables,
-  GetPostsQuery,
-  GetPostsQueryVariables,
-} from '__generated__/operations/content.generated'
-
-import {
   getLatestPostsContentApi,
   getPostContentApi,
   getPostEssayQuestionsByPostSlugContentApi,
@@ -20,98 +6,50 @@ import {
   getPostsEssayAnswersWithLikesContentApi,
   getPostsPagedContentApi,
 } from '@/api/content-api/post'
-import envVars from '@/environment-variables'
-import { firstOrderByEntry } from '@/utils/first-order-by'
-import { logContentApiFallback } from '@/utils/log-content-api-fallback'
-import { sendRestGqlRequest } from '@/utils/send-rest-gql'
+import type {
+  PostContent,
+  PostDetail,
+  PostEssayQuestionsDetail,
+  PostMeta,
+  PostsEssayAnswersWithLikesPost,
+  V1PostBySlugRequest,
+  V1PostMetaBySlugRequest,
+  V1PostsEssayAnswersWithLikesQuery,
+  V1PostsQuery,
+} from '@/types/api'
 
 export const getLatestPosts = async (
-  variables: GetLatestPostsQueryVariables,
+  variables: { take?: number | null },
   traceHeaders?: Record<string, string>
-) => {
-  if (envVars.useContentApi) {
-    try {
-      const posts = await getLatestPostsContentApi({
-        take: variables.take ?? undefined,
-        traceHeaders,
-      })
-      return posts as unknown as GetLatestPostsQuery['posts']
-    } catch (err) {
-      logContentApiFallback('getLatestPosts', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetLatestPostsQuery>({
-    operation: 'latest-posts',
-    method: 'GET',
-    variables,
+): Promise<PostContent[] | undefined> => {
+  return getLatestPostsContentApi({
+    take: variables.take ?? undefined,
     traceHeaders,
   })
-  return response?.data?.data?.posts
 }
 
 export const getPost = async (
-  variables: GetPostQueryVariables,
+  variables: V1PostBySlugRequest,
   traceHeaders?: Record<string, string>
-) => {
-  if (envVars.useContentApi) {
-    try {
-      return await getPostContentApi({ variables, traceHeaders })
-    } catch (err) {
-      logContentApiFallback('getPost', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetPostQuery>({
-    operation: 'post-detail',
-    method: 'GET',
-    variables,
-    traceHeaders,
-  })
-  return response?.data?.data?.post
+): Promise<PostDetail | undefined> => {
+  return getPostContentApi({ variables, traceHeaders })
 }
 
 export const getPostMeta = async (
-  variables: GetPostMetaQueryVariables,
+  variables: V1PostMetaBySlugRequest,
   traceHeaders?: Record<string, string>
-): Promise<GetPostMetaQuery['post']> => {
-  if (envVars.useContentApi) {
-    try {
-      return await getPostMetaContentApi({ variables, traceHeaders })
-    } catch (err) {
-      logContentApiFallback('getPostMeta', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetPostMetaQuery>({
-    operation: 'post-meta',
-    method: 'GET',
-    variables,
-    traceHeaders,
-  })
-  return response?.data?.data?.post
+): Promise<PostMeta | undefined> => {
+  return getPostMetaContentApi({ variables, traceHeaders })
 }
 
 export const getPostsEssayAnswersWithLikes = async (
-  variables: GetPostsEssayAnswersWithLikesQueryVariables,
+  variables: V1PostsEssayAnswersWithLikesQuery,
   traceHeaders?: Record<string, string>
-) => {
-  if (envVars.useContentApi) {
-    try {
-      return await getPostsEssayAnswersWithLikesContentApi({
-        variables,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('getPostsEssayAnswersWithLikes', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetPostsEssayAnswersWithLikesQuery>(
-    {
-      operation: 'posts-essay-answers-with-likes',
-      method: 'GET',
-      variables,
-      traceHeaders,
-    }
-  )
-  return response?.data?.data?.posts
+): Promise<PostsEssayAnswersWithLikesPost[] | undefined> => {
+  return getPostsEssayAnswersWithLikesContentApi({
+    variables,
+    traceHeaders,
+  })
 }
 
 export const getPostEssayQuestionsByPostSlug = async ({
@@ -120,58 +58,21 @@ export const getPostEssayQuestionsByPostSlug = async ({
 }: {
   slug: string
   traceHeaders?: Record<string, string>
-}) => {
-  if (envVars.useContentApi) {
-    try {
-      return await getPostEssayQuestionsByPostSlugContentApi({
-        slug,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('getPostEssayQuestionsByPostSlug', err)
-    }
-  }
-  const response = await sendRestGqlRequest<GetPostEssayQuestionsQuery>({
-    operation: 'post-essay-questions',
-    method: 'GET',
-    variables: { where: { slug } },
-    traceHeaders,
-  })
-  return response?.data?.data?.post
+}): Promise<PostEssayQuestionsDetail | undefined> => {
+  return getPostEssayQuestionsByPostSlugContentApi({ slug, traceHeaders })
 }
 
 export const getPostsPaged = async (
-  variables: GetPostsQueryVariables,
+  variables: V1PostsQuery,
   traceHeaders?: Record<string, string>
-) => {
-  if (envVars.useContentApi) {
-    try {
-      const order = firstOrderByEntry(variables.orderBy ?? undefined)
-      const orderSupported =
-        !order ||
-        (order.publishedDate === 'desc' &&
-          !order.id &&
-          !order.title &&
-          !order.slug)
-
-      if (orderSupported) {
-        const posts = await getPostsPagedContentApi({
-          take: variables.take ?? undefined,
-          skip: variables.skip ?? undefined,
-          traceHeaders,
-        })
-        return posts as unknown as GetPostsQuery['posts']
-      }
-    } catch (err) {
-      logContentApiFallback('getPostsPaged', err)
-    }
+): Promise<PostContent[] | undefined> => {
+  if (variables.orderBy != null && variables.orderBy !== 'publishedDate:desc') {
+    return undefined
   }
 
-  const postsRes = await sendRestGqlRequest<GetPostsQuery>({
-    operation: 'posts-paged',
-    method: 'GET',
-    variables,
+  return getPostsPagedContentApi({
+    take: variables.take ?? undefined,
+    skip: variables.skip ?? undefined,
     traceHeaders,
   })
-  return postsRes?.data?.data?.posts
 }

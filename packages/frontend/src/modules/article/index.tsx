@@ -1,6 +1,5 @@
 'use client'
 
-import { GetPostQuery } from '__generated__/operations/content.generated'
 import {
   HeaderPostTitleSetter,
   ScrollLevel,
@@ -8,6 +7,7 @@ import {
   useMediaQuery,
   useScrollLevel,
 } from '@kids-reporter/routing-ui'
+import type { RawDraftContentState } from 'draft-js'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -29,6 +29,7 @@ import {
   BaodaozaiVisibilitySetter,
   QAModalEvent,
 } from '@/services/call-baodaozai'
+import { PostDetail } from '@/types/api'
 import getLoginUrl from '@/utils/get-login-url'
 
 import SupportAction from '../../components/support-action'
@@ -52,13 +53,7 @@ import parsePostToContent from './utils/parse-post-to-content'
 import parseTocIndexesFromEntityMap from './utils/parse-toc-indexes-from-entity-map'
 import trimEmptyBlocks from './utils/trim-empty-blocks'
 
-const ArticleModule = ({
-  post,
-  slug,
-}: {
-  post: NonNullable<GetPostQuery['post']>
-  slug: string
-}) => {
+const ArticleModule = ({ post, slug }: { post: PostDetail; slug: string }) => {
   const {
     topicURL,
     mainTopic,
@@ -155,7 +150,7 @@ const ArticleModule = ({
         id: question.id,
         title: question.title ?? '',
         options: question.options as BaodaozaiChoiceQuestion['options'],
-        reason: question.reason ?? '',
+        reason: String(question.reason ?? ''),
         type: 'choice',
       })
     )
@@ -222,9 +217,17 @@ const ArticleModule = ({
 
   const isScrollingDown = scrollingLevel === ScrollLevel.DOWN_HIDDEN
 
+  const postContent = post.content as RawDraftContentState | undefined
+  const postBrief = post.brief as RawDraftContentState | undefined
+
   const tocIndexes = useMemo(
-    () => parseTocIndexesFromEntityMap(post.content?.entityMap),
-    [post.content?.entityMap]
+    () =>
+      parseTocIndexesFromEntityMap(
+        postContent?.entityMap as Parameters<
+          typeof parseTocIndexesFromEntityMap
+        >[0]
+      ),
+    [postContent?.entityMap]
   )
 
   const keywords = useMemo(() => {
@@ -242,8 +245,8 @@ const ArticleModule = ({
   }, [])
 
   const trimmedBrief = useMemo(() => {
-    return trimEmptyBlocks(post?.brief ?? { blocks: [], entityMap: {} })
-  }, [post?.brief])
+    return trimEmptyBlocks(postBrief ?? { blocks: [], entityMap: {} })
+  }, [postBrief])
 
   return (
     <>
@@ -292,7 +295,7 @@ const ArticleModule = ({
                 fontSizeLevel: fontSize,
               }}
               title={post?.title ?? ''}
-              subtitle={post?.subtitle}
+              subtitle={post?.subtitle ?? undefined}
               fontSizeLevel={fontSize}
             />
             {post?.newsReadingGroup && (
@@ -332,7 +335,7 @@ const ArticleModule = ({
 
             <div className="relative w-full">
               <PostRenderer
-                content={post?.content ?? { blocks: [], entityMap: {} }}
+                content={postContent ?? { blocks: [], entityMap: {} }}
                 shouldMount={isMounted}
               />
               <div className="absolute top-[calc(25%+50vh)]">

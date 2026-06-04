@@ -1,10 +1,3 @@
-import { GetPostsEssayAnswersWithLikesQuery } from '__generated__/operations/content.generated'
-import {
-  CategoryWhereUniqueInput,
-  PostEssayAnswerOrderByInput,
-  PostOrderByInput,
-  PostWhereInput,
-} from '__generated__/types'
 import { InfiniteData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import { getCategoryPosts } from '@/api/category'
@@ -13,32 +6,36 @@ import {
   getPostsEssayAnswersWithLikes,
 } from '@/api/post'
 import { PostWithTwoTopLikesAnswersPerQuestion } from '@/modules/idea-hub/types'
+import type {
+  PostEssayAnswerOrderBy,
+  PostOrderBy,
+  PostsEssayAnswersWithLikesPost,
+  V1CategoryPostsRequest,
+  V1PostsEssayAnswersWithLikesQuery,
+} from '@/types/api'
 
 const POSTS_ESSAY_ANSWERS_WITH_LIKES_QUERY_KEY =
   'posts-essay-answers-with-likes'
 
 export function usePostsEssayAnswersWithLikesInfinityQuery({
-  orderBy,
+  orderBy = 'publishedDate:desc',
   take,
   answerOrderBy,
   answerTake,
-  where,
   select,
 }: {
-  orderBy: PostOrderByInput[]
+  orderBy?: PostOrderBy
   take: number
-  answerOrderBy: PostEssayAnswerOrderByInput[]
+  answerOrderBy: PostEssayAnswerOrderBy
   answerTake: number
-  where: PostWhereInput
   select?: (
-    data: InfiniteData<GetPostsEssayAnswersWithLikesQuery['posts']>
+    data: InfiniteData<PostsEssayAnswersWithLikesPost[] | undefined>
   ) => PostWithTwoTopLikesAnswersPerQuestion['posts']
 }) {
   return useInfiniteQuery({
     queryKey: usePostsEssayAnswersWithLikesInfinityQuery.getQueryKey({
       orderBy,
       take,
-      where,
       answerOrderBy,
       answerTake,
     }),
@@ -49,7 +46,6 @@ export function usePostsEssayAnswersWithLikesInfinityQuery({
         skip: pageParam,
         answerOrderBy,
         answerTake,
-        where,
       }),
     getNextPageParam: (lastPage, _, lastPageParam) => {
       const hasNextPage = (lastPage?.length ?? 0) === take
@@ -64,20 +60,15 @@ export function usePostsEssayAnswersWithLikesInfinityQuery({
 usePostsEssayAnswersWithLikesInfinityQuery.getQueryKey = ({
   orderBy,
   take,
-  where,
   answerOrderBy,
   answerTake,
-}: {
-  orderBy: PostOrderByInput[]
-  take: number
-  where: PostWhereInput
-  answerOrderBy: PostEssayAnswerOrderByInput[]
-  answerTake: number
-}) => [
+}: Pick<
+  V1PostsEssayAnswersWithLikesQuery,
+  'orderBy' | 'take' | 'answerOrderBy' | 'answerTake'
+>) => [
   POSTS_ESSAY_ANSWERS_WITH_LIKES_QUERY_KEY,
   orderBy,
   take,
-  where,
   answerOrderBy,
   answerTake,
 ]
@@ -106,26 +97,23 @@ usePostEssayQuestionsByPostSlugQuery.getQueryKey = ({
 const CATEGORY_POSTS_QUERY_KEY = 'category-posts'
 
 export function useCategoryPostsQuery({
-  where,
+  slug,
   take,
   skip,
-}: {
-  where: CategoryWhereUniqueInput
-  take: number
-  skip: number
-}) {
+}: V1CategoryPostsRequest & { take: number; skip: number }) {
   return useQuery({
-    queryKey: useCategoryPostsQuery.getQueryKey({ where, take, skip }),
-    queryFn: () => getCategoryPosts({ where, take, skip }),
+    queryKey: useCategoryPostsQuery.getQueryKey({ slug, take, skip }),
+    queryFn: () => getCategoryPosts({ slug, take, skip }),
   })
 }
 
 useCategoryPostsQuery.getQueryKey = ({
-  where,
+  slug,
   take,
   skip,
-}: {
-  where: CategoryWhereUniqueInput
-  take: number
-  skip: number
-}) => [CATEGORY_POSTS_QUERY_KEY, where, take, skip]
+}: V1CategoryPostsRequest & { take: number; skip: number }) => [
+  CATEGORY_POSTS_QUERY_KEY,
+  slug,
+  take,
+  skip,
+]

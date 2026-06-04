@@ -1,10 +1,11 @@
-import { GetPostsEssayAnswersWithLikesQuery } from '__generated__/operations/content.generated'
 import { InfiniteData } from '@tanstack/react-query'
+
+import type { PostsEssayAnswersWithLikesPost } from '@/types/api'
 
 import { PostWithTwoTopLikesAnswersPerQuestion } from '../types'
 
 export function transformInfinitePostsEssayAnswersWithLikesDataToPosts(
-  data: InfiniteData<GetPostsEssayAnswersWithLikesQuery['posts']>
+  data: InfiniteData<PostsEssayAnswersWithLikesPost[]>
 ): PostWithTwoTopLikesAnswersPerQuestion['posts'] {
   if (!data?.pages) return []
   const allPosts: PostWithTwoTopLikesAnswersPerQuestion['posts'] = []
