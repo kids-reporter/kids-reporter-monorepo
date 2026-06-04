@@ -9,7 +9,6 @@ const internalContentApiEndpoint =
   process.env.INTERNAL_CONTENT_API_ENDPOINT || contentApiEndpoint
 
 const isProduction = process.env.NEXT_PUBLIC_RELEASE_ENV === 'prod'
-const isStaging = process.env.NEXT_PUBLIC_RELEASE_ENV === 'staging'
 
 const searchAPIKey = process.env.SEARCH_API_KEY || ''
 const searchEngineID = process.env.SEARCH_ENGINE_ID || ''
@@ -41,7 +40,6 @@ const environmentVariables = {
   internalContentApiEndpoint,
   contentApiEndpoint,
   isProduction,
-  isStaging,
   searchAPIKey,
   searchEngineID,
   mockIdToken,
