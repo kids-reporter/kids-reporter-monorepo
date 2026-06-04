@@ -84,11 +84,9 @@ Disallow: /
 User-agent: magpie-crawler
 Disallow: /
 
-User-agent: Meta-ExternalAgent
 User-agent: meta-externalagent
 Disallow: /
 
-User-agent: Meta-ExternalFetcher
 User-agent: meta-externalfetcher
 Disallow: /
 
