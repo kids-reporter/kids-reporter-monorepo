@@ -1,14 +1,14 @@
-import type {
-  GetProjectMetaQuery,
-  GetProjectQuery,
-  GetProjectRelatedPostsCountQuery,
-} from '__generated__/operations/content.generated'
 import {
   V1ProjectBySlugDetailResponseSchema,
   V1ProjectBySlugMetaResponseSchema,
   V1ProjectRelatedPostsCountResponseSchema,
 } from '@kids-reporter/api-types'
 
+import type {
+  ProjectDetail,
+  ProjectMeta,
+  ProjectRelatedPostsCount,
+} from '@/types/api'
 import {
   ContentApiRequestError,
   contentApiResponseParseError,
@@ -21,7 +21,7 @@ export async function getProjectMetaContentApi({
 }: {
   slug: string
   traceHeaders?: Headers | Record<string, string | undefined>
-}): Promise<GetProjectMetaQuery['project'] | undefined> {
+}): Promise<ProjectMeta | undefined> {
   try {
     const response = await sendContentApiRequest({
       path: `/v1/projects/${encodeURIComponent(slug)}/meta`,
@@ -38,10 +38,10 @@ export async function getProjectMetaContentApi({
     const m = parsed.data
     return {
       publishedDate: m.publishedDate,
-      ogDescription: m.ogDescription ?? undefined,
+      ogDescription: m.ogDescription ?? null,
       ogTitle: m.ogTitle,
-      ogImage: m.ogImage ?? undefined,
-    } as GetProjectMetaQuery['project']
+      ogImage: m.ogImage ?? null,
+    }
   } catch (e) {
     if (e instanceof ContentApiRequestError && e.status === 404) {
       return undefined
@@ -56,7 +56,7 @@ export async function getProjectDetailContentApi({
 }: {
   slug: string
   traceHeaders?: Headers | Record<string, string | undefined>
-}): Promise<GetProjectQuery['project'] | undefined> {
+}): Promise<ProjectDetail | undefined> {
   try {
     const response = await sendContentApiRequest({
       path: `/v1/projects/${encodeURIComponent(slug)}`,
@@ -70,7 +70,7 @@ export async function getProjectDetailContentApi({
         parsed.error
       )
     }
-    return parsed.data as GetProjectQuery['project']
+    return parsed.data
   } catch (e) {
     if (e instanceof ContentApiRequestError && e.status === 404) {
       return undefined
@@ -85,7 +85,7 @@ export async function getProjectRelatedPostsCountContentApi({
 }: {
   slug: string
   traceHeaders?: Headers | Record<string, string | undefined>
-}): Promise<GetProjectRelatedPostsCountQuery['project'] | undefined> {
+}): Promise<ProjectRelatedPostsCount | undefined> {
   try {
     const response = await sendContentApiRequest({
       path: `/v1/projects/${encodeURIComponent(slug)}/related-posts-count`,
@@ -101,7 +101,7 @@ export async function getProjectRelatedPostsCountContentApi({
     }
     return {
       relatedPostsCount: parsed.data.relatedPostsCount,
-    } as GetProjectRelatedPostsCountQuery['project']
+    }
   } catch (e) {
     if (e instanceof ContentApiRequestError && e.status === 404) {
       return undefined

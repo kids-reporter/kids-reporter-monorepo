@@ -1,13 +1,4 @@
 import {
-  GetPostEssayQuestionsQuery,
-  GetPostMetaQuery,
-  GetPostMetaQueryVariables,
-  GetPostQuery,
-  GetPostQueryVariables,
-  GetPostsEssayAnswersWithLikesQuery,
-  GetPostsEssayAnswersWithLikesQueryVariables,
-} from '__generated__/operations/content.generated'
-import {
   V1PostDetailBodySchema,
   V1PostEssayQuestionsBodySchema,
   V1PostMetaBodySchema,
@@ -15,6 +6,15 @@ import {
   V1PostsResponseSchema,
 } from '@kids-reporter/api-types'
 
+import type {
+  PostDetail,
+  PostEssayQuestionsDetail,
+  PostMeta,
+  PostsEssayAnswersWithLikesPost,
+  V1PostBySlugRequest,
+  V1PostMetaBySlugRequest,
+  V1PostsEssayAnswersWithLikesQuery,
+} from '@/types/api'
 import {
   ContentApiRequestError,
   contentApiResponseParseError,
@@ -73,46 +73,26 @@ export async function getPostsPagedContentApi({
   return fetchPostsV1({ take, skip, traceHeaders })
 }
 
-function postSlugFromWhere(where: GetPostQueryVariables['where']): string {
-  const slug =
-    where && typeof where === 'object' && 'slug' in where
-      ? (where as { slug?: string }).slug
-      : undefined
-  if (typeof slug !== 'string' || !slug) {
-    throw new Error('content-api getPost requires where.slug')
-  }
-  return slug
-}
-
-function postSlugFromMetaWhere(
-  where: GetPostMetaQueryVariables['where']
-): string {
-  const slug =
-    where && typeof where === 'object' && 'slug' in where
-      ? (where as { slug?: string }).slug
-      : undefined
-  if (typeof slug !== 'string' || !slug) {
-    throw new Error('content-api getPostMeta requires where.slug')
-  }
-  return slug
-}
-
 export async function getPostContentApi({
   variables,
   traceHeaders,
 }: {
-  variables: GetPostQueryVariables
+  variables: V1PostBySlugRequest
   traceHeaders?: Record<string, string>
-}) {
-  const slug = postSlugFromWhere(variables.where)
+}): Promise<PostDetail | undefined> {
+  const { slug, take, postEssayQuestionsTake, postChoiceQuestionsTake } =
+    variables
+  if (!slug) {
+    throw new Error('content-api getPost requires slug')
+  }
   try {
     const response = await sendContentApiRequest({
       path: `/v1/posts/${encodeURIComponent(slug)}`,
       method: 'GET',
       query: {
-        take: variables.take ?? undefined,
-        postEssayQuestionsTake: variables.postEssayQuestionsTake ?? undefined,
-        postChoiceQuestionsTake: variables.postChoiceQuestionsTake ?? undefined,
+        take: take ?? undefined,
+        postEssayQuestionsTake: postEssayQuestionsTake ?? undefined,
+        postChoiceQuestionsTake: postChoiceQuestionsTake ?? undefined,
       },
       traceHeaders,
     })
@@ -123,7 +103,7 @@ export async function getPostContentApi({
         parsed.error
       )
     }
-    return parsed.data as GetPostQuery['post']
+    return parsed.data
   } catch (e) {
     if (e instanceof ContentApiRequestError && e.status === 404) {
       return undefined
@@ -136,10 +116,13 @@ export async function getPostMetaContentApi({
   variables,
   traceHeaders,
 }: {
-  variables: GetPostMetaQueryVariables
+  variables: V1PostMetaBySlugRequest
   traceHeaders?: Record<string, string>
-}) {
-  const slug = postSlugFromMetaWhere(variables.where)
+}): Promise<PostMeta | undefined> {
+  const { slug } = variables
+  if (!slug) {
+    throw new Error('content-api getPostMeta requires slug')
+  }
   try {
     const response = await sendContentApiRequest({
       path: `/v1/posts/${encodeURIComponent(slug)}/meta`,
@@ -153,7 +136,7 @@ export async function getPostMetaContentApi({
         parsed.error
       )
     }
-    return parsed.data as GetPostMetaQuery['post']
+    return parsed.data
   } catch (e) {
     if (e instanceof ContentApiRequestError && e.status === 404) {
       return undefined
@@ -162,37 +145,22 @@ export async function getPostMetaContentApi({
   }
 }
 
-function essayAnswerOrderByToFlat(
-  orderBy: GetPostsEssayAnswersWithLikesQueryVariables['answerOrderBy']
-): 'likesCount:desc' | 'createdAt:desc' {
-  const first = Array.isArray(orderBy) ? orderBy[0] : orderBy
-  if (
-    first &&
-    typeof first === 'object' &&
-    'likesCount' in first &&
-    first.likesCount === 'desc'
-  ) {
-    return 'likesCount:desc'
-  }
-  return 'createdAt:desc'
-}
-
 export async function getPostsEssayAnswersWithLikesContentApi({
   variables,
   traceHeaders,
 }: {
-  variables: GetPostsEssayAnswersWithLikesQueryVariables
+  variables: V1PostsEssayAnswersWithLikesQuery
   traceHeaders?: Record<string, string>
-}) {
+}): Promise<PostsEssayAnswersWithLikesPost[] | undefined> {
   const response = await sendContentApiRequest({
     path: '/v1/posts/essay-answers-with-likes',
     method: 'GET',
     query: {
       take: variables.take ?? undefined,
       skip: variables.skip ?? undefined,
-      orderBy: 'publishedDate:desc',
+      orderBy: variables.orderBy ?? 'publishedDate:desc',
       answerTake: variables.answerTake ?? undefined,
-      answerOrderBy: essayAnswerOrderByToFlat(variables.answerOrderBy),
+      answerOrderBy: variables.answerOrderBy ?? 'likesCount:desc',
     },
     traceHeaders,
   })
@@ -203,7 +171,7 @@ export async function getPostsEssayAnswersWithLikesContentApi({
       parsed.error
     )
   }
-  return parsed.data as GetPostsEssayAnswersWithLikesQuery['posts']
+  return parsed.data
 }
 
 export async function getPostEssayQuestionsByPostSlugContentApi({
@@ -212,7 +180,7 @@ export async function getPostEssayQuestionsByPostSlugContentApi({
 }: {
   slug: string
   traceHeaders?: Record<string, string>
-}) {
+}): Promise<PostEssayQuestionsDetail | undefined> {
   try {
     const response = await sendContentApiRequest({
       path: `/v1/posts/${encodeURIComponent(slug)}/essay-questions`,
@@ -226,7 +194,7 @@ export async function getPostEssayQuestionsByPostSlugContentApi({
         parsed.error
       )
     }
-    return parsed.data as GetPostEssayQuestionsQuery['post']
+    return parsed.data
   } catch (e) {
     if (e instanceof ContentApiRequestError && e.status === 404) {
       return undefined

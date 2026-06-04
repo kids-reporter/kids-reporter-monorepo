@@ -5,7 +5,7 @@ import baseConfig from './eslint.base.config.mjs'
 export default [
   ...baseConfig,
   {
-    files: ['packages/**/*.{js,ts}'],
+    files: ['packages/**/*.{js,ts}', 'scripts/**/*.{js,mjs}'],
     languageOptions: {
       globals: {
         ...globals.es2022,

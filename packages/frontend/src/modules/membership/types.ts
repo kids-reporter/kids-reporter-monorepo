@@ -1,11 +1,15 @@
-import { PostChoiceAnswer, PostEssayAnswer } from '__generated__/types'
 import { z } from 'zod'
+
+import {
+  MemberReadingChoiceAnswer,
+  MemberReadingEssayAnswer,
+} from '@/types/api'
 
 export type PostQuestionAnswers = {
   title: string
   slug: string
   href: string
-  answers: (PostChoiceAnswer | PostEssayAnswer)[]
+  answers: (MemberReadingChoiceAnswer | MemberReadingEssayAnswer)[]
   lastAnsweredTime: string
 }[]
 

@@ -2,16 +2,12 @@ import {
   V1MemberProfilePatchBodySchema,
   V1MemberProfileResponseSchema,
 } from '@kids-reporter/api-types'
-import type { z } from 'zod'
 
+import type { MemberProfilePatch } from '@/types/api'
 import {
   contentApiResponseParseError,
   sendContentApiRequest,
 } from '@/utils/send-content-api'
-
-export type MemberProfilePatchBody = z.infer<
-  typeof V1MemberProfilePatchBodySchema
->
 
 export async function getMemberProfileMeContentApi({
   accessToken,
@@ -45,7 +41,7 @@ export async function updateMemberProfileMeContentApi({
   traceHeaders,
 }: {
   accessToken: string
-  data: MemberProfilePatchBody
+  data: MemberProfilePatch
   traceHeaders?: Record<string, string>
 }) {
   const body = V1MemberProfilePatchBodySchema.parse(data)

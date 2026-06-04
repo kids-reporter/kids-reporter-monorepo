@@ -8,12 +8,7 @@ import { getServerTraceHeaders } from '@/utils/trace-context'
 async function PostPage({ params }: { params: { postSlug: string } }) {
   const { postSlug } = params
   const traceHeaders = getServerTraceHeaders(headers())
-  const post = await getPostMeta(
-    {
-      where: { slug: postSlug },
-    },
-    traceHeaders
-  )
+  const post = await getPostMeta({ slug: postSlug }, traceHeaders)
 
   if (!post) {
     emitStructured({

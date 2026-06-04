@@ -1,10 +1,7 @@
-import {
-  UpdateMemberProfileMutation,
-  UpdateMemberProfileMutationVariables,
-} from '__generated__/operations/members.generated'
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
 
 import { updateMemberProfile } from '@/api/member'
+import type { MemberProfile, MemberProfilePatch } from '@/types/api'
 
 export const useUpdateMemberProfileMutation = ({
   accessToken,
@@ -14,15 +11,14 @@ export const useUpdateMemberProfileMutation = ({
   accessToken: string
   memberId: string
   options?: UseMutationOptions<
-    UpdateMemberProfileMutation | undefined,
+    MemberProfile | undefined,
     Error,
-    Pick<UpdateMemberProfileMutationVariables, 'data'>
+    Pick<{ data: MemberProfilePatch }, 'data'>
   >
 }) => {
   return useMutation({
-    mutationFn: (
-      variables: Pick<UpdateMemberProfileMutationVariables, 'data'>
-    ) => updateMemberProfile({ memberId, accessToken, data: variables.data }),
+    mutationFn: (variables: Pick<{ data: MemberProfilePatch }, 'data'>) =>
+      updateMemberProfile({ memberId, accessToken, data: variables.data }),
     ...options,
   })
 }

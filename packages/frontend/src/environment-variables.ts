@@ -8,8 +8,6 @@ const contentApiEndpoint =
 const internalContentApiEndpoint =
   process.env.INTERNAL_CONTENT_API_ENDPOINT || contentApiEndpoint
 
-const useContentApi = process.env.NEXT_PUBLIC_USE_CONTENT_API === 'true'
-
 const isProduction = process.env.NEXT_PUBLIC_RELEASE_ENV === 'prod'
 
 const searchAPIKey = process.env.SEARCH_API_KEY || ''
@@ -41,7 +39,6 @@ const environmentVariables = {
   apiGatewayEndpoint,
   internalContentApiEndpoint,
   contentApiEndpoint,
-  useContentApi,
   isProduction,
   searchAPIKey,
   searchEngineID,

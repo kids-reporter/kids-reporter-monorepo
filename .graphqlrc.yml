@@ -1,6 +1,5 @@
 schema: packages/cms/schema.graphql
 documents:
-  - packages/frontend/src/**/*.{ts,tsx,js,jsx}
   - packages/cms/**/*.{ts,tsx,js,jsx}
   - '**/*.graphql'
   - '**/*.gql'

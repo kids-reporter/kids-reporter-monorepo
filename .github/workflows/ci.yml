@@ -45,7 +45,7 @@ jobs:
       - name: Lint check
         run: yarn lint:check
 
-  content-api-test:
+  test:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -75,8 +75,8 @@ jobs:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/kids_reporter_test?schema=public
         run: yarn workspace @kids-reporter/cms db-migrate
 
-      - name: Run content-api Vitest suite
+      - name: Run all workspace tests
         env:
           CI: 'true'
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/kids_reporter_test?schema=public
-        run: yarn workspace @kids-reporter/content-api test
+        run: yarn test

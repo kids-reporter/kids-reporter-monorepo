@@ -1,6 +1,5 @@
 'use client'
 
-import { PostEssayAnswerOrderByInput } from '__generated__/types'
 import { cn, useMediaQuery } from '@kids-reporter/routing-ui'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -15,6 +14,7 @@ import Divider from '@/components/divider'
 import useDebounceValue from '@/hooks/use-debounce-value'
 import { LightbulbIcon } from '@/icons/miscellaneous'
 import { useAuthStore } from '@/services/auth/auth-store'
+import type { PostEssayAnswerOrderBy } from '@/types/api'
 
 import ModalAnswerItem, { QUESTION_ANSWER_ITEM_TAKE } from './modal-answer-item'
 import ModalAnswerItemSkeleton from './modal-answer-item-skeleton'
@@ -39,7 +39,7 @@ function ModalQuestionCard({
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     usePostEssayQuestionEssayAnswersInfinityQuery({
       questionId,
-      answerOrderBy: [{ createdAt: 'desc' }],
+      answerOrderBy: ['createdAt:desc'],
       answerTake: QUESTION_ANSWER_ITEM_TAKE,
     })
 
@@ -70,7 +70,7 @@ function ModalQuestionCard({
     return map
   }, [hasLikedData])
 
-  const answerOrderBy: PostEssayAnswerOrderByInput[] = [{ createdAt: 'desc' }]
+  const answerOrderBy: PostEssayAnswerOrderBy[] = ['createdAt:desc']
 
   const isTablet = useMediaQuery('(min-width: 768px)')
   const loadMoreRef = useRef<HTMLDivElement>(null)

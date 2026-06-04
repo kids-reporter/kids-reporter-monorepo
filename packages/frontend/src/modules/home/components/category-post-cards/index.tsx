@@ -25,7 +25,7 @@ function CategoryPostCards({
   isLast,
 }: CategoryPostsProps) {
   const { data, isLoading } = useCategoryPostsQuery({
-    where: { slug: category },
+    slug: category,
     take: CATEGORY_POSTS_TAKE,
     skip: 0,
   })

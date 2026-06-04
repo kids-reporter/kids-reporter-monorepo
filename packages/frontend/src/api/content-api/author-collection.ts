@@ -1,4 +1,3 @@
-import type { GetAuthorPostsCountQuery } from '__generated__/operations/content.generated'
 import {
   V1AuthorBySlugMetaResponseSchema,
   V1AuthorBySlugPostsResponseSchema,
@@ -47,7 +46,7 @@ export async function getAuthorPostsCountContentApi({
 }: {
   slug: string
   traceHeaders?: TraceHeaders
-}): Promise<GetAuthorPostsCountQuery['author'] | undefined> {
+}): Promise<{ postsCount: number } | undefined> {
   try {
     const enc = encodeURIComponent(slug)
     const response = await sendContentApiRequest({
@@ -63,7 +62,7 @@ export async function getAuthorPostsCountContentApi({
     }
     return {
       postsCount: parsed.data.postsCount,
-    } as GetAuthorPostsCountQuery['author']
+    }
   } catch (e) {
     if (e instanceof ContentApiRequestError && e.status === 404) {
       return undefined

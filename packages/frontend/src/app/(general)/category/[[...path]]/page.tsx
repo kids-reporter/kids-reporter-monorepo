@@ -1,4 +1,3 @@
-import { Post } from '__generated__/types'
 import { emitStructured } from '@kids-reporter/logger'
 import { Metadata } from 'next'
 import { headers } from 'next/headers'
@@ -19,6 +18,12 @@ import {
   POST_PER_PAGE,
 } from '@/constants'
 import CategoryCollectionModule from '@/modules/category-collection'
+import {
+  CategoryPostsResponse,
+  Post,
+  SubcategoryPostsResponse,
+  SubSubcategoryPostsResponse,
+} from '@/types/api'
 import { DeepPartial } from '@/types/utils'
 import { getPostSummaries } from '@/utils'
 import {
@@ -42,10 +47,18 @@ export async function generateMetadata({
   const { category, subcategory } = parseCategoryInfoFromPath(path)
   const traceHeaders = getServerTraceHeaders(headers())
 
+  if (!category) {
+    emitStructured({
+      severity: 'INFO',
+      message: `Category metadata not found. URL path is: /${path?.join('/') ?? ''}`,
+    })
+    return {}
+  }
+
   const categoryData = await getCategoryMetadata(
     {
-      categoryWhere: { slug: category },
-      subcategoryWhere: { slug: { equals: subcategory } },
+      slug: category,
+      subcategorySlug: subcategory,
     },
     traceHeaders
   )
@@ -70,14 +83,6 @@ export async function generateMetadata({
     categoryData?.subcategories?.[0]?.ogImage?.resized?.medium ??
     categoryData?.ogImage?.resized?.medium
 
-  if (!category) {
-    emitStructured({
-      severity: 'INFO',
-      message: `Category metadata not found. URL path is: /${params.path?.join('/') ?? ''}`,
-    })
-    return {}
-  }
-
   return {
     title,
     description,
@@ -88,6 +93,11 @@ export async function generateMetadata({
     },
   }
 }
+
+type CategoryPostsResult =
+  | CategoryPostsResponse
+  | SubcategoryPostsResponse
+  | SubSubcategoryPostsResponse
 
 function getPosts(
   {
@@ -102,7 +112,7 @@ function getPosts(
     currentPage: number
   },
   traceHeaders?: Headers | Record<string, string | undefined>
-) {
+): Promise<CategoryPostsResult | undefined> {
   const commonVariables = {
     take: POST_PER_PAGE,
     skip: (currentPage - 1) * POST_PER_PAGE,
@@ -110,13 +120,9 @@ function getPosts(
   if (subSubcategory) {
     return getSubSubcategoryPosts(
       {
-        where: { slug: subSubcategory },
+        slug: subSubcategory,
         ...commonVariables,
-        orderBy: [
-          {
-            publishedDate: 'desc',
-          },
-        ],
+        orderBy: 'publishedDate:desc',
       },
       traceHeaders
     )
@@ -124,7 +130,7 @@ function getPosts(
   if (subcategory) {
     return getSubcategoryPosts(
       {
-        where: { slug: subcategory },
+        slug: subcategory,
         ...commonVariables,
       },
       traceHeaders
@@ -133,7 +139,7 @@ function getPosts(
 
   return getCategoryPosts(
     {
-      where: { slug: category },
+      slug: category,
       ...commonVariables,
     },
     traceHeaders
@@ -173,16 +179,11 @@ export default async function Category({
   const pageEnum = mapCategorySlugToIntroPageType(category)
 
   const introContent = pageEnum
-    ? await getCallBaodaozaiIntroContent(
-        { where: { page: pageEnum } },
-        traceHeaders
-      )
+    ? await getCallBaodaozaiIntroContent({ page: pageEnum }, traceHeaders)
     : undefined
 
   const categoryData = await getCategorySubcategoriesAndThemeColor(
-    {
-      where: { slug: category },
-    },
+    { slug: category },
     traceHeaders
   )
   if (!categoryData) {
@@ -228,9 +229,9 @@ export default async function Category({
     redirect(ERROR_PAGE)
   }
 
-  if ('subcategory' in postsRes) {
-    const subcategoryCandidate = postsRes?.subcategory?.slug
-    const categoryCandidate = postsRes?.subcategory?.category?.slug
+  if ('subcategory' in postsRes && postsRes.subcategory) {
+    const subcategoryCandidate = postsRes.subcategory.slug
+    const categoryCandidate = postsRes.subcategory.category.slug
     if (
       subcategory !== subcategoryCandidate ||
       category !== categoryCandidate
@@ -241,10 +242,8 @@ export default async function Category({
       })
       redirect(ERROR_PAGE)
     }
-  }
-
-  if ('category' in postsRes) {
-    const categoryCandidate = postsRes?.category?.slug
+  } else if ('category' in postsRes && postsRes.category && subcategory) {
+    const categoryCandidate = postsRes.category.slug
     if (category !== categoryCandidate) {
       emitStructured({
         severity: 'WARNING',

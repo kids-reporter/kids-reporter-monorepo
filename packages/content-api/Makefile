@@ -13,9 +13,10 @@ build-deps:
 	@if [ "$(SKIP_BUILD_DEPS)" = "true" ]; then \
 		echo "$(P) Build deps skipped"; \
 	else \
-		echo "$(P) build api-types and db"; \
+		echo "$(P) build api-types, db and content-api-kit"; \
 		cd ../api-types; yarn build; \
 		cd ../db; yarn build; \
+		cd ../content-api-kit; yarn build; \
 	fi
 
 db-generate:

@@ -1,39 +1,27 @@
 import type {
-  CreatePostChoiceAnswerMutation,
-  CreatePostChoiceAnswerMutationVariables,
-  CreatePostEssayAnswerLikeMutation,
-  CreatePostEssayAnswerLikeMutationVariables,
-  CreatePostEssayAnswerMutation,
-  CreatePostEssayAnswerMutationVariables,
-  DeletePostEssayAnswerLikeMutation,
-  DeletePostEssayAnswerLikeMutationVariables,
-  GetAllPostEssayAnswersQuery,
-  GetAllPostEssayAnswersQueryVariables,
-  GetEssayQuestionEssayAnswersQuery,
-  GetPostChoiceAnswersQuery,
-  GetPostEssayAnswersQuery,
-  UpdatePostChoiceAnswerMutation,
-  UpdatePostChoiceAnswerMutationVariables,
-  UpdatePostEssayAnswerMutation,
-  UpdatePostEssayAnswerMutationVariables,
-} from '__generated__/operations/answers.generated'
-import type { PostEssayAnswerOrderByInput } from '__generated__/types'
+  V1AllPostEssayAnswersQuery,
+  V1CreatePostChoiceAnswerBody,
+  V1CreatePostEssayAnswerBody,
+  V1CreatePostEssayAnswerLikeBody,
+  V1PostEssayQuestionAnswersRequest,
+} from '@kids-reporter/api-types'
 
+import type {
+  AllPostEssayAnswersItem,
+  CreatePostChoiceAnswerResponse,
+  CreatePostEssayAnswerLikeResponse,
+  CreatePostEssayAnswerResponse,
+  PostChoiceAnswer,
+  PostEssayAnswer,
+  PostEssayQuestionWithAnswers,
+  UpdatePostChoiceAnswerResponse,
+  UpdatePostEssayAnswerResponse,
+} from '@/types/api'
 import type { TraceHeaders } from '@/types/trace-headers'
 import {
   ContentApiRequestError,
   sendContentApiRequest,
 } from '@/utils/send-content-api'
-
-function questionIdFromGqlCreateData(data: Record<string, unknown>): unknown {
-  const q = data.question as { connect?: { id?: unknown } } | undefined
-  return q?.connect?.id
-}
-
-function answerIdFromGqlCreateData(data: Record<string, unknown>): unknown {
-  const a = data.answer as { connect?: { id?: unknown } } | undefined
-  return a?.connect?.id
-}
 
 export async function getPostChoiceAnswersByMemberIdContentApi({
   accessToken,
@@ -43,10 +31,8 @@ export async function getPostChoiceAnswersByMemberIdContentApi({
   accessToken: string
   postSlug?: string
   traceHeaders?: TraceHeaders
-}) {
-  const body = await sendContentApiRequest<
-    NonNullable<GetPostChoiceAnswersQuery['postChoiceAnswers']>
-  >({
+}): Promise<PostChoiceAnswer[]> {
+  const body = await sendContentApiRequest<PostChoiceAnswer[]>({
     path: '/v1/members/me/post-choice-answers',
     authToken: accessToken,
     query: { postSlug: postSlug ?? undefined },
@@ -59,42 +45,27 @@ export async function getPostChoiceAnswersByMemberIdContentApi({
 }
 
 export async function createPostChoiceAnswerContentApi(
-  variables: CreatePostChoiceAnswerMutationVariables,
+  body: V1CreatePostChoiceAnswerBody,
   accessToken: string,
   traceHeaders?: TraceHeaders
-) {
-  const data = variables.data as Record<string, unknown>
-  const questionId = questionIdFromGqlCreateData(data)
-  const choiceIndex = data.choiceIndex
-  if (
-    questionId == null ||
-    (typeof questionId !== 'string' && typeof questionId !== 'number') ||
-    typeof choiceIndex !== 'number'
-  ) {
-    throw new Error('createPostChoiceAnswerContentApi: invalid variables')
-  }
-  const body = await sendContentApiRequest<
-    CreatePostChoiceAnswerMutation['createPostChoiceAnswer']
-  >({
+): Promise<CreatePostChoiceAnswerResponse | undefined> {
+  return sendContentApiRequest<CreatePostChoiceAnswerResponse>({
     path: '/v1/members/me/post-choice-answers',
     method: 'POST',
     authToken: accessToken,
-    body: { questionId, choiceIndex },
+    body,
     traceHeaders,
   })
-  return body
 }
 
 export async function updatePostChoiceAnswerContentApi(
-  variables: UpdatePostChoiceAnswerMutationVariables,
+  variables: { id: string | number; data: { choiceIndex?: number } },
   accessToken: string,
   traceHeaders?: TraceHeaders
-) {
+): Promise<UpdatePostChoiceAnswerResponse | undefined> {
   const id = variables.id
-  const patch = variables.data as { choiceIndex?: number }
-  const body = await sendContentApiRequest<
-    UpdatePostChoiceAnswerMutation['updatePostChoiceAnswer']
-  >({
+  const patch = variables.data
+  return sendContentApiRequest<UpdatePostChoiceAnswerResponse>({
     path: `/v1/members/me/post-choice-answers/${encodeURIComponent(String(id))}`,
     method: 'PATCH',
     authToken: accessToken,
@@ -104,7 +75,6 @@ export async function updatePostChoiceAnswerContentApi(
         : {},
     traceHeaders,
   })
-  return body
 }
 
 export async function getPostEssayAnswersByMemberIdContentApi({
@@ -115,10 +85,8 @@ export async function getPostEssayAnswersByMemberIdContentApi({
   accessToken: string
   postSlug?: string
   traceHeaders?: TraceHeaders
-}) {
-  const body = await sendContentApiRequest<
-    NonNullable<GetPostEssayAnswersQuery['postEssayAnswers']>
-  >({
+}): Promise<PostEssayAnswer[]> {
+  const body = await sendContentApiRequest<PostEssayAnswer[]>({
     path: '/v1/members/me/post-essay-answers',
     authToken: accessToken,
     query: { postSlug: postSlug ?? undefined },
@@ -131,16 +99,14 @@ export async function getPostEssayAnswersByMemberIdContentApi({
 }
 
 export async function getAllPostEssayAnswersContentApi(
-  variables: GetAllPostEssayAnswersQueryVariables,
+  variables: Pick<V1AllPostEssayAnswersQuery, 'orderBy' | 'take'>,
   traceHeaders?: TraceHeaders
-) {
-  const body = await sendContentApiRequest<
-    NonNullable<GetAllPostEssayAnswersQuery['postEssayAnswers']>
-  >({
+): Promise<AllPostEssayAnswersItem[]> {
+  const body = await sendContentApiRequest<AllPostEssayAnswersItem[]>({
     path: '/v1/post-essay-answers',
     query: {
       take: variables.take ?? undefined,
-      orderBy: 'createdAt:desc',
+      orderBy: variables.orderBy ?? 'createdAt:desc',
     },
     traceHeaders,
   })
@@ -151,92 +117,47 @@ export async function getAllPostEssayAnswersContentApi(
 }
 
 export async function createPostEssayAnswerContentApi(
-  variables: CreatePostEssayAnswerMutationVariables,
+  body: V1CreatePostEssayAnswerBody,
   accessToken: string,
   traceHeaders?: TraceHeaders
-) {
-  const data = variables.data as Record<string, unknown>
-  const questionId = questionIdFromGqlCreateData(data)
-  const content = data.content
-  if (
-    questionId == null ||
-    (typeof questionId !== 'string' && typeof questionId !== 'number') ||
-    typeof content !== 'string'
-  ) {
-    throw new Error('createPostEssayAnswerContentApi: invalid variables')
-  }
-  const body = await sendContentApiRequest<
-    CreatePostEssayAnswerMutation['createPostEssayAnswer']
-  >({
+): Promise<CreatePostEssayAnswerResponse | undefined> {
+  return sendContentApiRequest<CreatePostEssayAnswerResponse>({
     path: '/v1/members/me/post-essay-answers',
     method: 'POST',
     authToken: accessToken,
-    body: { questionId, content },
+    body,
     traceHeaders,
   })
-  return body
 }
 
 export async function updatePostEssayAnswerContentApi(
-  variables: UpdatePostEssayAnswerMutationVariables,
+  variables: { id: string | number; data: { content: string } },
   accessToken: string,
   traceHeaders?: TraceHeaders
-) {
+): Promise<UpdatePostEssayAnswerResponse | undefined> {
   const id = variables.id
-  const patch = variables.data as { content: string }
-  const body = await sendContentApiRequest<
-    UpdatePostEssayAnswerMutation['updatePostEssayAnswer']
-  >({
+  const patch = variables.data
+  return sendContentApiRequest<UpdatePostEssayAnswerResponse>({
     path: `/v1/members/me/post-essay-answers/${encodeURIComponent(String(id))}`,
     method: 'PATCH',
     authToken: accessToken,
     body: { content: patch.content },
     traceHeaders,
   })
-  return body
 }
 
-function questionAnswerOrderByToFlat(
-  answerOrderBy: PostEssayAnswerOrderByInput[]
-): 'createdAt:desc' | 'likesCount:desc' {
-  const first = answerOrderBy[0]
-  if (
-    first &&
-    typeof first === 'object' &&
-    'likesCount' in first &&
-    first.likesCount === 'desc'
-  ) {
-    return 'likesCount:desc'
-  }
-  return 'createdAt:desc'
-}
-
-export async function getPostEssayQuestionEssayAnswersContentApi({
-  where,
-  answerOrderBy,
-  answerTake,
-  answerSkip,
-  traceHeaders,
-}: {
-  where: { id: string }
-  answerOrderBy: PostEssayAnswerOrderByInput[]
-  answerTake: number
-  answerSkip?: number
+export async function getPostEssayQuestionEssayAnswersContentApi(
+  request: V1PostEssayQuestionAnswersRequest,
   traceHeaders?: TraceHeaders
-}) {
-  const questionId = Number(where.id)
-  if (!Number.isFinite(questionId)) {
-    throw new Error('invalid question id')
-  }
+): Promise<PostEssayQuestionWithAnswers['answers']> {
+  const { questionId, answerTake, answerSkip, answerOrderBy } = request
   try {
-    const body = await sendContentApiRequest<
-      NonNullable<GetEssayQuestionEssayAnswersQuery['postEssayQuestion']>
-    >({
+    const body = await sendContentApiRequest<PostEssayQuestionWithAnswers>({
       path: `/v1/post-essay-questions/${questionId}`,
       query: {
         answerTake,
         answerSkip: answerSkip ?? undefined,
-        answerOrderBy: questionAnswerOrderByToFlat(answerOrderBy),
+        answerOrderBy: answerOrderBy ?? 'createdAt:desc',
       },
       traceHeaders,
     })
@@ -250,46 +171,31 @@ export async function getPostEssayQuestionEssayAnswersContentApi({
 }
 
 export async function createPostEssayAnswerLikeContentApi(
-  variables: CreatePostEssayAnswerLikeMutationVariables,
+  body: V1CreatePostEssayAnswerLikeBody,
   accessToken: string,
   traceHeaders?: TraceHeaders
-) {
-  const data = variables.data as Record<string, unknown>
-  const answerId = answerIdFromGqlCreateData(data)
-  if (
-    answerId == null ||
-    (typeof answerId !== 'string' && typeof answerId !== 'number')
-  ) {
-    throw new Error('createPostEssayAnswerLikeContentApi: invalid variables')
-  }
-  const body = await sendContentApiRequest<
-    CreatePostEssayAnswerLikeMutation['createPostEssayAnswerLike']
-  >({
+): Promise<CreatePostEssayAnswerLikeResponse | undefined> {
+  return sendContentApiRequest<CreatePostEssayAnswerLikeResponse>({
     path: '/v1/members/me/post-essay-answer-likes',
     method: 'POST',
     authToken: accessToken,
-    body: { answerId },
+    body,
     traceHeaders,
   })
-  return body
 }
 
 export async function deletePostEssayAnswerLikeContentApi(
-  variables: DeletePostEssayAnswerLikeMutationVariables,
+  id: string | number,
   accessToken: string,
   traceHeaders?: TraceHeaders
 ) {
-  const likeId = variables.where?.id
-  if (likeId == null || likeId === '') {
-    throw new Error('deletePostEssayAnswerLikeContentApi: where.id is required')
+  if (id === '' || id == null) {
+    throw new Error('deletePostEssayAnswerLikeContentApi: id is required')
   }
-  const body = await sendContentApiRequest<
-    DeletePostEssayAnswerLikeMutation['deletePostEssayAnswerLike']
-  >({
-    path: `/v1/members/me/post-essay-answer-likes/${encodeURIComponent(String(likeId))}`,
+  return sendContentApiRequest<{ id: string }>({
+    path: `/v1/members/me/post-essay-answer-likes/${encodeURIComponent(String(id))}`,
     method: 'DELETE',
     authToken: accessToken,
     traceHeaders,
   })
-  return body
 }

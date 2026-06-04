@@ -2,20 +2,14 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, rename, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import {
-  V1MemberProfilePatchBodySchema,
-  V1MemberProfileSchema,
+import type {
+  MemberProfile,
+  MemberProfilePatch,
 } from '@kids-reporter/api-types'
 import { Prisma, prisma } from '@kids-reporter/db'
-import type { z } from 'zod'
 
 import envVar from '../environment-variables.js'
 import { buildMemberAvatarFileUrl } from '../utils/qna-utils.js'
-
-export type MemberProfileDto = z.infer<typeof V1MemberProfileSchema>
-export type MemberProfilePatchInput = z.infer<
-  typeof V1MemberProfilePatchBodySchema
->
 
 const memberSelect = {
   id: true,
@@ -53,7 +47,7 @@ type MemberRow = {
   } | null
 }
 
-const mapMember = (m: MemberRow): MemberProfileDto => ({
+const mapMember = (m: MemberRow): MemberProfile => ({
   id: m.id,
   name: m.name,
   email: m.email,
@@ -74,7 +68,7 @@ const mapMember = (m: MemberRow): MemberProfileDto => ({
 /** Used by `GET /v1/members/me`. */
 export async function findMemberProfile(
   userId: string
-): Promise<MemberProfileDto | null> {
+): Promise<MemberProfile | null> {
   const member = await prisma.member.findUnique({
     where: { twreporter_user_id: userId },
     select: memberSelect,
@@ -99,8 +93,8 @@ export async function findMemberIdRole(
  */
 export async function updateMemberProfile(
   userId: string,
-  data: MemberProfilePatchInput
-): Promise<MemberProfileDto | null> {
+  data: MemberProfilePatch
+): Promise<MemberProfile | null> {
   try {
     const updated = await prisma.member.update({
       where: { twreporter_user_id: userId },

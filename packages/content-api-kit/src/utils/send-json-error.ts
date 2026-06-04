@@ -10,7 +10,14 @@ export type JsonErrorCode =
   | 'internal_server_error'
   | 'upstream_error'
 
-/** Standard JSON `{ error: { code, message, details? } }` envelope for HTTP APIs */
+export type JsonErrorBody = {
+  error: {
+    code: JsonErrorCode
+    message: string
+    details?: unknown
+  }
+}
+
 export function sendJsonError(
   res: express.Response,
   status: number,
@@ -18,11 +25,12 @@ export function sendJsonError(
   message: string,
   details?: unknown
 ) {
-  res.status(status).json({
+  const body: JsonErrorBody = {
     error: {
       code,
       message,
       ...(details !== undefined ? { details } : {}),
     },
-  })
+  }
+  res.status(status).json(body)
 }

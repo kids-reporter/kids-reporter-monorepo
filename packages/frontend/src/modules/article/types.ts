@@ -1,6 +1,5 @@
-import { GetPostQuery } from '__generated__/operations/content.generated'
-
 import { AuthorRole } from '@/constants'
+import { PostDetail } from '@/types/api'
 import { RecursiveNonNullable } from '@/types/utils'
 
 export type AuthorGroup = {
@@ -11,12 +10,10 @@ export type AuthorGroup = {
   }[]
 }
 
-export type Keyword = RecursiveNonNullable<
-  GetPostQuery['post']
->['tagsOrdered'][number]
+export type Keyword = RecursiveNonNullable<PostDetail>['tagsOrdered'][number]
 
 export type Author = Omit<
-  RecursiveNonNullable<GetPostQuery['post']>['authors'][number],
+  RecursiveNonNullable<PostDetail>['authors'][number],
   'slug' | 'avatar'
 > & {
   role: AuthorRole

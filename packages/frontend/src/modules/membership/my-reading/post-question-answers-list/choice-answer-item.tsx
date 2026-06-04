@@ -1,9 +1,9 @@
-import { PostChoiceAnswer } from '__generated__/types'
 import { cn } from '@kids-reporter/routing-ui'
 
 import { CorrectIcon, IncorrectIcon } from '@/icons/miscellaneous'
+import type { MemberReadingChoiceAnswer } from '@/types/api'
 
-function ChoiceAnswerItem({ answer }: { answer: PostChoiceAnswer }) {
+function ChoiceAnswerItem({ answer }: { answer: MemberReadingChoiceAnswer }) {
   const options =
     answer.question?.options && Array.isArray(answer.question.options)
       ? (answer.question.options as Array<{
@@ -46,7 +46,7 @@ function ChoiceAnswerItem({ answer }: { answer: PostChoiceAnswer }) {
             {correctOptionIndex + 1}. {options[correctOptionIndex]?.content}
           </p>
           <p className="prose-p2 text-neutral-800">
-            {answer.question.reason ?? ''}
+            {String(answer.question?.reason ?? '')}
           </p>
         </div>
       )}

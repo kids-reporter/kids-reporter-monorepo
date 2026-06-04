@@ -1,4 +1,3 @@
-import { PostEssayAnswerOrderByInput } from '__generated__/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useRef, useState } from 'react'
 
@@ -9,6 +8,7 @@ import {
   useDeletePostEssayAnswerLikeMutation,
 } from '@/api-utils/react-query/hooks/post-essay-answer-like'
 import { usePostEssayQuestionEssayAnswersInfinityQuery } from '@/api-utils/react-query/hooks/post-essay-question'
+import type { PostEssayAnswerOrderBy } from '@/types/api'
 
 function useOptimisticLikeAnswer({
   answerId,
@@ -23,7 +23,7 @@ function useOptimisticLikeAnswer({
   memberId: string
   accessToken: string
   questionId: string
-  answerOrderBy: PostEssayAnswerOrderByInput[]
+  answerOrderBy: PostEssayAnswerOrderBy[]
   answerTake: number
   essayAnswerIds: string[]
 }) {
@@ -54,7 +54,7 @@ function useOptimisticLikeAnswer({
 
       const allPostEssayAnswersQueryKey =
         useAllPostEssayAnswersQuery.getQueryKey({
-          orderBy: answerOrderBy,
+          orderBy: 'createdAt:desc',
           take: answerTake,
         })
 
@@ -179,9 +179,7 @@ function useOptimisticLikeAnswer({
             typeof likeIdRaw === 'string' ? likeIdRaw.trim() : undefined
 
           if (likeId) {
-            await deleteMutation.mutateAsync({
-              where: { id: likeId },
-            })
+            await deleteMutation.mutateAsync(likeId)
           } else if (likeIdRaw === '') {
             // Create mutation still in flight after optimistic like; rollback this unlike attempt.
             if (previousAnswersData) {
@@ -198,20 +196,24 @@ function useOptimisticLikeAnswer({
             }
             return
           } else {
-            await deleteMutation.mutateAsync({
-              where: { compositeKey: `${answerId}:${memberId}` },
-            })
+            if (previousAnswersData) {
+              queryClient.setQueryData(answersQueryKey, previousAnswersData)
+            }
+            if (previousAllPostEssayAnswersData) {
+              queryClient.setQueryData(
+                allPostEssayAnswersQueryKey,
+                previousAllPostEssayAnswersData
+              )
+            }
+            if (previousHasLikedData) {
+              queryClient.setQueryData(hasLikedQueryKey, previousHasLikedData)
+            }
+            return
           }
         } else {
           // Create like
           const createdLike = await createMutation.mutateAsync({
-            data: {
-              answer: {
-                connect: {
-                  id: answerId,
-                },
-              },
-            },
+            answerId,
           })
 
           const createdLikeId = (createdLike as { id?: string } | undefined)?.id

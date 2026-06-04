@@ -1,10 +1,10 @@
-import { GetMemberPostsWithAnswersQueryVariables } from '__generated__/operations/members.generated'
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import {
   getMemberEssayAnswersHasLiked,
   getMemberPostsWithAnswers,
 } from '@/api/extended'
+import type { V1MemberPostsWithAnswersQuery } from '@/types/api'
 
 const MEMBER_POSTS_WITH_ANSWERS_QUERY_KEY = 'member-posts-with-answers'
 
@@ -12,7 +12,7 @@ export function useMemberPostsWithAnswersInfinityQuery({
   accessToken,
   memberId,
   take = 5,
-}: Omit<GetMemberPostsWithAnswersQueryVariables, 'nextCursor'> & {
+}: V1MemberPostsWithAnswersQuery & {
   accessToken: string
   memberId: string
 }) {
@@ -24,11 +24,11 @@ export function useMemberPostsWithAnswersInfinityQuery({
     queryFn: ({ pageParam }) =>
       getMemberPostsWithAnswers({
         take,
-        nextCursor: pageParam ?? undefined,
+        cursor: pageParam ?? undefined,
         accessToken,
       }),
     enabled: !!memberId && !!accessToken,
-    initialPageParam: null as string | null,
+    initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
   })
 }

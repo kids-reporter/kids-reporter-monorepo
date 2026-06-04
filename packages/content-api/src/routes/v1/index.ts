@@ -16,6 +16,7 @@ import {
   V1SitemapsQuerySchema,
   V1SubSubcategoryBySlugPostsQuerySchema,
 } from '@kids-reporter/api-types'
+import { asyncRoute, sendJsonError } from '@kids-reporter/content-api-kit'
 import express from 'express'
 
 import {
@@ -59,8 +60,6 @@ import {
   fetchSubcategoryFeedPosts,
   fetchSubSubcategoryFeedPosts,
 } from '../../queries/taxonomy.js'
-import { asyncRoute } from '../../utils/async-route.js'
-import { sendJsonError } from '../../utils/send-json-error.js'
 import { createV1MembersRouter } from './v1-members.js'
 import { createV1QnaMembersRouter } from './v1-qna-members.js'
 

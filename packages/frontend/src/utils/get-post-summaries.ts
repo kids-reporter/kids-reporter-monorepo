@@ -1,7 +1,6 @@
-import { Post } from '__generated__/types'
-
 import { PostSummary } from '@/components/types'
 import { FALLBACK_IMG } from '@/constants'
+import { Post } from '@/types/api'
 import { DeepPartial } from '@/types/utils'
 
 export const getPostSummaries = (posts: DeepPartial<Post>[]): PostSummary[] => {

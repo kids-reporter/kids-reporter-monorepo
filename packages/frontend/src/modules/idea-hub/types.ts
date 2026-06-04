@@ -1,6 +1,9 @@
-import { GetPostsEssayAnswersWithLikesQuery } from '__generated__/operations/content.generated'
-
+import type { PostsEssayAnswersWithLikesPost } from '@/types/api'
 import { RecursiveNonNullable } from '@/types/utils'
 
-export type PostWithTwoTopLikesAnswersPerQuestion =
-  RecursiveNonNullable<GetPostsEssayAnswersWithLikesQuery>
+export type IdeaHubPostWithAnswers =
+  RecursiveNonNullable<PostsEssayAnswersWithLikesPost>
+
+export type PostWithTwoTopLikesAnswersPerQuestion = {
+  posts: IdeaHubPostWithAnswers[]
+}

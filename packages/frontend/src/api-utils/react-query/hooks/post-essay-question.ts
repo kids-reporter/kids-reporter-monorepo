@@ -1,10 +1,38 @@
-import { PostEssayAnswerOrderByInput } from '__generated__/types'
 import { useInfiniteQuery } from '@tanstack/react-query'
 
 import { getPostEssayQuestionEssayAnswers } from '@/api/post-essay-question'
+import type {
+  PostEssayAnswerOrderBy,
+  V1PostEssayQuestionAnswersRequest,
+} from '@/types/api'
 
 const POST_ESSAY_QUESTION_ESSAY_ANSWERS_INFINITY_QUERY_KEY =
   'post-essay-questions'
+
+function toQuestionAnswersRequest({
+  questionId,
+  answerOrderBy,
+  answerTake,
+  answerSkip,
+}: {
+  questionId: string
+  answerOrderBy: PostEssayAnswerOrderBy[]
+  answerTake: number
+  answerSkip?: number
+}): V1PostEssayQuestionAnswersRequest {
+  const parsedId = Number(questionId)
+  if (!Number.isFinite(parsedId)) {
+    throw new Error('invalid question id')
+  }
+  const first = answerOrderBy[0]
+  return {
+    questionId: parsedId,
+    answerTake,
+    answerSkip,
+    answerOrderBy:
+      first === 'likesCount:desc' ? 'likesCount:desc' : 'createdAt:desc',
+  }
+}
 
 export function usePostEssayQuestionEssayAnswersInfinityQuery({
   questionId,
@@ -12,7 +40,7 @@ export function usePostEssayQuestionEssayAnswersInfinityQuery({
   answerTake,
 }: {
   questionId: string
-  answerOrderBy: PostEssayAnswerOrderByInput[]
+  answerOrderBy: PostEssayAnswerOrderBy[]
   answerTake: number
 }) {
   return useInfiniteQuery({
@@ -22,12 +50,14 @@ export function usePostEssayQuestionEssayAnswersInfinityQuery({
       answerTake,
     }),
     queryFn: ({ pageParam }) =>
-      getPostEssayQuestionEssayAnswers({
-        where: { id: questionId },
-        answerOrderBy,
-        answerTake,
-        answerSkip: pageParam,
-      }),
+      getPostEssayQuestionEssayAnswers(
+        toQuestionAnswersRequest({
+          questionId,
+          answerOrderBy,
+          answerTake,
+          answerSkip: pageParam,
+        })
+      ),
     getNextPageParam: (lastPage, _, lastPageParam) => {
       const hasNextPage = lastPage.length === answerTake
       return hasNextPage ? lastPageParam + answerTake : undefined
@@ -42,7 +72,7 @@ usePostEssayQuestionEssayAnswersInfinityQuery.getQueryKey = ({
   answerTake,
 }: {
   questionId: string
-  answerOrderBy: PostEssayAnswerOrderByInput[]
+  answerOrderBy: PostEssayAnswerOrderBy[]
   answerTake: number
 }) => [
   POST_ESSAY_QUESTION_ESSAY_ANSWERS_INFINITY_QUERY_KEY,

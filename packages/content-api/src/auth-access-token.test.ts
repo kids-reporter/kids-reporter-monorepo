@@ -236,4 +236,20 @@ describe('POST /auth/access-token', () => {
 
     expect(res.status).toBe(204)
   })
+
+  it('OPTIONS /auth/access-token returns credentialed CORS when OpenAPI is enabled at root', async () => {
+    const origin = 'http://localhost:3001'
+    const app = createApp({
+      corsAllowOrigin: [origin],
+      enableOpenApi: true,
+    })
+    const res = await request(app)
+      .options('/auth/access-token')
+      .set('Origin', origin)
+      .set('Access-Control-Request-Method', 'POST')
+
+    expect(res.status).toBe(204)
+    expect(res.headers['access-control-allow-credentials']).toBe('true')
+    expect(res.headers['access-control-allow-origin']).toBe(origin)
+  })
 })

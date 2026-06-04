@@ -1,7 +1,6 @@
-import { PostContentSchema } from '@kids-reporter/api-types'
-import type { z } from 'zod'
+import type { PostContent } from '@kids-reporter/api-types'
 
-type ParsedPost = z.infer<typeof PostContentSchema>
+type ParsedPost = PostContent
 type ParsedSubSub = ParsedPost['subSubcategoriesOrdered'][number]
 type ParsedSubcat = NonNullable<ParsedSubSub['subcategory']>
 type ParsedCat = NonNullable<ParsedSubcat['category']>

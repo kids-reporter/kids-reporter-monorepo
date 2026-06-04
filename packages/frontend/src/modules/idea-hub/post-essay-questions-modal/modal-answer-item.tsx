@@ -1,6 +1,5 @@
 'use client'
 
-import { Member, PostEssayAnswerOrderByInput } from '__generated__/types'
 import Image from 'next/image'
 import { useCallback } from 'react'
 
@@ -9,6 +8,7 @@ import Divider from '@/components/divider'
 import { DEFAULT_AVATAR } from '@/constants'
 import { DEFAULT_TEXT_HOLDER } from '@/constants/input-field'
 import { StarIcon, StarIconUnfilled } from '@/icons/miscellaneous'
+import type { PostEssayAnswerOrderBy, QnaMemberPublic } from '@/types/api'
 
 import {
   formatChineseDate,
@@ -27,7 +27,7 @@ type ModalAnswerItemProps = {
   memberId: string
   accessToken: string
   questionId: string
-  answerOrderBy: PostEssayAnswerOrderByInput[]
+  answerOrderBy: PostEssayAnswerOrderBy[]
   essayAnswerIds: string[]
   isLast: boolean
 }
@@ -74,7 +74,7 @@ function ModalAnswerItem({
                   src={answer.member?.avatar?.fileUrl || DEFAULT_AVATAR}
                   alt={
                     answer.member
-                      ? getMemberDisplayName(answer.member as Member)
+                      ? getMemberDisplayName(answer.member as QnaMemberPublic)
                       : 'User'
                   }
                   className="size-full bg-white object-cover"
@@ -86,7 +86,7 @@ function ModalAnswerItem({
                 <div className="flex min-w-0 items-center gap-1 prose-p2-bold text-neutral-900">
                   <span className="truncate">
                     {answer.member
-                      ? getMemberDisplayName(answer.member as Member)
+                      ? getMemberDisplayName(answer.member as QnaMemberPublic)
                       : DEFAULT_TEXT_HOLDER}
                   </span>
                   {!!memberId && answer.member?.id === memberId && (

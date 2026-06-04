@@ -1,8 +1,5 @@
-import type {
-  GetProjectMetaQuery,
-  GetProjectQuery,
-} from '__generated__/operations/content.generated'
 import { emitStructured } from '@kids-reporter/logger'
+import type { RawDraftContentState } from 'draft-js'
 import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
@@ -17,13 +14,11 @@ import {
   KIDS_URL_ORIGIN,
   OG_SUFFIX,
 } from '@/constants'
-import envVars from '@/environment-variables'
 import TopicSlugModule from '@/modules/topic/slug'
 import { TitlePosition } from '@/modules/topic/types'
 import { normalizePhoto } from '@/modules/topic/utils'
+import type { ProjectDetail, ProjectMeta } from '@/types/api'
 import { getFormattedDate, getPostSummaries } from '@/utils'
-import { logContentApiFallback } from '@/utils/log-content-api-fallback'
-import { sendRestGqlRequest } from '@/utils/send-rest-gql'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export async function generateMetadata({
@@ -34,27 +29,10 @@ export async function generateMetadata({
   const slug = params.slug
   const traceHeaders = getServerTraceHeaders(headers())
 
-  let topicMeta: GetProjectMetaQuery['project'] | undefined
-  if (envVars.useContentApi) {
-    try {
-      topicMeta = await getProjectMetaContentApi({ slug, traceHeaders })
-    } catch (err) {
-      logContentApiFallback('topic-project-meta', err)
-    }
-  }
-  if (!topicMeta) {
-    const topicOGRes = await sendRestGqlRequest<GetProjectMetaQuery>({
-      operation: 'project-meta',
-      method: 'GET',
-      variables: {
-        where: {
-          slug: slug,
-        },
-      },
-      traceHeaders,
-    })
-    topicMeta = topicOGRes?.data?.data?.project
-  }
+  const topicMeta: ProjectMeta | undefined = await getProjectMetaContentApi({
+    slug,
+    traceHeaders,
+  })
   if (!topicMeta) {
     emitStructured({
       severity: 'WARNING',
@@ -75,9 +53,6 @@ export async function generateMetadata({
         : [],
     },
     other: {
-      // Since we can't inject <!-- <PageMap>...</PageMap> --> to <head> section with Next metadata API,
-      // so handle google seo with extra <meta> tag here, but be awared there are limitations(maximum 50 tags):
-      // https://developers.google.com/custom-search/docs/structured_data?hl=zh-tw#limitations
       publishedDate: topicMeta?.publishedDate ?? '',
       contentType: ContentType.TOPIC,
     },
@@ -93,31 +68,11 @@ export default async function TopicPage({
     emitStructured({ severity: 'WARNING', message: 'Incorrect topic slug!' })
     notFound()
   }
-  let project: GetProjectQuery['project'] | undefined
   const traceHeaders = getServerTraceHeaders(headers())
-  if (envVars.useContentApi) {
-    try {
-      project = await getProjectDetailContentApi({
-        slug: params.slug,
-        traceHeaders,
-      })
-    } catch (err) {
-      logContentApiFallback('topic-project-detail', err)
-    }
-  }
-  if (!project) {
-    const axiosRes = await sendRestGqlRequest<GetProjectQuery>({
-      operation: 'project-detail',
-      method: 'GET',
-      variables: {
-        where: {
-          slug: params.slug,
-        },
-      },
-      traceHeaders,
-    })
-    project = axiosRes?.data?.data?.project
-  }
+  const project: ProjectDetail | undefined = await getProjectDetailContentApi({
+    slug: params.slug,
+    traceHeaders,
+  })
   if (!project) {
     emitStructured({ severity: 'WARNING', message: 'Empty topic!' })
     notFound()
@@ -137,8 +92,8 @@ export default async function TopicPage({
       backgroundImage={heroImage}
       mobileBgImage={mobileHeroImage}
       publishedDate={getFormattedDate(project.publishedDate ?? '')}
-      content={project.content}
-      credits={project.credits}
+      content={project.content as RawDraftContentState | undefined}
+      credits={project.credits as RawDraftContentState | undefined}
       relatedPosts={relatedPosts}
     />
   )

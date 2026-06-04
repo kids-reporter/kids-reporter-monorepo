@@ -18,7 +18,7 @@ function AllModule({ introContent, posts }: AllModuleProps) {
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     usePostsPagedInfiniteQuery({
-      orderBy: [{ publishedDate: 'desc' }],
+      orderBy: 'publishedDate:desc',
       take: POST_PER_PAGE,
       initialPosts: posts,
     })

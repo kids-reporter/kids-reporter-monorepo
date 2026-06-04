@@ -24,14 +24,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const slug = params.slug
   const traceHeaders = getServerTraceHeaders(headers())
-  const postMeta = await getPostMeta(
-    {
-      where: {
-        slug: slug,
-      },
-    },
-    traceHeaders
-  )
+  const postMeta = await getPostMeta({ slug }, traceHeaders)
 
   if (!postMeta) {
     emitStructured({
@@ -81,15 +74,7 @@ export default async function PostPage({
   }
 
   const post = await getPost({
-    where: {
-      slug: slug,
-    },
-    relatedPostsWhere: {
-      slug: {
-        notIn: [slug],
-      },
-    },
-    orderBy: [{ order: 'asc' }],
+    slug,
     take: postRelatedPostsNum,
     postEssayQuestionsTake,
     postChoiceQuestionsTake,

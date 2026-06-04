@@ -15,12 +15,12 @@ import {
   getMemberProfileByTwreporterUserId,
 } from '@/api/member'
 import {
-  ACCESS_TOKEN_ENDPOINT,
   CONTENT_ACCESS_TOKEN_ENDPOINT,
   LOGOUT_ENDPOINT,
   STATUS_CODES,
 } from '@/constants'
 import envVars from '@/environment-variables'
+import type { AccessTokenResponse } from '@/types/api'
 import { buildTraceHeaders } from '@/utils/trace-context'
 
 export type MemberProfile = {
@@ -69,17 +69,11 @@ type AuthState = {
   logout: () => Promise<void>
 }
 
-type AccessTokenPayload = {
-  accessToken: string
-  expiresAt?: number
-  twreporterUserId?: string
-}
-
-type AccessTokenResponse =
-  | AccessTokenPayload
+type AccessTokenEnvelopeResponse =
+  | AccessTokenResponse
   | {
       status: 'success' | 'fail' | 'error'
-      data: AccessTokenPayload
+      data: AccessTokenResponse
     }
 
 type PersistedAuthState = Partial<
@@ -118,7 +112,7 @@ export const useAuthStore = create<AuthState>()(
             let axiosRes
 
             const postAccessToken = (url: string) =>
-              axios.post<AccessTokenResponse>(url, null, {
+              axios.post<AccessTokenEnvelopeResponse>(url, null, {
                 timeout: envVars.requestTimeoutMs,
                 withCredentials: true,
                 headers: buildTraceHeaders(),
@@ -134,38 +128,7 @@ export const useAuthStore = create<AuthState>()(
             }
 
             try {
-              if (envVars.useContentApi) {
-                try {
-                  axiosRes = await postAccessToken(
-                    CONTENT_ACCESS_TOKEN_ENDPOINT
-                  )
-                } catch (firstErr) {
-                  if (axios.isAxiosError(firstErr)) {
-                    const statusCode = firstErr.response?.status
-                    if (
-                      statusCode === STATUS_CODES.BAD_REQUEST ||
-                      statusCode === STATUS_CODES.UNAUTHORIZED
-                    ) {
-                      handleInvalidIdToken()
-                      return
-                    }
-                  }
-                  emitStructured({
-                    severity: 'WARNING',
-                    message:
-                      '[auth-store] content-api access-token exchange failed; falling back to api-gateway',
-                    context: {
-                      cause:
-                        firstErr instanceof Error
-                          ? firstErr.message
-                          : String(firstErr),
-                    },
-                  })
-                  axiosRes = await postAccessToken(ACCESS_TOKEN_ENDPOINT)
-                }
-              } else {
-                axiosRes = await postAccessToken(ACCESS_TOKEN_ENDPOINT)
-              }
+              axiosRes = await postAccessToken(CONTENT_ACCESS_TOKEN_ENDPOINT)
             } catch (err) {
               if (axios.isAxiosError(err)) {
                 const statusCode = err.response?.status
@@ -186,12 +149,12 @@ export const useAuthStore = create<AuthState>()(
             const rawUnknown = axiosRes.data as unknown
             const raw =
               rawUnknown && typeof rawUnknown === 'object'
-                ? (rawUnknown as AccessTokenResponse)
+                ? (rawUnknown as AccessTokenEnvelopeResponse)
                 : undefined
             const payload =
               raw && 'data' in raw
                 ? raw.data
-                : (raw as AccessTokenPayload | undefined)
+                : (raw as AccessTokenResponse | undefined)
 
             if (!payload?.accessToken) {
               throw new Error('Fail to exchange access token')
