@@ -7,8 +7,8 @@ import type { z } from 'zod'
 
 import {
   asOrderJson,
+  buildPostBySlugVisibilityWhere,
   buildProjectBySlugVisibilityWhere,
-  buildPublicPostWhere,
   buildResizedMedium,
   buildResizedSmall,
   mapPostCard,
@@ -63,7 +63,7 @@ export async function fetchPublishedProjects(
       ? {
           ...projectListBaseSelect,
           relatedPosts: {
-            where: buildPublicPostWhere(now),
+            where: buildPostBySlugVisibilityWhere(now),
             orderBy: [{ publishedDate: 'desc' }],
             select: postCardSelect,
           },
@@ -120,7 +120,7 @@ export async function fetchPublishedProjectRelatedPostsCount(
   const relatedPostsCount = await prisma.post.count({
     where: {
       AND: [
-        buildPublicPostWhere(now),
+        buildPostBySlugVisibilityWhere(now),
         { projects: { some: { id: project.id } } },
       ],
     },

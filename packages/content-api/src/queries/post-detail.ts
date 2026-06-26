@@ -225,7 +225,7 @@ export async function fetchPublishedProjectDetailBySlug(
       },
       relatedPostsOrderJson: true,
       relatedPosts: {
-        where: buildPublicPostWhere(now),
+        where: buildPostBySlugVisibilityWhere(now),
         orderBy: [{ publishedDate: 'desc' }],
         select: relatedPostCardSelect,
       },
