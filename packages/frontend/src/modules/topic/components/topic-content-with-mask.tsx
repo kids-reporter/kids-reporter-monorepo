@@ -76,7 +76,7 @@ function TopicContentWithMask({ rawContentState }: TopicContentWithMaskProps) {
         <div ref={contentRef}>
           <TopicRenderer rawContentState={rawContentState} />
         </div>
-        {!isExpanded && (
+        {showButton && !isExpanded && (
           <div
             className="pointer-events-none absolute right-0 bottom-0 left-0 z-1 h-40 bg-linear-to-b from-[rgba(255,255,255,0)] to-white"
             aria-hidden
