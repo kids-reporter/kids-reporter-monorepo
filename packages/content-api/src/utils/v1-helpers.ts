@@ -37,6 +37,16 @@ export const buildPostBySlugVisibilityWhere = (
 ): Prisma.PostWhereInput =>
   envVar.isPreviewServer ? {} : buildPublicPostWhere(now)
 
+/** Match Keystone `Project` access for FrontendHeadlessAccount (published only). */
+export const buildPublicProjectWhere = (): Prisma.ProjectWhereInput => ({
+  status: 'published',
+})
+
+/** Project visibility for by-slug reads. Preview server matches CMS preview_headless (no status filter). */
+export const buildProjectBySlugVisibilityWhere =
+  (): Prisma.ProjectWhereInput =>
+    envVar.isPreviewServer ? {} : buildPublicProjectWhere()
+
 /** Category/subcategory virtual `relatedPosts` uses published OR archived only (see `packages/cms/lists/category.ts`). */
 export const buildCategoryFeedPostWhere = (subSubcategoryIds: number[]) => ({
   OR: [{ status: 'published' }, { status: 'archived' }],

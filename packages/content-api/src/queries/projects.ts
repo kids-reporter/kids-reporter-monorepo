@@ -7,6 +7,7 @@ import type { z } from 'zod'
 
 import {
   asOrderJson,
+  buildProjectBySlugVisibilityWhere,
   buildPublicPostWhere,
   buildResizedMedium,
   buildResizedSmall,
@@ -111,7 +112,7 @@ export async function fetchPublishedProjectRelatedPostsCount(
   now: Date
 ): Promise<V1ProjectRelatedPostsCountResponse | null> {
   const project = await prisma.project.findFirst({
-    where: { slug, ...PUBLISHED_PROJECT_WHERE },
+    where: { AND: [{ slug }, buildProjectBySlugVisibilityWhere()] },
     select: { id: true },
   })
   if (!project) return null
