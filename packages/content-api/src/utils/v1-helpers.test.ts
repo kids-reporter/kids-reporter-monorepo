@@ -35,3 +35,39 @@ describe('buildPostBySlugVisibilityWhere', () => {
     expect(buildPostBySlugVisibilityWhere(now)).toEqual({})
   })
 })
+
+describe('buildProjectBySlugVisibilityWhere', () => {
+  beforeEach(() => {
+    vi.resetModules()
+    vi.unstubAllEnvs()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('matches buildPublicProjectWhere when IS_PREVIEW_SERVER is unset', async () => {
+    const { buildProjectBySlugVisibilityWhere, buildPublicProjectWhere } =
+      await import('./v1-helpers.js')
+    expect(buildProjectBySlugVisibilityWhere()).toEqual(
+      buildPublicProjectWhere()
+    )
+  })
+
+  it('matches buildPublicProjectWhere when IS_PREVIEW_SERVER is false', async () => {
+    vi.stubEnv('IS_PREVIEW_SERVER', 'false')
+    const { buildProjectBySlugVisibilityWhere, buildPublicProjectWhere } =
+      await import('./v1-helpers.js')
+    expect(buildProjectBySlugVisibilityWhere()).toEqual(
+      buildPublicProjectWhere()
+    )
+  })
+
+  it('returns no status filter when IS_PREVIEW_SERVER is true', async () => {
+    vi.stubEnv('IS_PREVIEW_SERVER', 'true')
+    const { buildProjectBySlugVisibilityWhere } = await import(
+      './v1-helpers.js'
+    )
+    expect(buildProjectBySlugVisibilityWhere()).toEqual({})
+  })
+})

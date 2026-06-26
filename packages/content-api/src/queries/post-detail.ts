@@ -17,6 +17,7 @@ import {
 import {
   asOrderJson,
   buildPostBySlugVisibilityWhere,
+  buildProjectBySlugVisibilityWhere,
   buildPublicPostWhere,
   buildResizedLarge,
   buildResizedMedium,
@@ -181,7 +182,7 @@ export async function fetchPublishedProjectMetaBySlug(
   slug: string
 ): Promise<V1ProjectBySlugMetaResponse | null> {
   const project = await prisma.project.findFirst({
-    where: { slug, status: 'published' },
+    where: { AND: [{ slug }, buildProjectBySlugVisibilityWhere()] },
     select: {
       publishedDate: true,
       ogDescription: true,
@@ -208,7 +209,7 @@ export async function fetchPublishedProjectDetailBySlug(
   now: Date
 ): Promise<V1ProjectBySlugDetailResponse | null> {
   const project = await prisma.project.findFirst({
-    where: { slug, status: 'published' },
+    where: { AND: [{ slug }, buildProjectBySlugVisibilityWhere()] },
     select: {
       title: true,
       titlePosition: true,
