@@ -240,6 +240,32 @@ const authConfig = withAuth(
       idField: {
         kind: 'autoincrement',
       },
+      // Temporary observability check to confirm PostgreSQL sessions are
+      // actually encrypted before Cloud SQL is switched to ENCRYPTED_ONLY.
+      // Safe to remove (or trim down to just `encrypted`/`version`) once
+      // TLS enforcement has been verified as stable in production.
+      onConnect: async (context) => {
+        if (appConfig.database.provider !== 'postgresql') {
+          return
+        }
+
+        const rows = await context.prisma.$queryRaw<
+          Array<{ ssl: boolean; version: string | null; cipher: string | null }>
+        >`SELECT ssl, version, cipher FROM pg_stat_ssl WHERE pid = pg_backend_pid()`
+
+        const tls = rows[0]
+
+        // Never log DATABASE_URL, credentials, or other full env vars here.
+        emitStructured({
+          severity: tls?.ssl ? 'INFO' : 'ERROR',
+          message: 'PostgreSQL TLS connection status',
+          context: {
+            encrypted: Boolean(tls?.ssl),
+            version: tls?.version ?? undefined,
+            cipher: tls?.cipher ?? undefined,
+          },
+        })
+      },
     },
     ui: {
       // If `isDisabled` is set to `true` then the Admin UI will be completely disabled.
