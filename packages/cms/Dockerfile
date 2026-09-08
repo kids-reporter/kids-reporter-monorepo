@@ -26,7 +26,7 @@ RUN set -e; \
 
 ENV APP_DIR /app
 ## Set fallback mount directory
-ENV MNT_DIR /app/gcs
+ENV MNT_DIR /app/public
 ENV HOST 0.0.0.0
 ENV PORT 3000
 
