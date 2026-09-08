@@ -49,6 +49,14 @@ export const updateMemberProfile = async ({
       ...(data.contactEmail !== undefined
         ? { contactEmail: data.contactEmail }
         : {}),
+      ...(data.birthday !== undefined ? { birthday: data.birthday } : {}),
+      ...(data.locationCountry !== undefined
+        ? { locationCountry: data.locationCountry }
+        : {}),
+      ...(data.locationRegion !== undefined
+        ? { locationRegion: data.locationRegion }
+        : {}),
+      ...(data.identity !== undefined ? { identity: data.identity } : {}),
       ...(data.showBaodaozai !== undefined
         ? { showBaodaozai: data.showBaodaozai }
         : {}),

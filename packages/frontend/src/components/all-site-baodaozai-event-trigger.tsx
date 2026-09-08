@@ -11,7 +11,6 @@ import {
 
 import BaodaozaiEventTrigger from '@/services/call-baodaozai/components/baodaozai-event-trigger'
 import { BaodaozaiActionSetter } from '@/services/call-baodaozai/types'
-import { useFeatureIntroDialogContext } from '@/services/feature-intro'
 
 type EventId = 'show-intro' | 'hide-intro'
 
@@ -76,8 +75,7 @@ function AllSiteBaodaozaiEventTrigger({
 }: AllSiteBaodaozaiEventTriggerProps) {
   const isAtTop = useIsAtTop(35)
   const [isFirstRenderAtTop, setIsFirstRenderAtTop] = useState(isAtTop)
-  const { openDialog: openFeatureIntroDialog, isFinishedIntro } =
-    useFeatureIntroDialogContext()
+
   useEffect(() => {
     if (!isAtTop && isFirstRenderAtTop) {
       setIsFirstRenderAtTop(false)
@@ -87,9 +85,8 @@ function AllSiteBaodaozaiEventTrigger({
   const confirmAction = useCallback(
     ({ setAction }: Parameters<BaodaozaiActionSetter>[0]) => {
       setAction('default')
-      openFeatureIntroDialog()
     },
-    [openFeatureIntroDialog]
+    []
   )
 
   const eventConfig = useMemo(() => {
@@ -100,8 +97,7 @@ function AllSiteBaodaozaiEventTrigger({
     return config[id]
   }, [id, content, confirmAction])
 
-  const disabled =
-    !isFinishedIntro || (id === 'show-intro' && !isFirstRenderAtTop) || isIdle
+  const disabled = (id === 'show-intro' && !isFirstRenderAtTop) || isIdle
 
   if (!eventConfig) {
     console.warn(

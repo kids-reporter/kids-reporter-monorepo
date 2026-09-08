@@ -1,4 +1,4 @@
-export const ArrowLeft = () => {
+export const ArrowLeft = ({ className }: { className?: string }) => {
   return (
     <svg
       width="24"
@@ -6,6 +6,7 @@ export const ArrowLeft = () => {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       <g clipPath="url(#clip0_3400_15242)">
         <path
@@ -25,7 +26,7 @@ export const ArrowLeft = () => {
   )
 }
 
-export const ArrowRight = () => {
+export const ArrowRight = ({ className }: { className?: string }) => {
   return (
     <svg
       width="24"
@@ -33,6 +34,7 @@ export const ArrowRight = () => {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      className={className}
     >
       <g clipPath="url(#clip0_3400_15283)">
         <path

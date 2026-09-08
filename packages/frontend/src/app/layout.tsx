@@ -9,7 +9,6 @@ import { headers } from 'next/headers'
 
 import Providers from '@/components/providers'
 import { Toaster } from '@/components/toaster'
-import FeatureIntroDialog from '@/services/feature-intro/components/feature-info-dialog'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
 const GTM_ID = 'GTM-T37WZJ44'
@@ -42,7 +41,6 @@ export default function RootLayout({
 
       <body>
         <Providers traceHeaders={traceHeaders}>
-          <FeatureIntroDialog />
           {children}
           <Footer />
           <Toaster />

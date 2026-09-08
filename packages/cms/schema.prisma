@@ -336,6 +336,10 @@ model Member {
   nickname                        String                @default("")
   email                           String                @default("")
   contactEmail                    String                @default("")
+  birthday                        DateTime?             @postgresql.Date
+  locationCountry                 String?
+  locationRegion                  String?
+  identity                        String?
   twreporter_user_id              String                @unique @default("")
   role                            String                @default("member")
   showBaodaozai                   Boolean               @default(true)

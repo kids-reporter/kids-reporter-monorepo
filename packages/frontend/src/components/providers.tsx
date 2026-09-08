@@ -8,7 +8,6 @@ import { useMemo } from 'react'
 import { getQueryClient } from '@/api-utils/react-query/get-query-client'
 import { usePopularKeywords } from '@/api-utils/react-query/hooks/popular-keywords'
 import { AuthProvider } from '@/services/auth/auth-provider'
-import { FeatureIntroDialogProvider } from '@/services/feature-intro'
 
 import StyledComponentsRegistry from './registry'
 
@@ -44,7 +43,7 @@ function Providers({
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <HeaderProviderWithPopularKeywords traceHeaders={traceHeaders}>
-            <FeatureIntroDialogProvider>{children}</FeatureIntroDialogProvider>
+            {children}
           </HeaderProviderWithPopularKeywords>
         </AuthProvider>
         <ReactQueryDevtools
