@@ -3,6 +3,7 @@ import { V1SubSubcategoryBySlugPostsResponseSchema } from '@kids-reporter/api-ty
 import type { TraceHeaders } from '@/types/trace-headers'
 import {
   contentApiResponseParseError,
+  isContentApiNotFound,
   sendContentApiRequest,
 } from '@/utils/send-content-api'
 
@@ -21,22 +22,29 @@ export async function getSubSubcategoryPostsContentApi({
   orderBy?: string
   traceHeaders?: TraceHeaders
 }) {
-  const enc = encodeURIComponent(slug)
-  const response = await sendContentApiRequest({
-    path: `/v1/sub-subcategories/${enc}/posts`,
-    query: { take, skip, orderBy: orderBy ?? 'publishedDate:desc' },
-    traceHeaders,
-  })
-  const parsed = V1SubSubcategoryBySlugPostsResponseSchema.safeParse(response)
-  if (!parsed.success) {
-    throw contentApiResponseParseError(
-      'content-api schema mismatch sub-subcategory posts',
-      parsed.error
-    )
-  }
-  const s = parsed.data
-  return {
-    ...s,
-    relatedPosts: normalizePostCardsForGql(s.relatedPosts),
+  try {
+    const enc = encodeURIComponent(slug)
+    const response = await sendContentApiRequest({
+      path: `/v1/sub-subcategories/${enc}/posts`,
+      query: { take, skip, orderBy: orderBy ?? 'publishedDate:desc' },
+      traceHeaders,
+    })
+    const parsed = V1SubSubcategoryBySlugPostsResponseSchema.safeParse(response)
+    if (!parsed.success) {
+      throw contentApiResponseParseError(
+        'content-api schema mismatch sub-subcategory posts',
+        parsed.error
+      )
+    }
+    const s = parsed.data
+    return {
+      ...s,
+      relatedPosts: normalizePostCardsForGql(s.relatedPosts),
+    }
+  } catch (e) {
+    if (isContentApiNotFound(e)) {
+      return undefined
+    }
+    throw e
   }
 }

@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 
-import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
+import { getCallBaodaozaiIntro } from '@/api/call-baodaozai-intro'
 import { getTopicProjectsPaged } from '@/api/project'
 import {
   FALLBACK_IMG,
@@ -14,6 +14,7 @@ import {
 import TopicAllModule from '@/modules/topic/all'
 import { TopicSummary } from '@/modules/topic/types'
 import { getPostSummaries } from '@/utils'
+import { resolveCallBaodaozaiIntro } from '@/utils/call-baodaozai-intro'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export const metadata: Metadata = {
@@ -42,7 +43,7 @@ export default async function Topic({
 
   const traceHeaders = getServerTraceHeaders(headers())
 
-  const [projectsRes, topicsIntroContentRes] = await Promise.allSettled([
+  const [projectsRes, topicsIntroRes] = await Promise.allSettled([
     // Fetch projects of specific page
     getTopicProjectsPaged(
       {
@@ -60,7 +61,7 @@ export default async function Topic({
       },
       traceHeaders
     ),
-    getCallBaodaozaiIntroContent({ page: 'topics' }, traceHeaders),
+    getCallBaodaozaiIntro({ page: 'topics' }, traceHeaders),
   ])
   if (projectsRes.status === 'rejected') {
     emitStructured({ severity: 'WARNING', message: 'Empty topic response!' })
@@ -112,14 +113,14 @@ export default async function Topic({
     ? topicSummaries.slice(1)
     : topicSummaries
 
-  const topicsIntroContent =
-    topicsIntroContentRes.status === 'fulfilled'
-      ? topicsIntroContentRes.value
-      : ''
+  const topicsIntro =
+    topicsIntroRes.status === 'fulfilled'
+      ? resolveCallBaodaozaiIntro(topicsIntroRes.value)
+      : resolveCallBaodaozaiIntro()
 
   return (
     <TopicAllModule
-      topicsIntroContent={topicsIntroContent ?? ''}
+      topicsIntro={topicsIntro}
       featuredTopic={featuredTopic}
       featuredTopicPosts={featuredTopicPosts ?? []}
       topicsForListing={

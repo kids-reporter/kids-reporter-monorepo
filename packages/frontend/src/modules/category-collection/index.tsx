@@ -6,8 +6,12 @@ import CommonCollection from '@/components/common-collection'
 import { PostSummary } from '@/components/types'
 import { CATEGORY_COLLECTION_ILLUSTRATIONS } from '@/constants'
 import useAllSiteBaodaozaiIdleTimer from '@/hooks/use-site-baodaozai-idle-timer'
-import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
+import {
+  BaodaozaiInitializer,
+  BaodaozaiVisibilitySetter,
+} from '@/services/call-baodaozai'
 import { CategorySlug } from '@/types'
+import type { CallBaodaozaiIntro } from '@/types/api'
 
 export type CategoryCollectionNavItem = {
   name: string
@@ -18,7 +22,10 @@ export type CategoryCollectionNavItem = {
 type CategoryCollectionModuleProps = {
   categorySlug: CategorySlug
   title: string
-  introContent: string
+  intro: Pick<
+    CallBaodaozaiIntro,
+    'content' | 'buttonStatus' | 'buttonText' | 'buttonUrl'
+  >
   showIntro: boolean
   posts: PostSummary[]
   navigationItems: CategoryCollectionNavItem[]
@@ -30,7 +37,7 @@ type CategoryCollectionModuleProps = {
 function CategoryCollectionModule({
   categorySlug,
   title,
-  introContent,
+  intro,
   showIntro,
   posts,
   navigationItems,
@@ -47,9 +54,10 @@ function CategoryCollectionModule({
       {showIntro && (
         <>
           <BaodaozaiVisibilitySetter show={true} />
+          <BaodaozaiInitializer intro={intro} />
           <AllSiteBaodaozaiEventTrigger
             id="show-intro"
-            content={introContent}
+            intro={intro}
             isIdle={isAllSiteBaodaozaiIdle}
           />
           <div className="relative">
@@ -57,7 +65,7 @@ function CategoryCollectionModule({
               <AllSiteBaodaozaiEventTrigger
                 id="hide-intro"
                 isIdle={isAllSiteBaodaozaiIdle}
-                content={introContent}
+                intro={intro}
               />
             </div>
           </div>

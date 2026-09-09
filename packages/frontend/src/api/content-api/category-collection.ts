@@ -7,6 +7,7 @@ import {
 import type { TraceHeaders } from '@/types/trace-headers'
 import {
   contentApiResponseParseError,
+  isContentApiNotFound,
   sendContentApiRequest,
 } from '@/utils/send-content-api'
 
@@ -52,27 +53,34 @@ export async function getCategoryMetadataContentApi({
   subcategorySlug?: string
   traceHeaders?: TraceHeaders
 }) {
-  const enc = encodeURIComponent(slug)
-  const response = await sendContentApiRequest({
-    path: `/v1/categories/${enc}/metadata`,
-    query: subcategorySlug ? { subcategorySlug } : undefined,
-    traceHeaders,
-  })
-  const parsed = V1CategoryBySlugMetadataResponseSchema.safeParse(response)
-  if (!parsed.success) {
-    throw contentApiResponseParseError(
-      'content-api schema mismatch category metadata',
-      parsed.error
-    )
-  }
-  const c = parsed.data
-  return {
-    ...c,
-    ogImage: c.ogImage ?? undefined,
-    subcategories: c.subcategories.map((s) => ({
-      ...s,
-      ogImage: s.ogImage ?? undefined,
-    })),
+  try {
+    const enc = encodeURIComponent(slug)
+    const response = await sendContentApiRequest({
+      path: `/v1/categories/${enc}/metadata`,
+      query: subcategorySlug ? { subcategorySlug } : undefined,
+      traceHeaders,
+    })
+    const parsed = V1CategoryBySlugMetadataResponseSchema.safeParse(response)
+    if (!parsed.success) {
+      throw contentApiResponseParseError(
+        'content-api schema mismatch category metadata',
+        parsed.error
+      )
+    }
+    const c = parsed.data
+    return {
+      ...c,
+      ogImage: c.ogImage ?? undefined,
+      subcategories: c.subcategories.map((s) => ({
+        ...s,
+        ogImage: s.ogImage ?? undefined,
+      })),
+    }
+  } catch (e) {
+    if (isContentApiNotFound(e)) {
+      return undefined
+    }
+    throw e
   }
 }
 
@@ -83,18 +91,25 @@ export async function getCategorySubcategoriesThemeContentApi({
   slug: string
   traceHeaders?: TraceHeaders
 }) {
-  const enc = encodeURIComponent(slug)
-  const response = await sendContentApiRequest({
-    path: `/v1/categories/${enc}/subcategories-theme`,
-    traceHeaders,
-  })
-  const parsed =
-    V1CategoryBySlugSubcategoriesThemeResponseSchema.safeParse(response)
-  if (!parsed.success) {
-    throw contentApiResponseParseError(
-      'content-api schema mismatch category theme',
-      parsed.error
-    )
+  try {
+    const enc = encodeURIComponent(slug)
+    const response = await sendContentApiRequest({
+      path: `/v1/categories/${enc}/subcategories-theme`,
+      traceHeaders,
+    })
+    const parsed =
+      V1CategoryBySlugSubcategoriesThemeResponseSchema.safeParse(response)
+    if (!parsed.success) {
+      throw contentApiResponseParseError(
+        'content-api schema mismatch category theme',
+        parsed.error
+      )
+    }
+    return parsed.data
+  } catch (e) {
+    if (isContentApiNotFound(e)) {
+      return undefined
+    }
+    throw e
   }
-  return parsed.data
 }

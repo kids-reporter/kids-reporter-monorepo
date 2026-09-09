@@ -234,11 +234,14 @@ model SubSubcategory {
 }
 
 model CallBaodaozaiIntro {
-  id        Int                        @id @default(autoincrement())
-  page      CallBaodaozaiIntroPageType @unique
-  content   String                     @default("")
-  createdAt DateTime?                  @default(now())
-  updatedAt DateTime?                  @updatedAt
+  id           Int                                @id @default(autoincrement())
+  page         CallBaodaozaiIntroPageType         @unique
+  content      String                             @default("")
+  buttonStatus CallBaodaozaiIntroButtonStatusType @default(showIntro)
+  buttonText   String                             @default("開始介紹")
+  buttonUrl    String                             @default("")
+  createdAt    DateTime?                          @default(now())
+  updatedAt    DateTime?                          @updatedAt
 }
 
 model Tag {
@@ -460,4 +463,10 @@ enum CallBaodaozaiIntroPageType {
   campus
   listeningNews
   classroom
+}
+
+enum CallBaodaozaiIntroButtonStatusType {
+  hidden
+  custom
+  showIntro
 }

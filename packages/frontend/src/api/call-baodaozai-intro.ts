@@ -1,13 +1,16 @@
-import { getCallBaodaozaiIntroContentApi } from '@/api/content-api/call-baodaozai-intro'
-import type { CallBaodaozaiIntroPageType } from '@/types/api'
+import { getCallBaodaozaiIntroApi } from '@/api/content-api/call-baodaozai-intro'
+import type {
+  CallBaodaozaiIntro,
+  CallBaodaozaiIntroPageType,
+} from '@/types/api'
 
-export async function getCallBaodaozaiIntroContent(
+export async function getCallBaodaozaiIntro(
   variables: { page: CallBaodaozaiIntroPageType },
   traceHeaders?: Record<string, string>
-): Promise<string | undefined> {
+): Promise<CallBaodaozaiIntro | undefined> {
   const { page } = variables
   if (typeof page !== 'string' || !page) {
     return undefined
   }
-  return getCallBaodaozaiIntroContentApi({ page, traceHeaders })
+  return getCallBaodaozaiIntroApi({ page, traceHeaders })
 }

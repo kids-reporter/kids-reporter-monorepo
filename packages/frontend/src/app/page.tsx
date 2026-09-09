@@ -2,7 +2,7 @@ import { Header } from '@kids-reporter/routing-ui'
 import { Metadata } from 'next'
 import { headers } from 'next/headers'
 
-import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
+import { getCallBaodaozaiIntro } from '@/api/call-baodaozai-intro'
 import { getEditorPicksSettings } from '@/api/editor-picks-settings'
 import { getLatestPosts } from '@/api/post'
 import { getTopicProjects } from '@/api/project'
@@ -15,7 +15,10 @@ import {
   BaodaozaiVisibilitySetter,
   CallBaodaozaiProvider,
 } from '@/services/call-baodaozai'
+import { FeatureIntroDialogProvider } from '@/services/feature-intro'
+import FeatureIntroDialog from '@/services/feature-intro/components/feature-info-dialog'
 import { getPostSummaries } from '@/utils'
+import { resolveCallBaodaozaiIntro } from '@/utils/call-baodaozai-intro'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export const dynamic = 'force-dynamic'
@@ -35,7 +38,7 @@ export default async function Home() {
     topicProjectsRes,
     latestPostsDataRes,
     editorPicksSettingsRes,
-    introContentRes,
+    introRes,
   ] = await Promise.allSettled([
     getTopicProjects(
       {
@@ -55,7 +58,7 @@ export default async function Home() {
       },
       traceHeaders
     ),
-    getCallBaodaozaiIntroContent({ page: 'home' }, traceHeaders),
+    getCallBaodaozaiIntro({ page: 'home' }, traceHeaders),
   ])
 
   const topicProjects =
@@ -66,8 +69,10 @@ export default async function Home() {
     editorPicksSettingsRes.status === 'fulfilled'
       ? editorPicksSettingsRes.value
       : []
-  const introContent =
-    introContentRes.status === 'fulfilled' ? introContentRes.value : undefined
+  const intro =
+    introRes.status === 'fulfilled'
+      ? resolveCallBaodaozaiIntro(introRes.value)
+      : resolveCallBaodaozaiIntro()
 
   const topics =
     topicProjects?.map((project) => {
@@ -101,21 +106,24 @@ export default async function Home() {
 
   return (
     <CallBaodaozaiProvider>
-      <main className="flex w-screen flex-col items-center">
-        <Header />
-        <BaodaozaiVisibilitySetter show={true} />
-        <AuthHeaderLoggedInSetter />
+      <FeatureIntroDialogProvider>
+        <main className="flex w-screen flex-col items-center">
+          <Header />
+          <BaodaozaiVisibilitySetter show={true} />
+          <AuthHeaderLoggedInSetter />
 
-        <HomeModule
-          topics={topics}
-          latestPosts={latestPosts}
-          featuredPosts={featuredPosts}
-          featuredTags={featuredTags}
-          introContent={introContent ?? ''}
-        />
-        <Baodaozai />
-        <ScrollUpBaodaozaiEventTrigger />
-      </main>
+          <HomeModule
+            topics={topics}
+            latestPosts={latestPosts}
+            featuredPosts={featuredPosts}
+            featuredTags={featuredTags}
+            intro={intro}
+          />
+          <Baodaozai />
+          <ScrollUpBaodaozaiEventTrigger />
+          <FeatureIntroDialog />
+        </main>
+      </FeatureIntroDialogProvider>
     </CallBaodaozaiProvider>
   )
 }

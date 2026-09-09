@@ -3,11 +3,12 @@ import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
+import { getCallBaodaozaiIntro } from '@/api/call-baodaozai-intro'
 import { getPostsPaged } from '@/api/post'
 import { ERROR_PAGE, GENERAL_DESCRIPTION, POST_PER_PAGE } from '@/constants'
 import AllModule from '@/modules/all'
 import { getPostSummaries } from '@/utils'
+import { resolveCallBaodaozaiIntro } from '@/utils/call-baodaozai-intro'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 export default async function LatestPosts() {
   const traceHeaders = getServerTraceHeaders(headers())
 
-  const [posts, introContent] = await Promise.all([
+  const [posts, introRes] = await Promise.all([
     getPostsPaged(
       {
         orderBy: 'publishedDate:desc',
@@ -26,7 +27,7 @@ export default async function LatestPosts() {
       },
       traceHeaders
     ),
-    getCallBaodaozaiIntroContent({ page: 'all' }, traceHeaders),
+    getCallBaodaozaiIntro({ page: 'all' }, traceHeaders).catch(() => undefined),
   ])
 
   if (typeof posts === 'undefined') {
@@ -38,6 +39,7 @@ export default async function LatestPosts() {
   }
 
   const postSummaries = getPostSummaries(posts)
+  const intro = resolveCallBaodaozaiIntro(introRes)
 
-  return <AllModule introContent={introContent ?? ''} posts={postSummaries} />
+  return <AllModule intro={intro} posts={postSummaries} />
 }

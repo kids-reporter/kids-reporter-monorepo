@@ -78,11 +78,20 @@ export const SubcategoryItemSchema = z
   })
   .openapi('Subcategory')
 
+export const CallBaodaozaiIntroButtonStatusSchema = z.enum([
+  'hidden',
+  'custom',
+  'showIntro',
+])
+
 export const CallBaodaozaiIntroItemSchema = z
   .object({
     id: z.union([z.string(), z.number().int()]),
     page: z.string(),
     content: z.string(),
+    buttonStatus: CallBaodaozaiIntroButtonStatusSchema,
+    buttonText: z.string(),
+    buttonUrl: z.string(),
   })
   .openapi('CallBaodaozaiIntro')
 

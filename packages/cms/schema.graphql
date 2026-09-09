@@ -1161,6 +1161,9 @@ type CallBaodaozaiIntro {
   id: ID!
   page: CallBaodaozaiIntroPageType
   content: String
+  buttonStatus: CallBaodaozaiIntroButtonStatusType
+  buttonText: String
+  buttonUrl: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -1176,6 +1179,12 @@ enum CallBaodaozaiIntroPageType {
   classroom
 }
 
+enum CallBaodaozaiIntroButtonStatusType {
+  hidden
+  custom
+  showIntro
+}
+
 input CallBaodaozaiIntroWhereUniqueInput {
   id: ID
   page: CallBaodaozaiIntroPageType
@@ -1188,6 +1197,9 @@ input CallBaodaozaiIntroWhereInput {
   id: IDFilter
   page: CallBaodaozaiIntroPageTypeNullableFilter
   content: StringFilter
+  buttonStatus: CallBaodaozaiIntroButtonStatusTypeNullableFilter
+  buttonText: StringFilter
+  buttonUrl: StringFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -1199,10 +1211,20 @@ input CallBaodaozaiIntroPageTypeNullableFilter {
   not: CallBaodaozaiIntroPageTypeNullableFilter
 }
 
+input CallBaodaozaiIntroButtonStatusTypeNullableFilter {
+  equals: CallBaodaozaiIntroButtonStatusType
+  in: [CallBaodaozaiIntroButtonStatusType!]
+  notIn: [CallBaodaozaiIntroButtonStatusType!]
+  not: CallBaodaozaiIntroButtonStatusTypeNullableFilter
+}
+
 input CallBaodaozaiIntroOrderByInput {
   id: OrderDirection
   page: OrderDirection
   content: OrderDirection
+  buttonStatus: OrderDirection
+  buttonText: OrderDirection
+  buttonUrl: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -1210,6 +1232,9 @@ input CallBaodaozaiIntroOrderByInput {
 input CallBaodaozaiIntroUpdateInput {
   page: CallBaodaozaiIntroPageType
   content: String
+  buttonStatus: CallBaodaozaiIntroButtonStatusType
+  buttonText: String
+  buttonUrl: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -1222,6 +1247,9 @@ input CallBaodaozaiIntroUpdateArgs {
 input CallBaodaozaiIntroCreateInput {
   page: CallBaodaozaiIntroPageType
   content: String
+  buttonStatus: CallBaodaozaiIntroButtonStatusType
+  buttonText: String
+  buttonUrl: String
   createdAt: DateTime
   updatedAt: DateTime
 }

@@ -16,9 +16,9 @@
     "postinstall": "make postinstall"
   },
   "dependencies": {
-    "@kids-reporter/api-types": "^0.0.4",
+    "@kids-reporter/api-types": "^0.0.5",
     "@kids-reporter/content-api-kit": "^0.0.1",
-    "@kids-reporter/db": "^0.0.3",
+    "@kids-reporter/db": "^0.0.4",
     "@kids-reporter/logger": "^0.0.2",
     "@prisma/client": "5.22.0",
     "@twreporter/errors": "^1.1.2",

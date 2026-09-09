@@ -5,7 +5,7 @@ import {
   sendContentApiRequest,
 } from '@/utils/send-content-api'
 
-export async function getCallBaodaozaiIntroContentApi({
+export async function getCallBaodaozaiIntroApi({
   page,
   traceHeaders,
 }: {
@@ -24,5 +24,5 @@ export async function getCallBaodaozaiIntroContentApi({
       parsed.error
     )
   }
-  return parsed.data.content
+  return parsed.data
 }

@@ -6,8 +6,8 @@ import {
 
 import type { TraceHeaders } from '@/types/trace-headers'
 import {
-  ContentApiRequestError,
   contentApiResponseParseError,
+  isContentApiNotFound,
   sendContentApiRequest,
 } from '@/utils/send-content-api'
 
@@ -20,23 +20,30 @@ export async function getAuthorMetaContentApi({
   slug: string
   traceHeaders?: TraceHeaders
 }) {
-  const enc = encodeURIComponent(slug)
-  const response = await sendContentApiRequest({
-    path: `/v1/authors/${enc}/meta`,
-    traceHeaders,
-  })
-  const parsed = V1AuthorBySlugMetaResponseSchema.safeParse(response)
-  if (!parsed.success) {
-    throw contentApiResponseParseError(
-      'content-api schema mismatch author meta',
-      parsed.error
-    )
-  }
-  const a = parsed.data
-  return {
-    ...a,
-    bio: a.bio ?? undefined,
-    image: a.image ?? undefined,
+  try {
+    const enc = encodeURIComponent(slug)
+    const response = await sendContentApiRequest({
+      path: `/v1/authors/${enc}/meta`,
+      traceHeaders,
+    })
+    const parsed = V1AuthorBySlugMetaResponseSchema.safeParse(response)
+    if (!parsed.success) {
+      throw contentApiResponseParseError(
+        'content-api schema mismatch author meta',
+        parsed.error
+      )
+    }
+    const a = parsed.data
+    return {
+      ...a,
+      bio: a.bio ?? undefined,
+      image: a.image ?? undefined,
+    }
+  } catch (e) {
+    if (isContentApiNotFound(e)) {
+      return undefined
+    }
+    throw e
   }
 }
 
@@ -64,7 +71,7 @@ export async function getAuthorPostsCountContentApi({
       postsCount: parsed.data.postsCount,
     }
   } catch (e) {
-    if (e instanceof ContentApiRequestError && e.status === 404) {
+    if (isContentApiNotFound(e)) {
       return undefined
     }
     throw e
@@ -84,25 +91,32 @@ export async function getAuthorPostsContentApi({
   orderBy?: string
   traceHeaders?: TraceHeaders
 }) {
-  const enc = encodeURIComponent(slug)
-  const response = await sendContentApiRequest({
-    path: `/v1/authors/${enc}/posts`,
-    query: { take, skip, orderBy: orderBy ?? 'publishedDate:desc' },
-    traceHeaders,
-  })
-  const parsed = V1AuthorBySlugPostsResponseSchema.safeParse(response)
-  if (!parsed.success) {
-    throw contentApiResponseParseError(
-      'content-api schema mismatch author posts',
-      parsed.error
-    )
-  }
-  const a = parsed.data
-  return {
-    ...a,
-    bio: a.bio ?? undefined,
-    email: a.email ?? undefined,
-    avatar: a.avatar ?? undefined,
-    posts: normalizePostCardsForGql(a.posts),
+  try {
+    const enc = encodeURIComponent(slug)
+    const response = await sendContentApiRequest({
+      path: `/v1/authors/${enc}/posts`,
+      query: { take, skip, orderBy: orderBy ?? 'publishedDate:desc' },
+      traceHeaders,
+    })
+    const parsed = V1AuthorBySlugPostsResponseSchema.safeParse(response)
+    if (!parsed.success) {
+      throw contentApiResponseParseError(
+        'content-api schema mismatch author posts',
+        parsed.error
+      )
+    }
+    const a = parsed.data
+    return {
+      ...a,
+      bio: a.bio ?? undefined,
+      email: a.email ?? undefined,
+      avatar: a.avatar ?? undefined,
+      posts: normalizePostCardsForGql(a.posts),
+    }
+  } catch (e) {
+    if (isContentApiNotFound(e)) {
+      return undefined
+    }
+    throw e
   }
 }

@@ -4114,7 +4114,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kids-reporter/api-types@npm:^0.0.4, @kids-reporter/api-types@workspace:packages/api-types":
+"@kids-reporter/api-types@npm:^0.0.5, @kids-reporter/api-types@workspace:packages/api-types":
   version: 0.0.0-use.local
   resolution: "@kids-reporter/api-types@workspace:packages/api-types"
   dependencies:
@@ -4226,9 +4226,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kids-reporter/content-api@workspace:packages/content-api"
   dependencies:
-    "@kids-reporter/api-types": "npm:^0.0.4"
+    "@kids-reporter/api-types": "npm:^0.0.5"
     "@kids-reporter/content-api-kit": "npm:^0.0.1"
-    "@kids-reporter/db": "npm:^0.0.3"
+    "@kids-reporter/db": "npm:^0.0.4"
     "@kids-reporter/logger": "npm:^0.0.2"
     "@prisma/client": "npm:5.22.0"
     "@twreporter/errors": "npm:^1.1.2"
@@ -4269,7 +4269,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kids-reporter/db@npm:^0.0.3, @kids-reporter/db@workspace:packages/db":
+"@kids-reporter/db@npm:^0.0.4, @kids-reporter/db@workspace:packages/db":
   version: 0.0.0-use.local
   resolution: "@kids-reporter/db@workspace:packages/db"
   dependencies:
@@ -4346,7 +4346,7 @@ __metadata:
   dependencies:
     "@googleapis/customsearch": "npm:^1.0.4"
     "@hookform/resolvers": "npm:^5.2.2"
-    "@kids-reporter/api-types": "npm:^0.0.4"
+    "@kids-reporter/api-types": "npm:^0.0.5"
     "@kids-reporter/draft-renderer": "npm:^1.0.13"
     "@kids-reporter/logger": "npm:^0.0.2"
     "@kids-reporter/routing-ui": "npm:0.1.25"
