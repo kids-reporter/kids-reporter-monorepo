@@ -17,6 +17,10 @@ const memberSelect = {
   email: true,
   nickname: true,
   contactEmail: true,
+  birthday: true,
+  locationCountry: true,
+  locationRegion: true,
+  identity: true,
   twreporter_user_id: true,
   showBaodaozai: true,
   essayQuestionCount: true,
@@ -30,12 +34,19 @@ const memberSelect = {
   },
 } as const
 
+type MemberIdentity = NonNullable<MemberProfile['identity']>
+type MemberLocationCountry = NonNullable<MemberProfile['locationCountry']>
+
 type MemberRow = {
   id: string
   name: string
   email: string
   nickname: string
   contactEmail: string
+  birthday: Date | null
+  locationCountry: string | null
+  locationRegion: string | null
+  identity: string | null
   twreporter_user_id: string
   showBaodaozai: boolean
   essayQuestionCount: number | null
@@ -47,12 +58,47 @@ type MemberRow = {
   } | null
 }
 
+const EMPTY_TO_NULL = (value: string | null | undefined): string | null => {
+  if (!value) return null
+  return value
+}
+
+const toCalendarDay = (value: Date | null): string | null => {
+  if (!value) return null
+  return value.toISOString().slice(0, 10)
+}
+
+const parseIdentity = (value: string | null): MemberIdentity | null => {
+  if (
+    value === 'student' ||
+    value === 'parent' ||
+    value === 'teacher' ||
+    value === 'public'
+  ) {
+    return value
+  }
+  return null
+}
+
+const parseLocationCountry = (
+  value: string | null
+): MemberLocationCountry | null => {
+  if (value === 'taiwan' || value === 'other') {
+    return value
+  }
+  return null
+}
+
 const mapMember = (m: MemberRow): MemberProfile => ({
   id: m.id,
   name: m.name,
   email: m.email,
   nickname: m.nickname,
   contactEmail: m.contactEmail,
+  birthday: toCalendarDay(m.birthday),
+  locationCountry: parseLocationCountry(EMPTY_TO_NULL(m.locationCountry)),
+  locationRegion: EMPTY_TO_NULL(m.locationRegion),
+  identity: parseIdentity(EMPTY_TO_NULL(m.identity)),
   twreporter_user_id: m.twreporter_user_id,
   showBaodaozai: m.showBaodaozai,
   essayQuestionCount: m.essayQuestionCount,
@@ -87,6 +133,28 @@ export async function findMemberIdRole(
   return m ?? null
 }
 
+const toPrismaMemberPatch = (
+  data: MemberProfilePatch
+): Prisma.MemberUpdateInput => {
+  const patch: Prisma.MemberUpdateInput = { ...data }
+  if ('birthday' in data) {
+    patch.birthday =
+      data.birthday === null || data.birthday === undefined
+        ? null
+        : new Date(`${data.birthday}T00:00:00.000Z`)
+  }
+  if ('locationCountry' in data) {
+    patch.locationCountry = data.locationCountry ?? null
+  }
+  if ('locationRegion' in data) {
+    patch.locationRegion = data.locationRegion ?? null
+  }
+  if ('identity' in data) {
+    patch.identity = data.identity ?? null
+  }
+  return patch
+}
+
 /**
  * `PATCH /v1/members/me`. Returns `null` when the member does not exist;
  * routes should map that to 404 (matching prior behavior).
@@ -98,7 +166,7 @@ export async function updateMemberProfile(
   try {
     const updated = await prisma.member.update({
       where: { twreporter_user_id: userId },
-      data,
+      data: toPrismaMemberPatch(data),
       select: memberSelect,
     })
     return mapMember(updated as MemberRow)

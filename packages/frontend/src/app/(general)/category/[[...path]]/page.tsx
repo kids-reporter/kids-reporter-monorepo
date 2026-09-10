@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 
-import { getCallBaodaozaiIntroContent } from '@/api/call-baodaozai-intro'
+import { getCallBaodaozaiIntro } from '@/api/call-baodaozai-intro'
 import {
   getCategoryMetadata,
   getCategoryPosts,
@@ -26,6 +26,7 @@ import {
 } from '@/types/api'
 import { DeepPartial } from '@/types/utils'
 import { getPostSummaries } from '@/utils'
+import { resolveCallBaodaozaiIntro } from '@/utils/call-baodaozai-intro'
 import {
   mapCategorySlugToIntroPageType,
   parseCategoryInfoFromPath,
@@ -178,9 +179,12 @@ export default async function Category({
 
   const pageEnum = mapCategorySlugToIntroPageType(category)
 
-  const introContent = pageEnum
-    ? await getCallBaodaozaiIntroContent({ page: pageEnum }, traceHeaders)
+  const introRaw = pageEnum
+    ? await getCallBaodaozaiIntro({ page: pageEnum }, traceHeaders).catch(
+        () => undefined
+      )
     : undefined
+  const intro = resolveCallBaodaozaiIntro(introRaw)
 
   const categoryData = await getCategorySubcategoriesAndThemeColor(
     { slug: category },
@@ -225,8 +229,11 @@ export default async function Category({
   )
 
   if (!postsRes) {
-    emitStructured({ severity: 'WARNING', message: 'Empty related posts!' })
-    redirect(ERROR_PAGE)
+    emitStructured({
+      severity: 'WARNING',
+      message: `Category posts not found. URL path is: /${path?.join('/') ?? ''}`,
+    })
+    notFound()
   }
 
   if ('subcategory' in postsRes && postsRes.subcategory) {
@@ -282,7 +289,7 @@ export default async function Category({
     <CategoryCollectionModule
       categorySlug={category}
       title={collectionTitle}
-      introContent={introContent ?? ''}
+      intro={intro}
       showIntro={Boolean(pageEnum) && currentPage === 1}
       posts={posts}
       navigationItems={navigationItems}

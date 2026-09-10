@@ -234,11 +234,14 @@ model SubSubcategory {
 }
 
 model CallBaodaozaiIntro {
-  id        Int                        @id @default(autoincrement())
-  page      CallBaodaozaiIntroPageType @unique
-  content   String                     @default("")
-  createdAt DateTime?                  @default(now())
-  updatedAt DateTime?                  @updatedAt
+  id           Int                                @id @default(autoincrement())
+  page         CallBaodaozaiIntroPageType         @unique
+  content      String                             @default("")
+  buttonStatus CallBaodaozaiIntroButtonStatusType @default(showIntro)
+  buttonText   String                             @default("開始介紹")
+  buttonUrl    String                             @default("")
+  createdAt    DateTime?                          @default(now())
+  updatedAt    DateTime?                          @updatedAt
 }
 
 model Tag {
@@ -336,6 +339,10 @@ model Member {
   nickname                        String                @default("")
   email                           String                @default("")
   contactEmail                    String                @default("")
+  birthday                        DateTime?             @postgresql.Date
+  locationCountry                 String?
+  locationRegion                  String?
+  identity                        String?
   twreporter_user_id              String                @unique @default("")
   role                            String                @default("member")
   showBaodaozai                   Boolean               @default(true)
@@ -456,4 +463,10 @@ enum CallBaodaozaiIntroPageType {
   campus
   listeningNews
   classroom
+}
+
+enum CallBaodaozaiIntroButtonStatusType {
+  hidden
+  custom
+  showIntro
 }

@@ -78,11 +78,20 @@ export const SubcategoryItemSchema = z
   })
   .openapi('Subcategory')
 
+export const CallBaodaozaiIntroButtonStatusSchema = z.enum([
+  'hidden',
+  'custom',
+  'showIntro',
+])
+
 export const CallBaodaozaiIntroItemSchema = z
   .object({
     id: z.union([z.string(), z.number().int()]),
     page: z.string(),
     content: z.string(),
+    buttonStatus: CallBaodaozaiIntroButtonStatusSchema,
+    buttonText: z.string(),
+    buttonUrl: z.string(),
   })
   .openapi('CallBaodaozaiIntro')
 
@@ -369,6 +378,17 @@ export const V1MemberAvatarSchema = z
   })
   .openapi('MemberAvatar')
 
+export const V1MemberIdentitySchema = z.enum([
+  'student',
+  'parent',
+  'teacher',
+  'public',
+])
+
+export const V1MemberLocationCountrySchema = z.enum(['taiwan', 'other'])
+
+export const V1MemberBirthdaySchema = z.iso.date()
+
 export const V1MemberProfileSchema = z
   .object({
     id: z.string(),
@@ -376,6 +396,10 @@ export const V1MemberProfileSchema = z
     email: z.string(),
     nickname: z.string(),
     contactEmail: z.string(),
+    birthday: V1MemberBirthdaySchema.nullable().optional(),
+    locationCountry: V1MemberLocationCountrySchema.nullable().optional(),
+    locationRegion: z.string().nullable().optional(),
+    identity: V1MemberIdentitySchema.nullable().optional(),
     twreporter_user_id: z.string(),
     showBaodaozai: z.boolean(),
     essayQuestionCount: z.number().int().nullable().optional(),
@@ -391,6 +415,10 @@ export const V1MemberProfilePatchBodySchema = z
     name: z.string().optional(),
     nickname: z.string().optional(),
     contactEmail: z.string().optional(),
+    birthday: V1MemberBirthdaySchema.nullable().optional(),
+    locationCountry: V1MemberLocationCountrySchema.nullable().optional(),
+    locationRegion: z.string().nullable().optional(),
+    identity: V1MemberIdentitySchema.nullable().optional(),
     showBaodaozai: z.boolean().optional(),
     essayQuestionCount: z.number().int().min(0).max(3).optional(),
   })

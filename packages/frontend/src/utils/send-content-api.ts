@@ -47,6 +47,10 @@ export class ContentApiRequestError extends Error {
   }
 }
 
+export function isContentApiNotFound(error: unknown): boolean {
+  return error instanceof ContentApiRequestError && error.status === 404
+}
+
 const pickQueryParams = (query: ContentApiQuery | undefined) => {
   if (!query) return undefined
   const out: Record<string, string | number | boolean> = {}

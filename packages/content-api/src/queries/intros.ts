@@ -19,13 +19,22 @@ export async function fetchCallBaodaozaiIntro(
 ): Promise<V1CallBaodaozaiIntroResponse | null> {
   const intro = await prisma.callBaodaozaiIntro.findFirst({
     where: { page },
-    select: { id: true, page: true, content: true },
+    select: {
+      id: true,
+      page: true,
+      content: true,
+      buttonStatus: true,
+      buttonText: true,
+      buttonUrl: true,
+    },
   })
   if (!intro) return null
-  const result = {
+  return {
     id: intro.id,
     page: intro.page,
     content: intro.content,
+    buttonStatus: intro.buttonStatus,
+    buttonText: intro.buttonText,
+    buttonUrl: intro.buttonUrl,
   }
-  return result
 }

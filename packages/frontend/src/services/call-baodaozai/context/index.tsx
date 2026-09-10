@@ -266,6 +266,7 @@ export function CallBaodaozaiProvider({
     confirmText: DIALOG_DEFAULT_CONFIRM_TEXT,
     cancelText: DIALOG_DEFAULT_CANCEL_TEXT,
     hideCancelButton: false,
+    hideConfirmButton: false,
     isOpen: false,
     confirmAction: () => {},
     cancelAction: () => {},

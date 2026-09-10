@@ -6,6 +6,9 @@ type ViewModeProps = {
   nickname: string
   id: string
   contactEmail: string
+  birthday: string
+  location: string
+  identity: string
   joinedDate: string
 }
 
@@ -14,6 +17,9 @@ function ViewMode({
   nickname,
   id,
   contactEmail,
+  birthday,
+  location,
+  identity,
   joinedDate,
 }: ViewModeProps) {
   return (
@@ -67,6 +73,39 @@ function ViewMode({
               {contactEmail || NO_DATA_TEXT}
             </span>
           </div>
+        </div>
+      </div>
+
+      <Divider />
+
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
+          <span className="prose-p1-bold text-neutral-900">生日</span>
+          <span className="prose-p1 text-neutral-700">
+            {birthday || NO_DATA_TEXT}
+          </span>
+        </div>
+      </div>
+
+      <Divider />
+
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
+          <span className="prose-p1-bold text-neutral-900">所在地</span>
+          <span className="prose-p1 text-neutral-700">
+            {location || NO_DATA_TEXT}
+          </span>
+        </div>
+      </div>
+
+      <Divider />
+
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
+          <span className="prose-p1-bold text-neutral-900">身份別</span>
+          <span className="prose-p1 text-neutral-700">
+            {identity || NO_DATA_TEXT}
+          </span>
         </div>
       </div>
 

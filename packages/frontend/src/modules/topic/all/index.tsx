@@ -8,7 +8,11 @@ import Pagination from '@/components/pagination'
 import { PostSummary } from '@/components/types'
 import { TOPIC_PAGE_ROUTE } from '@/constants'
 import useAllSiteBaodaozaiIdleTimer from '@/hooks/use-site-baodaozai-idle-timer'
-import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
+import {
+  BaodaozaiInitializer,
+  BaodaozaiVisibilitySetter,
+} from '@/services/call-baodaozai'
+import type { CallBaodaozaiIntro } from '@/types/api'
 
 import FeaturedTopicCard from '../components/featured-topic-card'
 import TopicCard from '../components/topic-card'
@@ -16,7 +20,10 @@ import TopicPostSlider from '../components/topic-post-slider'
 import { TopicSummary } from '../types'
 
 type TopicAllModuleProps = {
-  topicsIntroContent: string
+  topicsIntro: Pick<
+    CallBaodaozaiIntro,
+    'content' | 'buttonStatus' | 'buttonText' | 'buttonUrl'
+  >
   featuredTopic: TopicSummary | null
   featuredTopicPosts: PostSummary[]
   topicsForListing: TopicSummary[]
@@ -25,7 +32,7 @@ type TopicAllModuleProps = {
 }
 
 function TopicAllModule({
-  topicsIntroContent,
+  topicsIntro,
   featuredTopic,
   featuredTopicPosts,
   topicsForListing,
@@ -36,9 +43,10 @@ function TopicAllModule({
   return (
     <main className="mx-auto flex flex-col items-center justify-center">
       <BaodaozaiVisibilitySetter show={true} />
+      <BaodaozaiInitializer intro={topicsIntro} />
       <AllSiteBaodaozaiEventTrigger
         id="show-intro"
-        content={topicsIntroContent}
+        intro={topicsIntro}
         isIdle={isAllSiteBaodaozaiIdle}
       />
       <div className="relative">
@@ -46,7 +54,7 @@ function TopicAllModule({
           <AllSiteBaodaozaiEventTrigger
             id="hide-intro"
             isIdle={isAllSiteBaodaozaiIdle}
-            content={topicsIntroContent}
+            intro={topicsIntro}
           />
         </div>
       </div>

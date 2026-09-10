@@ -6,14 +6,21 @@ import CommonCollection from '@/components/common-collection'
 import { PostSummary } from '@/components/types'
 import { POST_PER_PAGE } from '@/constants'
 import useAllSiteBaodaozaiIdleTimer from '@/hooks/use-site-baodaozai-idle-timer'
-import { BaodaozaiVisibilitySetter } from '@/services/call-baodaozai'
+import {
+  BaodaozaiInitializer,
+  BaodaozaiVisibilitySetter,
+} from '@/services/call-baodaozai'
+import type { CallBaodaozaiIntro } from '@/types/api'
 
 type AllModuleProps = {
-  introContent: string
+  intro: Pick<
+    CallBaodaozaiIntro,
+    'content' | 'buttonStatus' | 'buttonText' | 'buttonUrl'
+  >
   posts: PostSummary[]
 }
 
-function AllModule({ introContent, posts }: AllModuleProps) {
+function AllModule({ intro, posts }: AllModuleProps) {
   const { isIdle: isAllSiteBaodaozaiIdle } = useAllSiteBaodaozaiIdleTimer()
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -27,9 +34,10 @@ function AllModule({ introContent, posts }: AllModuleProps) {
   return (
     <main>
       <BaodaozaiVisibilitySetter show={true} />
+      <BaodaozaiInitializer intro={intro} />
       <AllSiteBaodaozaiEventTrigger
         id="show-intro"
-        content={introContent}
+        intro={intro}
         isIdle={isAllSiteBaodaozaiIdle}
       />
       <div className="relative">
@@ -37,7 +45,7 @@ function AllModule({ introContent, posts }: AllModuleProps) {
           <AllSiteBaodaozaiEventTrigger
             id="hide-intro"
             isIdle={isAllSiteBaodaozaiIdle}
-            content={introContent}
+            intro={intro}
           />
         </div>
       </div>

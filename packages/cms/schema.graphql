@@ -1161,6 +1161,9 @@ type CallBaodaozaiIntro {
   id: ID!
   page: CallBaodaozaiIntroPageType
   content: String
+  buttonStatus: CallBaodaozaiIntroButtonStatusType
+  buttonText: String
+  buttonUrl: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -1176,6 +1179,12 @@ enum CallBaodaozaiIntroPageType {
   classroom
 }
 
+enum CallBaodaozaiIntroButtonStatusType {
+  hidden
+  custom
+  showIntro
+}
+
 input CallBaodaozaiIntroWhereUniqueInput {
   id: ID
   page: CallBaodaozaiIntroPageType
@@ -1188,6 +1197,9 @@ input CallBaodaozaiIntroWhereInput {
   id: IDFilter
   page: CallBaodaozaiIntroPageTypeNullableFilter
   content: StringFilter
+  buttonStatus: CallBaodaozaiIntroButtonStatusTypeNullableFilter
+  buttonText: StringFilter
+  buttonUrl: StringFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -1199,10 +1211,20 @@ input CallBaodaozaiIntroPageTypeNullableFilter {
   not: CallBaodaozaiIntroPageTypeNullableFilter
 }
 
+input CallBaodaozaiIntroButtonStatusTypeNullableFilter {
+  equals: CallBaodaozaiIntroButtonStatusType
+  in: [CallBaodaozaiIntroButtonStatusType!]
+  notIn: [CallBaodaozaiIntroButtonStatusType!]
+  not: CallBaodaozaiIntroButtonStatusTypeNullableFilter
+}
+
 input CallBaodaozaiIntroOrderByInput {
   id: OrderDirection
   page: OrderDirection
   content: OrderDirection
+  buttonStatus: OrderDirection
+  buttonText: OrderDirection
+  buttonUrl: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -1210,6 +1232,9 @@ input CallBaodaozaiIntroOrderByInput {
 input CallBaodaozaiIntroUpdateInput {
   page: CallBaodaozaiIntroPageType
   content: String
+  buttonStatus: CallBaodaozaiIntroButtonStatusType
+  buttonText: String
+  buttonUrl: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -1222,6 +1247,9 @@ input CallBaodaozaiIntroUpdateArgs {
 input CallBaodaozaiIntroCreateInput {
   page: CallBaodaozaiIntroPageType
   content: String
+  buttonStatus: CallBaodaozaiIntroButtonStatusType
+  buttonText: String
+  buttonUrl: String
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -1716,6 +1744,10 @@ type Member {
   nickname: String
   email: String
   contactEmail: String
+  birthday: CalendarDay
+  locationCountry: String
+  locationRegion: String
+  identity: String
   twreporter_user_id: String
   role: String
   twoFactorAuth: JSON
@@ -1725,6 +1757,8 @@ type Member {
   createdAt: DateTime
   updatedAt: DateTime
 }
+
+scalar CalendarDay @specifiedBy(url: "https://datatracker.ietf.org/doc/html/rfc3339#section-5.6")
 
 input MemberWhereUniqueInput {
   id: ID
@@ -1741,6 +1775,10 @@ input MemberWhereInput {
   nickname: StringFilter
   email: StringFilter
   contactEmail: StringFilter
+  birthday: CalendarDayNullableFilter
+  locationCountry: StringNullableFilter
+  locationRegion: StringNullableFilter
+  identity: StringNullableFilter
   twreporter_user_id: StringFilter
   role: StringFilter
   showBaodaozai: BooleanFilter
@@ -1750,12 +1788,27 @@ input MemberWhereInput {
   updatedAt: DateTimeNullableFilter
 }
 
+input CalendarDayNullableFilter {
+  equals: CalendarDay
+  in: [CalendarDay!]
+  notIn: [CalendarDay!]
+  lt: CalendarDay
+  lte: CalendarDay
+  gt: CalendarDay
+  gte: CalendarDay
+  not: CalendarDayNullableFilter
+}
+
 input MemberOrderByInput {
   id: OrderDirection
   name: OrderDirection
   nickname: OrderDirection
   email: OrderDirection
   contactEmail: OrderDirection
+  birthday: OrderDirection
+  locationCountry: OrderDirection
+  locationRegion: OrderDirection
+  identity: OrderDirection
   twreporter_user_id: OrderDirection
   role: OrderDirection
   showBaodaozai: OrderDirection
@@ -1769,6 +1822,10 @@ input MemberUpdateInput {
   nickname: String
   email: String
   contactEmail: String
+  birthday: CalendarDay
+  locationCountry: String
+  locationRegion: String
+  identity: String
   twreporter_user_id: String
   role: String
   showBaodaozai: Boolean
@@ -1794,6 +1851,10 @@ input MemberCreateInput {
   nickname: String
   email: String
   contactEmail: String
+  birthday: CalendarDay
+  locationCountry: String
+  locationRegion: String
+  identity: String
   twreporter_user_id: String
   role: String
   showBaodaozai: Boolean

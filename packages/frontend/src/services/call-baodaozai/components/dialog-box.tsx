@@ -44,6 +44,7 @@ export type DialogBoxProps = {
   confirmText: string
   cancelText: string
   hideCancelButton?: boolean
+  hideConfirmButton?: boolean
 }
 
 function DialogBox({
@@ -54,6 +55,7 @@ function DialogBox({
   confirmText,
   cancelText,
   hideCancelButton = false,
+  hideConfirmButton = false,
 }: DialogBoxProps) {
   return (
     <div
@@ -84,14 +86,16 @@ function DialogBox({
                 {cancelText}
               </Button>
             )}
-            <Button
-              variant="primary"
-              className="flex-1"
-              size={36}
-              onClick={onConfirm}
-            >
-              {confirmText}
-            </Button>
+            {!hideConfirmButton && (
+              <Button
+                variant="primary"
+                className="flex-1"
+                size={36}
+                onClick={onConfirm}
+              >
+                {confirmText}
+              </Button>
+            )}
           </div>
         </div>
         <div className="hidden translate-x-10 translate-y-0 transition-all duration-300 ease-out tablet:block">

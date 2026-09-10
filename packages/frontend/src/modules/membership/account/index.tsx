@@ -11,20 +11,24 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { useUpdateMemberProfileMutation } from '@/api-utils/react-query/hooks/member'
-import {
-  useDeleteMemberAvatarMutation,
-  useUploadMemberAvatarMutation,
-} from '@/api-utils/react-query/hooks/member-avatars'
+import { useUploadMemberAvatarMutation } from '@/api-utils/react-query/hooks/member-avatars'
 import { DEFAULT_TEXT_HOLDER } from '@/constants/input-field'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import { getFormattedDate } from '@/utils'
 
 import MembershipSideMenu from '../components/side-menu'
 import UserAvatar from '../components/user-avatar'
+import {
+  formatBirthdayForApi,
+  formatBirthdayForDisplay,
+  getIdentityLabel,
+  getLocationCountryLabel,
+} from '../constants/member-profile-options'
 import { AccountFormData, accountFormSchema } from '../types'
 import EditMode from './edit-mode'
 import EditUserAvatar from './edit-user-avatar'
 import ViewMode from './view-mode'
+
 function Account() {
   const [isEditMode, setIsEditMode] = useState(false)
   const avatarFileRef = useRef<File | null>(null)
@@ -36,11 +40,15 @@ function Account() {
     fetchMember,
   } = useHydratedAuthStore()
 
-  const defaultValues = useMemo(() => {
+  const defaultValues = useMemo((): AccountFormData => {
     return {
       name: member?.name ?? '',
       nickname: member?.nickname ?? '',
       contactEmail: member?.contactEmail ?? '',
+      birthday: member?.birthday ?? '',
+      locationCountry: member?.locationCountry ?? '',
+      locationRegion: member?.locationRegion ?? '',
+      identity: member?.identity ?? ('' as AccountFormData['identity']),
       ...(member?.avatar?.url ? { avatarUrl: member.avatar.url } : {}),
     }
   }, [member])
@@ -57,10 +65,6 @@ function Account() {
   })
 
   const { mutateAsync: uploadMemberAvatar } = useUploadMemberAvatarMutation({
-    accessToken: tokens?.accessToken ?? '',
-  })
-
-  const { mutateAsync: deleteMemberAvatar } = useDeleteMemberAvatarMutation({
     accessToken: tokens?.accessToken ?? '',
   })
 
@@ -94,6 +98,10 @@ function Account() {
             name: data.name ?? '',
             nickname: data.nickname ?? '',
             contactEmail: data.contactEmail ?? '',
+            birthday: formatBirthdayForApi(data.birthday),
+            locationCountry: data.locationCountry ? data.locationCountry : null,
+            locationRegion: data.locationRegion || null,
+            identity: data.identity,
           },
         })
         toast.success('已儲存')
@@ -115,14 +123,7 @@ function Account() {
         toast.error('儲存失敗，請稍後再試。')
       }
     },
-    [
-      getFieldState,
-      updateMemberProfile,
-      member?.avatar?.id,
-      uploadMemberAvatar,
-      deleteMemberAvatar,
-      fetchMember,
-    ]
+    [getFieldState, updateMemberProfile, uploadMemberAvatar, fetchMember]
   )
 
   const handleFormSubmit = useCallback(() => {
@@ -136,6 +137,13 @@ function Account() {
   }
 
   const memberData = useMemo(() => {
+    const countryLabel = getLocationCountryLabel(member?.locationCountry)
+    const regionLabel = member?.locationRegion
+    const location =
+      countryLabel && regionLabel
+        ? `${countryLabel}／${regionLabel}`
+        : countryLabel || regionLabel || ''
+
     return {
       name: isFetchedMember ? (member?.name ?? '') : DEFAULT_TEXT_HOLDER,
       nickname: isFetchedMember
@@ -144,6 +152,13 @@ function Account() {
       id: isFetchedMember ? (member?.id ?? '') : DEFAULT_TEXT_HOLDER,
       contactEmail: isFetchedMember
         ? (member?.contactEmail ?? '')
+        : DEFAULT_TEXT_HOLDER,
+      birthday: isFetchedMember
+        ? formatBirthdayForDisplay(member?.birthday)
+        : DEFAULT_TEXT_HOLDER,
+      location: isFetchedMember ? location : DEFAULT_TEXT_HOLDER,
+      identity: isFetchedMember
+        ? (getIdentityLabel(member?.identity) ?? '')
         : DEFAULT_TEXT_HOLDER,
       joinedDate: isFetchedMember
         ? getFormattedDate(member?.joinedAt ?? '', '/')

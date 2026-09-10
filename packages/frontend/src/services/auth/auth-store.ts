@@ -32,6 +32,10 @@ export type MemberProfile = {
   essayQuestionCount?: number
   nickname?: string
   contactEmail?: string
+  birthday?: string | null
+  locationCountry?: 'taiwan' | 'other' | null
+  locationRegion?: string | null
+  identity?: 'student' | 'parent' | 'teacher' | 'public' | null
   avatar?: {
     id: string
     url: string

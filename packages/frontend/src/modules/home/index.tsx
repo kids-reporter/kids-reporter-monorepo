@@ -3,6 +3,8 @@
 import AllSiteBaodaozaiEventTrigger from '@/components/all-site-baodaozai-event-trigger'
 import { PostSummary } from '@/components/types'
 import useAllSiteBaodaozaiIdleTimer from '@/hooks/use-site-baodaozai-idle-timer'
+import { BaodaozaiInitializer } from '@/services/call-baodaozai'
+import type { CallBaodaozaiIntro } from '@/types/api'
 
 import CategoryPostCards from './components/category-post-cards'
 import EditorRecommendation from './components/editor-recommendation'
@@ -17,7 +19,10 @@ type HomeModuleProps = {
   latestPosts: PostSummary[]
   featuredPosts: PostSummary[]
   featuredTags: Tag[]
-  introContent: string
+  intro: Pick<
+    CallBaodaozaiIntro,
+    'content' | 'buttonStatus' | 'buttonText' | 'buttonUrl'
+  >
 }
 
 function HomeModule({
@@ -25,14 +30,15 @@ function HomeModule({
   latestPosts,
   featuredPosts,
   featuredTags,
-  introContent,
+  intro,
 }: HomeModuleProps) {
   const { isIdle: isAllSiteBaodaozaiIdle } = useAllSiteBaodaozaiIdleTimer()
   return (
     <>
+      <BaodaozaiInitializer intro={intro} />
       <AllSiteBaodaozaiEventTrigger
         id="show-intro"
-        content={introContent}
+        intro={intro}
         isIdle={isAllSiteBaodaozaiIdle}
       />
       <div className="relative">
@@ -40,7 +46,7 @@ function HomeModule({
           <AllSiteBaodaozaiEventTrigger
             id="hide-intro"
             isIdle={isAllSiteBaodaozaiIdle}
-            content={introContent}
+            intro={intro}
           />
         </div>
       </div>

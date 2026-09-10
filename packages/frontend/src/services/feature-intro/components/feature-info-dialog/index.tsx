@@ -2,7 +2,7 @@
 
 import { Button, cn, useMediaQuery } from '@kids-reporter/routing-ui'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/dialog'
 import { CheckCircleIcon } from '@/icons'
@@ -14,8 +14,7 @@ import { renderDescription } from '../../utils'
 import IndicatorDots from './indicator-dots'
 
 function FeatureIntroDialog() {
-  const { isDialogOpen, openDialog, closeDialog } =
-    useFeatureIntroDialogContext()
+  const { isDialogOpen, closeDialog } = useFeatureIntroDialogContext()
   const [step, setStep] = useState(1)
   const totalSteps = featureIntroConfig.length
   const currentConfig = featureIntroConfig[step - 1]
@@ -35,14 +34,6 @@ function FeatureIntroDialog() {
     localStorage.setItem(FEATURE_INTRO_DIALOG_SEEN_KEY, 'true')
     closeDialog()
   }
-
-  useEffect(() => {
-    const hasSeenDialog =
-      localStorage.getItem(FEATURE_INTRO_DIALOG_SEEN_KEY) === 'true'
-    if (!hasSeenDialog) {
-      openDialog()
-    }
-  }, [openDialog])
 
   const isTablet = useMediaQuery('(min-width: 768px)')
   const isDesktop = useMediaQuery('(min-width: 1024px)')
