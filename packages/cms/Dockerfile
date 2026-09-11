@@ -2,31 +2,16 @@ FROM node:20.19.5-slim
 
 RUN corepack enable
 
-## Install system dependencies, `gcsfuse` in particular.
-RUN set -e; \
-    apt-get update -y && apt-get install -y --no-install-recommends \
-    build-essential \
-    ca-certificates \
-    curl \
-    wget \
-    gnupg2 \
-    tini \
-    openssl \
-    lsb-release; \
-    gcsFuseRepo=gcsfuse-`lsb_release -c -s`; \
-    echo "deb http://packages.cloud.google.com/apt $gcsFuseRepo main" | \
-    tee /etc/apt/sources.list.d/gcsfuse.list; \
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-    apt-key add -; \
-    # apt-get update; \
-    # apt-get install -y gcsfuse \
-    # TODO: remove wget workaround for gcsfuse due to missing registry & restore with apt-get
-    wget https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v1.2.0/gcsfuse_1.2.0_amd64.deb -O gcsfuse.deb && apt-get install -y --no-install-recommends ./gcsfuse.deb && rm -f ./gcsfuse.deb \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends \
+      build-essential \
+      ca-certificates \
+      tini \
+      openssl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV APP_DIR /app
-## Set fallback mount directory
-ENV MNT_DIR /app/gcs
 ENV HOST 0.0.0.0
 ENV PORT 3000
 

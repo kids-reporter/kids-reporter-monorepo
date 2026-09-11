@@ -5,8 +5,8 @@ RUN corepack enable
 # Set the working directory in the container to /app
 WORKDIR /app
 
-# Copy package.json and .yarnrc.yml to the working directory
-COPY package*.json .yarnrc.yml ./
+# Copy dependency manifests before the application code for layer caching.
+COPY package.json yarn.lock .yarnrc.yml ./
 
 # Install the application dependencies
 RUN yarn install --immutable

@@ -1,0 +1,6 @@
+node_modules
+.keystone
+.env*
+public/files
+public/images
+*.tsbuildinfo
