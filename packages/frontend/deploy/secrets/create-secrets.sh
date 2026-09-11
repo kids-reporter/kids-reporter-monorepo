@@ -8,9 +8,12 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
+  ENV=dev|staging|prod SERVICE_NAME=frontend-for-preview ./deploy/secrets/create-secrets.sh [SECRET_SUFFIX|--all]
   ENV=dev|staging|prod ./deploy/secrets/create-secrets.sh [SECRET_SUFFIX|--all]
 
-With no selector, all frontend secrets are created or updated.
+SERVICE_NAME defaults to frontend; also accepts frontend-for-preview.
+Each Cloud Run service has its own secrets under ${ENV}-${SERVICE_NAME}.
+With no selector, all secrets for the selected service are created or updated.
 EOF
 }
 
@@ -29,7 +32,15 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 
 PROJECT_ID="${PROJECT_ID:-kids-reporter}"
 ENV="${ENV:-}"
-CLOUD_RUN_SERVICE="${ENV}-frontend"
+SERVICE_NAME="${SERVICE_NAME:-frontend}"
+case "$SERVICE_NAME" in
+  frontend|frontend-for-preview) ;;
+  *)
+    echo "SERVICE_NAME must be frontend or frontend-for-preview." >&2
+    exit 1
+    ;;
+esac
+CLOUD_RUN_SERVICE="${ENV}-${SERVICE_NAME}"
 SECRET_PREFIX="$CLOUD_RUN_SERVICE"
 SECRET_SPEC="${SCRIPT_DIR}/frontend.secrets"
 LABELS="env=${ENV},system=frontend,cloud-run-service=${CLOUD_RUN_SERVICE},resource-type=cloud-run-service,managed-by=deploy-script,data-class=credential"

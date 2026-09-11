@@ -8,8 +8,7 @@ The Cloud Build trigger must set `_ENV` to `dev`, `staging`, or `prod`. The
 Cloud Run service name is derived as `${_ENV}-frontend`.
 
 The internal preview variant is `${_ENV}-frontend-for-preview`, selected with
-`_SERVICE_NAME=frontend-for-preview`. It uses the same runtime resources and
-secrets, but points server-side content requests at the matching
+`_SERVICE_NAME=frontend-for-preview`. It uses the same runtime resource settings and its own secrets, and points server-side content requests at the matching
 `content-api-for-preview` service and deploys with internal ingress.
 
 Frontend needs two categories of environment configuration, unlike this
@@ -71,21 +70,36 @@ below.
 
 ## Secrets
 
-Secret IDs follow this pattern:
+Secret IDs follow the Cloud Run service name. Public and preview services
+have separate secrets:
 
 ```text
 ${ENV}-frontend_${secret-key}
+${ENV}-frontend-for-preview_${secret-key}
 ```
 
 Create or update secrets from `packages/frontend`:
 
 ```bash
 ENV=dev ./deploy/secrets/create-secrets.sh --all
+ENV=dev SERVICE_NAME=frontend-for-preview ./deploy/secrets/create-secrets.sh --all
 ENV=dev ./deploy/secrets/create-secrets.sh search-api-key
 ```
 
 The script prompts for values interactively and grants the Cloud Run runtime
 service account access to each secret.
+
+SERVICE_NAME defaults to `frontend` and also accepts
+`frontend-for-preview`. Both variants use the same secret specification,
+but values are created and updated independently for each Cloud Run service.
+
+Before deploying preview with these references, create its separate secrets
+for the target environment (`dev`, `staging`, or `prod`) using the command
+above with the appropriate `ENV`. Supply valid values for each credential;
+separating Secret Manager resources does not require changing credentials
+that must match another system. Existing public-service secrets remain in use
+and must not be deleted. Creating a new secret version does not refresh
+already-running revisions; redeploy the selected service after updates.
 
 ## Rollout
 

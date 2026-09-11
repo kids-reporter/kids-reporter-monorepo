@@ -117,7 +117,6 @@ steps:
             PORT=3000
             TIMEOUT=30s
             CONCURRENCY=80
-            SECRETS="SEARCH_API_KEY=${_ENV}-frontend_search-api-key:latest,NEXT_SERVER_ACTIONS_ENCRYPTION_KEY=${_ENV}-frontend_next-server-actions-encryption-key:latest"
             PROBE_ARGS=(
               --startup-probe="httpGet.path=/api/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
               --readiness-probe="httpGet.path=/api/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"
@@ -128,6 +127,7 @@ steps:
               FRONTEND_CONFIG_NAME=frontend-for-preview
               INGRESS=internal
             fi
+            SECRETS="SEARCH_API_KEY=$${SERVICE_NAME}_search-api-key:latest,NEXT_SERVER_ACTIONS_ENCRYPTION_KEY=$${SERVICE_NAME}_next-server-actions-encryption-key:latest"
             ENV_FILE="packages/frontend/deploy/env.${_ENV}.$${FRONTEND_CONFIG_NAME}.runtime.yaml"
             ;;
           cms:)
@@ -156,7 +156,7 @@ steps:
             PORT=8080
             TIMEOUT=30s
             CONCURRENCY=40
-            SECRETS="DATABASE_URL=${_ENV}-content-api_database-url:latest,GO_API_JWT_SECRET=${_ENV}-content-api_go-api-jwt-secret:latest"
+            SECRETS="DATABASE_URL=$${SERVICE_NAME}_database-url:latest,GO_API_JWT_SECRET=$${SERVICE_NAME}_go-api-jwt-secret:latest"
             PROBE_ARGS=(
               --startup-probe="httpGet.path=/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
               --readiness-probe="httpGet.path=/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"
@@ -171,7 +171,7 @@ steps:
             TIMEOUT=30s
             CONCURRENCY=40
             INGRESS=internal
-            SECRETS="DATABASE_URL=${_ENV}-content-api_database-url:latest,GO_API_JWT_SECRET=${_ENV}-content-api_go-api-jwt-secret:latest"
+            SECRETS="DATABASE_URL=$${SERVICE_NAME}_database-url:latest,GO_API_JWT_SECRET=$${SERVICE_NAME}_go-api-jwt-secret:latest"
             PROBE_ARGS=(
               --startup-probe="httpGet.path=/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
               --readiness-probe="httpGet.path=/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"

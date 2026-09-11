@@ -37,23 +37,37 @@ files — see `## Secrets` below.
 
 ## Secrets
 
-Secret IDs follow this pattern, **shared by both content-api and
-content-api-for-preview**:
+Secret IDs follow the Cloud Run service name. Public and preview services
+have separate secrets:
 
 ```text
 ${ENV}-content-api_${secret-key}
+${ENV}-content-api-for-preview_${secret-key}
 ```
 
 Create or update secrets from `packages/content-api`:
 
 ```bash
 ENV=dev ./deploy/secrets/create-secrets.sh --all
+ENV=dev SERVICE_NAME=content-api-for-preview ./deploy/secrets/create-secrets.sh --all
 ENV=dev ./deploy/secrets/create-secrets.sh database-url
 ```
 
 Managed secrets: `database-url`, `go-api-jwt-secret`. The script prompts for
 values interactively and grants the Cloud Run runtime service account
 access to each secret.
+
+SERVICE_NAME defaults to `content-api` and also accepts
+`content-api-for-preview`. Both variants use the same secret specification,
+but values are created and updated independently for each Cloud Run service.
+
+Before deploying preview with these references, create its separate secrets
+for the target environment (`dev`, `staging`, or `prod`) using the command
+above with the appropriate `ENV`. Supply valid values for each credential;
+separating Secret Manager resources does not require changing credentials
+that must match another system. Existing public-service secrets remain in use
+and must not be deleted. Creating a new secret version does not refresh
+already-running revisions; redeploy the selected service after updates.
 
 ## Rollout
 

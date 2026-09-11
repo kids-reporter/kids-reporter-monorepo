@@ -8,12 +8,12 @@ set -euo pipefail
 usage() {
   cat <<'EOF'
 Usage:
+  ENV=dev|staging|prod SERVICE_NAME=content-api-for-preview ./deploy/secrets/create-secrets.sh [SECRET_SUFFIX|--all]
   ENV=dev|staging|prod ./deploy/secrets/create-secrets.sh [SECRET_SUFFIX|--all]
 
-Shared by both the content-api and content-api-for-preview Cloud Run
-services (same database, same JWT secret, one set of secrets under the
-${ENV}-content-api prefix). With no selector, all content-api secrets are
-created or updated.
+SERVICE_NAME defaults to content-api; also accepts content-api-for-preview.
+Each Cloud Run service has its own secrets under ${ENV}-${SERVICE_NAME}.
+With no selector, all secrets for the selected service are created or updated.
 EOF
 }
 
@@ -32,7 +32,15 @@ ROOT_DIR="$(cd "${SCRIPT_DIR}/../../../.." && pwd)"
 
 PROJECT_ID="${PROJECT_ID:-kids-reporter}"
 ENV="${ENV:-}"
-CLOUD_RUN_SERVICE="${ENV}-content-api"
+SERVICE_NAME="${SERVICE_NAME:-content-api}"
+case "$SERVICE_NAME" in
+  content-api|content-api-for-preview) ;;
+  *)
+    echo "SERVICE_NAME must be content-api or content-api-for-preview." >&2
+    exit 1
+    ;;
+esac
+CLOUD_RUN_SERVICE="${ENV}-${SERVICE_NAME}"
 SECRET_PREFIX="$CLOUD_RUN_SERVICE"
 SECRET_SPEC="${SCRIPT_DIR}/content-api.secrets"
 LABELS="env=${ENV},system=content-api,cloud-run-service=${CLOUD_RUN_SERVICE},resource-type=cloud-run-service,managed-by=deploy-script,data-class=credential"
