@@ -26,10 +26,10 @@ deploy/env.staging.content-api-for-preview.public.yaml
 deploy/env.prod.content-api-for-preview.public.yaml
 ```
 
-The preview variant differs only in `IS_PREVIEW_SERVER: "true"` and a more
-restrictive `CORS_ALLOW_ORIGINS`/ingress (`--ingress internal`, set at
-deploy time in the root `cloudbuild.yaml`). Never set
-`IS_PREVIEW_SERVER=true` on the public content-api service.
+The preview variant differs in `IS_PREVIEW_SERVER: "true"` and internal
+ingress (`--ingress internal`, set at deploy time in the root
+`cloudbuild.yaml`). Never set `IS_PREVIEW_SERVER=true` on the public
+content-api service.
 
 `PORT` is provided by Cloud Run and is intentionally not managed here.
 Passwords, connection strings, and JWT secrets must not be added to these

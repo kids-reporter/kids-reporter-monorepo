@@ -26,12 +26,17 @@ These live in, and are copied to `.env.local` before `docker build`:
 deploy/env.dev.frontend.build
 deploy/env.staging.frontend.build
 deploy/env.prod.frontend.build
+deploy/env.dev.frontend-for-preview.build
+deploy/env.staging.frontend-for-preview.build
+deploy/env.prod.frontend-for-preview.build
 ```
 
 Dotenv format (`KEY=value`).
 
-Preview builds use the existing `.env.preview.${_ENV}.public` files so
-`NEXT_PUBLIC_IS_PREVIEW_MODE` is included in the browser bundle.
+Each preview build file contains the complete browser configuration for that
+environment and sets `NEXT_PUBLIC_IS_PREVIEW_MODE=true`. Browser-side content
+requests keep using the public content-api endpoint; server-side draft content
+requests use the preview service configured in the runtime file.
 
 In dev and staging, browser requests to `{dev,staging}-kids-api.twreporter.org`
 must go through this frontend's `/api-gateway` proxy route because those
@@ -51,16 +56,18 @@ like every other service in this repo:
 deploy/env.dev.frontend.runtime.yaml
 deploy/env.staging.frontend.runtime.yaml
 deploy/env.prod.frontend.runtime.yaml
-deploy/env.dev.frontend-for-preview.public.yaml
-deploy/env.staging.frontend-for-preview.public.yaml
-deploy/env.prod.frontend-for-preview.public.yaml
+deploy/env.dev.frontend-for-preview.runtime.yaml
+deploy/env.staging.frontend-for-preview.runtime.yaml
+deploy/env.prod.frontend-for-preview.runtime.yaml
 ```
 
 YAML format (`KEY: value`).
 
 `PORT` is provided by Cloud Run and is intentionally not managed in either
-file. Passwords, connection strings, API keys, and session/encryption
-secrets must not be added to either file — see `## Secrets` below.
+file. `SEARCH_ENGINE_ID` is a non-secret runtime identifier shared by normal
+and preview services. Passwords, connection strings, API keys, and
+session/encryption secrets must not be added to either file — see `## Secrets`
+below.
 
 ## Secrets
 

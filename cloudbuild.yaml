@@ -39,10 +39,11 @@ steps:
         cd "packages/${_TARGET_PACKAGE}"
 
         if [[ "${_TARGET_PACKAGE}" == "frontend" ]]; then
-          BUILD_ENV_FILE="deploy/env.${_ENV}.frontend.build"
+          FRONTEND_CONFIG_NAME=frontend
           if [[ "${_SERVICE_NAME}" == "frontend-for-preview" ]]; then
-            BUILD_ENV_FILE=".env.preview.${_ENV}.public"
+            FRONTEND_CONFIG_NAME=frontend-for-preview
           fi
+          BUILD_ENV_FILE="deploy/env.${_ENV}.$${FRONTEND_CONFIG_NAME}.build"
           if [[ ! -f "$${BUILD_ENV_FILE}" ]]; then
             echo "Frontend build env file not found: $${BUILD_ENV_FILE}" >&2
             exit 1
@@ -110,7 +111,7 @@ steps:
 
         case "${_TARGET_PACKAGE}:${_SERVICE_NAME}" in
           frontend:|frontend:frontend-for-preview)
-            ENV_FILE="packages/frontend/deploy/env.${_ENV}.frontend.runtime.yaml"
+            FRONTEND_CONFIG_NAME=frontend
             MEMORY=512Mi
             CPU=1
             PORT=3000
@@ -124,10 +125,10 @@ steps:
             )
             if [[ "${_SERVICE_NAME}" == "frontend-for-preview" ]]; then
               SERVICE_NAME="${_ENV}-frontend-for-preview"
-              ENV_FILE="packages/frontend/deploy/env.${_ENV}.frontend-for-preview.public.yaml"
+              FRONTEND_CONFIG_NAME=frontend-for-preview
               INGRESS=internal
-              AUTH_ARGS=()
             fi
+            ENV_FILE="packages/frontend/deploy/env.${_ENV}.$${FRONTEND_CONFIG_NAME}.runtime.yaml"
             ;;
           cms:)
             MEMORY=512Mi
@@ -141,8 +142,12 @@ steps:
               --readiness-probe="httpGet.path=/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"
             )
             VOLUME_ARGS=(
-              --add-volume="name=cms-public,type=cloud-storage,bucket=$${CMS_BUCKET},readonly=false"
-              --add-volume-mount="volume=cms-public,mount-path=/app/public"
+              --clear-volume-mounts
+              --clear-volumes
+              --add-volume="name=cms-files,type=cloud-storage,bucket=$${CMS_BUCKET},readonly=false,mount-options=only-dir=files"
+              --add-volume-mount="volume=cms-files,mount-path=/app/public/files"
+              --add-volume="name=cms-images,type=cloud-storage,bucket=$${CMS_BUCKET},readonly=false,mount-options=only-dir=images"
+              --add-volume-mount="volume=cms-images,mount-path=/app/public/images"
             )
             ;;
           content-api:)
@@ -166,7 +171,6 @@ steps:
             TIMEOUT=30s
             CONCURRENCY=40
             INGRESS=internal
-            AUTH_ARGS=()
             SECRETS="DATABASE_URL=${_ENV}-content-api_database-url:latest,GO_API_JWT_SECRET=${_ENV}-content-api_go-api-jwt-secret:latest"
             PROBE_ARGS=(
               --startup-probe="httpGet.path=/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
@@ -205,7 +209,7 @@ steps:
           --project="${PROJECT_ID}"
           --region="${_REGION}"
           --image="$${IMAGE}"
-          --service-account="sa-kids-cloud-run-runtime@kids-reporter.iam.gserviceaccount.com"
+          --service-account="sa-kids-cloud-run-runtime@${PROJECT_ID}.iam.gserviceaccount.com"
           --env-vars-file="$${ENV_FILE}"
           --set-secrets="$${SECRETS}"
           --port="$${PORT}"

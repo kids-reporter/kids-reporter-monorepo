@@ -52,7 +52,7 @@ ENV="${ENV:-}"
 SECRET_PREFIX="${SECRET_PREFIX:-}"
 SECRET_SPEC="${SECRET_SPEC:-}"
 LABELS="${LABELS:-}"
-RUNTIME_SECRET_ACCESS_MEMBER="${RUNTIME_SECRET_ACCESS_MEMBER:-serviceAccount:sa-kids-cloud-run-runtime@kids-reporter.iam.gserviceaccount.com}"
+RUNTIME_SECRET_ACCESS_MEMBER="${RUNTIME_SECRET_ACCESS_MEMBER:-serviceAccount:sa-kids-cloud-run-runtime@${PROJECT_ID}.iam.gserviceaccount.com}"
 
 if [[ ! "$ENV" =~ ^(dev|staging|prod)$ ]]; then
   echo "ENV must be dev, staging, or prod." >&2
