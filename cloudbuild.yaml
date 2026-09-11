@@ -1,96 +1,249 @@
 steps:
-  # Temporarily disable kaniko cache approach due to unexpected build errors.
-  #
-  # build docker image for target sub-pacakge
-  # use debug tag so that we can use `sh` entrypoint
-  #- name: 'gcr.io/kaniko-project/executor:debug'
-  #  id: Build Image
-  #  entrypoint: 'sh'
-  #  args:
-  #    - '-c'
-  #    - |
-  #      cp yarn.lock packages/$_TARGET_PACKAGE
-  #      cd packages/$_TARGET_PACKAGE
-  #      /kaniko/executor --context="$(pwd)" --cache=true --cache-ttl=48h --destination=gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA}
-
-  # Pull previous image
+  # Pull the previous image to seed the Docker layer cache.
   - name: gcr.io/cloud-builders/docker
-    args:
-      - '-c'
-      - 'docker pull gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest || exit 0'
     entrypoint: bash
-
-  # Build image
-  - name: gcr.io/cloud-builders/docker
     args:
-      - '-c'
+      - -c
       - |
-        set -e
+        docker pull \
+          "asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest" \
+          || exit 0
 
-        cp yarn.lock packages/$_TARGET_PACKAGE
-        cp .yarnrc.yml packages/$_TARGET_PACKAGE
+  # Build one service image from the selected package.
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
 
-        cd packages/$_TARGET_PACKAGE
+        case "${_ENV}" in
+          dev|staging|prod) ;;
+          *)
+            echo "Unsupported _ENV: ${_ENV}" >&2
+            exit 1
+            ;;
+        esac
 
-        if [[ -n "$_ENV_FILE" && -f "$_ENV_FILE" ]]; then
-          echo "copy $_ENV_FILE to .env.local"
-          cp "$_ENV_FILE" .env.local
+        case "${_TARGET_PACKAGE}:${_SERVICE_NAME}" in
+          frontend:|frontend:frontend-for-preview|cms:|content-api:|content-api:content-api-for-preview|image-resizer:) ;;
+          *)
+            echo "Unsupported package/service: ${_TARGET_PACKAGE}:${_SERVICE_NAME}" >&2
+            exit 1
+            ;;
+        esac
+
+        cp yarn.lock "packages/${_TARGET_PACKAGE}"
+        cp .yarnrc.yml "packages/${_TARGET_PACKAGE}"
+
+        cd "packages/${_TARGET_PACKAGE}"
+
+        if [[ "${_TARGET_PACKAGE}" == "frontend" ]]; then
+          BUILD_ENV_FILE="deploy/env.${_ENV}.frontend.build"
+          if [[ "${_SERVICE_NAME}" == "frontend-for-preview" ]]; then
+            BUILD_ENV_FILE=".env.preview.${_ENV}.public"
+          fi
+          if [[ ! -f "$${BUILD_ENV_FILE}" ]]; then
+            echo "Frontend build env file not found: $${BUILD_ENV_FILE}" >&2
+            exit 1
+          fi
+          cp "$${BUILD_ENV_FILE}" .env.local
         fi
 
-        DOCKER_BUILD_ARGS=(
-          --build-arg "DEPLOYMENT_ID=${SHORT_SHA}"
+        IMAGE="asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${_BRANCH_NAME}_${SHORT_SHA}"
+        LATEST_IMAGE="asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest"
+
+        docker build \
+          --build-arg "DEPLOYMENT_ID=${SHORT_SHA}" \
+          --tag "$${IMAGE}" \
+          --tag "$${LATEST_IMAGE}" \
+          --cache-from "$${LATEST_IMAGE}" \
+          .
+
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - 'asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${_BRANCH_NAME}_${SHORT_SHA}'
+
+  # Declare the complete Cloud Run service configuration for the target.
+  - name: gcr.io/cloud-builders/gcloud
+    id: Deploy Service
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
+
+        case "${_ENV}" in
+          dev)
+            MIN_INSTANCES=0
+            MAX_INSTANCES=3
+            CMS_BUCKET=dev-kids-storage.twreporter.org
+            ;;
+          staging)
+            MIN_INSTANCES=0
+            MAX_INSTANCES=3
+            CMS_BUCKET=staging-kids-storage.twreporter.org
+            ;;
+          prod)
+            MIN_INSTANCES=1
+            MAX_INSTANCES=10
+            CMS_BUCKET=kids-storage.twreporter.org
+            ;;
+          *)
+            echo "Unsupported _ENV: ${_ENV}" >&2
+            exit 1
+            ;;
+        esac
+
+        SERVICE_NAME="${_ENV}-${_TARGET_PACKAGE}"
+        ENV_FILE="packages/${_TARGET_PACKAGE}/deploy/env.${_ENV}.${_TARGET_PACKAGE}.public.yaml"
+        MEMORY=
+        CPU=
+        PORT=
+        TIMEOUT=
+        CONCURRENCY=
+        INGRESS=internal-and-cloud-load-balancing
+        AUTH_ARGS=(--allow-unauthenticated)
+        PROBE_ARGS=()
+        VOLUME_ARGS=()
+
+        case "${_TARGET_PACKAGE}:${_SERVICE_NAME}" in
+          frontend:|frontend:frontend-for-preview)
+            ENV_FILE="packages/frontend/deploy/env.${_ENV}.frontend.runtime.yaml"
+            MEMORY=512Mi
+            CPU=1
+            PORT=3000
+            TIMEOUT=30s
+            CONCURRENCY=80
+            SECRETS="SEARCH_API_KEY=${_ENV}-frontend_search-api-key:latest,NEXT_SERVER_ACTIONS_ENCRYPTION_KEY=${_ENV}-frontend_next-server-actions-encryption-key:latest"
+            PROBE_ARGS=(
+              --startup-probe="httpGet.path=/api/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
+              --readiness-probe="httpGet.path=/api/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"
+              --liveness-probe="httpGet.path=/api/health,initialDelaySeconds=0,timeoutSeconds=2,periodSeconds=30,failureThreshold=3"
+            )
+            if [[ "${_SERVICE_NAME}" == "frontend-for-preview" ]]; then
+              SERVICE_NAME="${_ENV}-frontend-for-preview"
+              ENV_FILE="packages/frontend/deploy/env.${_ENV}.frontend-for-preview.public.yaml"
+              INGRESS=internal
+              AUTH_ARGS=()
+            fi
+            ;;
+          cms:)
+            MEMORY=512Mi
+            CPU=1
+            PORT=3000
+            TIMEOUT=30s
+            CONCURRENCY=30
+            SECRETS="DATABASE_URL=${_ENV}-cms_database-url:latest,SESSION_SECRET=${_ENV}-cms_session-secret:latest,TWO_FACTOR_AUTH_SECRET=${_ENV}-cms_two-factor-auth-secret:latest,OPEN_AI_KEY=${_ENV}-cms_open-ai-key:latest,SEARCH_API_KEY=${_ENV}-cms_search-api-key:latest,GO_API_JWT_SECRET=${_ENV}-cms_go-api-jwt-secret:latest"
+            PROBE_ARGS=(
+              --startup-probe="httpGet.path=/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
+              --readiness-probe="httpGet.path=/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"
+            )
+            VOLUME_ARGS=(
+              --add-volume="name=cms-public,type=cloud-storage,bucket=$${CMS_BUCKET},readonly=false"
+              --add-volume-mount="volume=cms-public,mount-path=/app/public"
+            )
+            ;;
+          content-api:)
+            MEMORY=2Gi
+            CPU=1
+            PORT=8080
+            TIMEOUT=30s
+            CONCURRENCY=40
+            SECRETS="DATABASE_URL=${_ENV}-content-api_database-url:latest,GO_API_JWT_SECRET=${_ENV}-content-api_go-api-jwt-secret:latest"
+            PROBE_ARGS=(
+              --startup-probe="httpGet.path=/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
+              --readiness-probe="httpGet.path=/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"
+            )
+            ;;
+          content-api:content-api-for-preview)
+            SERVICE_NAME="${_ENV}-content-api-for-preview"
+            ENV_FILE="packages/content-api/deploy/env.${_ENV}.content-api-for-preview.public.yaml"
+            MEMORY=2Gi
+            CPU=1
+            PORT=8080
+            TIMEOUT=30s
+            CONCURRENCY=40
+            INGRESS=internal
+            AUTH_ARGS=()
+            SECRETS="DATABASE_URL=${_ENV}-content-api_database-url:latest,GO_API_JWT_SECRET=${_ENV}-content-api_go-api-jwt-secret:latest"
+            PROBE_ARGS=(
+              --startup-probe="httpGet.path=/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
+              --readiness-probe="httpGet.path=/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"
+            )
+            ;;
+          image-resizer:)
+            MEMORY=2Gi
+            CPU=2
+            PORT=8080
+            TIMEOUT=300s
+            CONCURRENCY=1
+            INGRESS=internal
+            MIN_INSTANCES=0
+            MAX_INSTANCES=3
+            AUTH_ARGS=(--no-allow-unauthenticated)
+            SECRETS="SLACK_LOG_HOOK=${_ENV}-image-resizer_slack-log-hook:latest"
+            PROBE_ARGS=(
+              --startup-probe="tcpSocket.port=8080,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
+            )
+            ;;
+          *)
+            echo "Unsupported package/service: ${_TARGET_PACKAGE}:${_SERVICE_NAME}" >&2
+            exit 1
+            ;;
+        esac
+
+        if [[ ! -f "$${ENV_FILE}" ]]; then
+          echo "Missing deploy configuration: $${ENV_FILE}" >&2
+          exit 1
+        fi
+
+        IMAGE="asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${_BRANCH_NAME}_${SHORT_SHA}"
+
+        DEPLOY_ARGS=(
+          --project="${PROJECT_ID}"
+          --region="${_REGION}"
+          --image="$${IMAGE}"
+          --service-account="sa-kids-cloud-run-runtime@kids-reporter.iam.gserviceaccount.com"
+          --env-vars-file="$${ENV_FILE}"
+          --set-secrets="$${SECRETS}"
+          --port="$${PORT}"
+          --network=default
+          --subnet=default
+          --clear-network-tags
+          --vpc-egress=all-traffic
+          --memory="$${MEMORY}"
+          --cpu="$${CPU}"
+          --cpu-throttling
+          --cpu-boost
+          --timeout="$${TIMEOUT}"
+          --concurrency="$${CONCURRENCY}"
+          --min-instances="$${MIN_INSTANCES}"
+          --max-instances="$${MAX_INSTANCES}"
+          --execution-environment=gen2
+          --ingress="$${INGRESS}"
+          --labels="env=${_ENV},service=${_TARGET_PACKAGE},system=kids-reporter,resource-type=cloud-run-service,managed-by=cloud-build"
+          --quiet
         )
 
-        docker build -t \
-          "gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA}" \
-          -t "gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest" \
-          -f "$_DOCKERFILE" \
-          "${DOCKER_BUILD_ARGS[@]}" \
-          --cache-from "gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest" .
-    entrypoint: bash
-
-  # Push container image to registry
-  - name: gcr.io/cloud-builders/docker
-    args:
-      - push
-      - 'gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA}'
-
-  # Deploy container image to Cloud Runs
-  - name: gcr.io/cloud-builders/gcloud
-    id: Deploy Image
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-
-        # read cloud run service names from substitution variable
-        IFS=',' read -r -a cloud_runs <<< "$_CLOUD_RUN_SERVICE_NAMES"
-
-        for cr in "${cloud_runs[@]}"
-        do
-
-        # check if _DEPLOYMENT_TYPE is 'job'
-        if [[ "$_DEPLOYMENT_TYPE" == "job" ]]; then
-          # check if job exists
-          if gcloud run jobs describe "$cr" --region asia-east1 &> /dev/null; then
-            # update cloud run job
-            gcloud run jobs update "$cr" --image gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA} --region asia-east1
-          else
-            # create cloud run job
-            gcloud run jobs create "$cr" --image gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA} --region asia-east1
-          fi
-        else
-          # deploy cloud run service
-          gcloud run deploy "$cr" --image gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA} --region asia-east1
+        if (( $${#PROBE_ARGS[@]} )); then
+          DEPLOY_ARGS+=("$${PROBE_ARGS[@]}")
+        fi
+        if (( $${#VOLUME_ARGS[@]} )); then
+          DEPLOY_ARGS+=("$${VOLUME_ARGS[@]}")
+        fi
+        if (( $${#AUTH_ARGS[@]} )); then
+          DEPLOY_ARGS+=("$${AUTH_ARGS[@]}")
         fi
 
-        done
+        gcloud run deploy "$${SERVICE_NAME}" "$${DEPLOY_ARGS[@]}"
 
-  # Push container image to registry to update the latest one
+  # Publish latest only after the service deployment succeeds.
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - 'gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest'
+      - 'asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest'
 
 timeout: 2400s
 
@@ -98,9 +251,10 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 substitutions:
-  _TARGET_PACKAGE: '' # default value
-  _IMAGE_NAME: '' # default value
-  _CLOUD_RUN_SERVICE_NAMES: '' # default value
-  _ENV_FILE: '' # default value
-  _DEPLOYMENT_TYPE: 'service' # default value
-  _DOCKERFILE: 'Dockerfile' # default value
+  _TARGET_PACKAGE: '' # frontend, cms, content-api, or image-resizer
+  _SERVICE_NAME: '' # frontend-for-preview or content-api-for-preview
+  _IMAGE_NAME: ''
+  _BRANCH_NAME: dev
+  _ENV: dev # dev, staging, or prod
+  _REGION: asia-east1
+  _ARTIFACT_REGISTRY_REPO: cloud-run-source-deploy

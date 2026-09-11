@@ -16,28 +16,12 @@ cloud builds:
 cloud runs:
 
 - [dev-cms](https://console.cloud.google.com/run/detail/asia-east1/dev-cms?project=kids-reporter)
-- [dev-gql](https://console.cloud.google.com/run/detail/asia-east1/dev-gql?project=kids-reporter)
 - [staging-cms](https://console.cloud.google.com/run/detail/asia-east1/staging-cms?project=kids-reporter)
-- [staigng-gql](https://console.cloud.google.com/run/detail/asia-east1/staging-gql?project=kids-reporter)
 - [prod-cms](https://console.cloud.google.com/run/detail/asia-east1/prod-cms?project=kids-reporter)
-- [prod-gql](https://console.cloud.google.com/run/detail/asia-east1/prod-gql?project=kids-reporter)
 
-## prod-cms vs prod-gql
-
-`prod-cms` 和 `prod-gql` 使用相同的程式碼，但有不同的啟動流程與用途：
-
-|                    | prod-cms                      | prod-gql               |
-| ------------------ | ----------------------------- | ---------------------- |
-| **用途**           | CMS 管理介面 + GraphQL server | GraphQL server only    |
-| **Dockerfile**     | `Dockerfile`                  | `Dockerfile.gql`       |
-| **gcsfuse**        | ✅（檔案上傳需要）            | ❌                     |
-| **db migration**   | ✅（每次啟動執行）            | ❌（由 prod-cms 負責） |
-| **IS_UI_DISABLED** | `false`                       | `true`                 |
-| **啟動時間**       | ~20s                          | 較短                   |
-
-`prod-gql` 的目的是讓 `prod-api-gateway` 的 GraphQL request 打到啟動快的 service，避免 Cloud Run auto-scaling 時因新 instance 啟動過慢導致 request timeout。`prod-api-gateway` 透過 `GQL_ORIGIN` 環境變數指向 `prod-gql`。
-
-**注意：** db migration 只在 `prod-cms` 執行，因此部署新版本時須確保 `prod-cms` 先完成部署（migration 跑完），再部署 `prod-gql`。
+Cloud Build 目前只部署 CMS；舊的 gql-only Dockerfile 與環境設定暫時保留，
+但不在這次部署流程中使用。CMS 的 `/app/public` 由 Cloud Run 直接掛載
+Cloud Storage volume，container 不再自行啟動 gcsfuse。
 
 ## Environment Variables
 

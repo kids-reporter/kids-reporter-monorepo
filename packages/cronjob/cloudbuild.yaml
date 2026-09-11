@@ -1,84 +1,196 @@
 steps:
-  # Temporarily disable kaniko cache approach due to unexpected build errors.
-  #
-  # build docker image for target sub-pacakge
-  # use debug tag so that we can use `sh` entrypoint
-  #- name: 'gcr.io/kaniko-project/executor:debug'
-  #  id: Build Image
-  #  entrypoint: 'sh'
-  #  args:
-  #    - '-c'
-  #    - |
-  #      cp yarn.lock packages/$_TARGET_PACKAGE
-  #      cd packages/$_TARGET_PACKAGE
-  #      /kaniko/executor --context="$(pwd)" --cache=true --cache-ttl=48h --destination=gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA}
-
-  # Pull previous image
+  # RSS and scheduled-post share one image but own separate runtime config.
   - name: gcr.io/cloud-builders/docker
-    args:
-      - '-c'
-      - 'docker pull gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest || exit 0'
     entrypoint: bash
+    args:
+      - -c
+      - |
+        docker pull \
+          "asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest" \
+          || exit 0
 
-  # Build image
   - name: gcr.io/cloud-builders/docker
-    args:
-      - '-c'
-      - >
-        cp yarn.lock packages/$_TARGET_PACKAGE
-        cp .yarnrc.yml packages/$_TARGET_PACKAGE
-
-        cd packages/$_TARGET_PACKAGE
-
-        echo "copy $_ENV_FILE to .env.local"
-
-        cp $_ENV_FILE .env.local
-
-        docker build -t \
-
-        gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA} \
-
-        -t gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest \
-
-        --cache-from gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest .
     entrypoint: bash
+    args:
+      - -c
+      - |
+        set -euo pipefail
 
-  # Push container image to registry
+        case "${_ENV}" in
+          dev|staging|prod) ;;
+          *)
+            echo "Unsupported _ENV: ${_ENV}" >&2
+            exit 1
+            ;;
+        esac
+
+        cp yarn.lock packages/cronjob
+        cp .yarnrc.yml packages/cronjob
+        cd packages/cronjob
+
+        IMAGE="asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${_BRANCH_NAME}_${SHORT_SHA}"
+        LATEST_IMAGE="asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest"
+
+        docker build \
+          --tag "$${IMAGE}" \
+          --tag "$${LATEST_IMAGE}" \
+          --cache-from "$${LATEST_IMAGE}" \
+          .
+
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - 'gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA}'
+      - 'asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${_BRANCH_NAME}_${SHORT_SHA}'
 
-  # Deploy container image to Cloud Runs
   - name: gcr.io/cloud-builders/gcloud
-    id: Deploy Image
-    entrypoint: 'bash'
+    id: Deploy Jobs and Schedulers
+    entrypoint: bash
     args:
-      - '-c'
+      - -c
       - |
+        set -euo pipefail
 
-        # read cloud run service names from substitution variable
-        IFS=',' read -r -a entrypoints <<< "$_NPM_SCRIPT"
+        case "${_ENV}" in
+          dev|staging)
+            SCHEDULER_STATE=paused
+            ;;
+          prod)
+            SCHEDULER_STATE=enabled
+            ;;
+          *)
+            echo "Unsupported _ENV: ${_ENV}" >&2
+            exit 1
+            ;;
+        esac
 
-        for script in "${entrypoints[@]}"
+        IMAGE="asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${_BRANCH_NAME}_${SHORT_SHA}"
+        RUNTIME_SERVICE_ACCOUNT="sa-kids-cloud-run-runtime@kids-reporter.iam.gserviceaccount.com"
+        SCHEDULER_SERVICE_ACCOUNT="sa-kids-cloud-scheduler-trigger@kids-reporter.iam.gserviceaccount.com"
+        SCHEDULE="0 1 * * *"
+        TIME_ZONE="Asia/Taipei"
+
+        # Validate both configurations before mutating either job.
+        for env_file in \
+          "packages/cronjob/deploy/env.${_ENV}.rss.public.yaml" \
+          "packages/cronjob/deploy/env.${_ENV}.scheduled-post.public.yaml"
         do
-
-        # check if job exists
-        if gcloud run jobs describe "$_CLOUD_RUN_JOB_PREFIX$script" --region asia-east1 &> /dev/null; then
-          # update cloud run job
-          gcloud run jobs update "$_CLOUD_RUN_JOB_PREFIX$script" --image gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA} --region asia-east1 --command "yarn" --args "$script"
-        else
-          # create cloud run job
-          gcloud run jobs create "$_CLOUD_RUN_JOB_PREFIX$script" --image gcr.io/$PROJECT_ID/$_IMAGE_NAME:${BRANCH_NAME}_${SHORT_SHA} --region asia-east1 --command "yarn" --args "$script"
-        fi
-
+          if [[ ! -f "$${env_file}" ]]; then
+            echo "Missing deploy configuration: $${env_file}" >&2
+            exit 1
+          fi
         done
 
-  # Push container image to registry to update the latest one
+        deploy_job() {
+          local job_suffix="$$1"
+          local task_timeout="$$2"
+          local env_file="packages/cronjob/deploy/env.${_ENV}.$${job_suffix}.public.yaml"
+          local job_name="${_ENV}-cronjob-$${job_suffix}"
+          local scheduler_uri="https://run.googleapis.com/v2/projects/${PROJECT_ID}/locations/${_REGION}/jobs/$${job_name}:run"
+          local labels="env=${_ENV},system=kids-reporter,job=$${job_name},resource-type=cloud-run-job,managed-by=cloud-build"
+          local secrets
+
+          case "$${job_suffix}" in
+            rss)
+              secrets="CRONJOB_ACCOUNT_EMAIL=$${job_name}_cronjob-account-email:latest,CRONJOB_ACCOUNT_PASSWORD=$${job_name}_cronjob-account-password:latest,SLACK_LOG_HOOK=$${job_name}_slack-log-hook:latest"
+              ;;
+            scheduled-post)
+              secrets="CRONJOB_ACCOUNT_EMAIL=$${job_name}_cronjob-account-email:latest,CRONJOB_ACCOUNT_PASSWORD=$${job_name}_cronjob-account-password:latest"
+              ;;
+            *)
+              echo "Unsupported cronjob: $${job_suffix}" >&2
+              exit 1
+              ;;
+          esac
+
+          JOB_ARGS=(
+            --project="${PROJECT_ID}"
+            --region="${_REGION}"
+            --image="$${IMAGE}"
+            --service-account="$${RUNTIME_SERVICE_ACCOUNT}"
+            --env-vars-file="$${env_file}"
+            --set-secrets="$${secrets}"
+            --command=yarn
+            --args="$${job_suffix}"
+            --network=default
+            --subnet=default
+            --clear-network-tags
+            --vpc-egress=all-traffic
+            --memory=512Mi
+            --cpu=1
+            --task-timeout="$${task_timeout}"
+            --max-retries=0
+            --tasks=1
+            --parallelism=1
+            --labels="$${labels}"
+            --quiet
+          )
+
+          if gcloud run jobs describe "$${job_name}" \
+            --project="${PROJECT_ID}" \
+            --region="${_REGION}" >/dev/null 2>&1
+          then
+            gcloud run jobs update "$${job_name}" "$${JOB_ARGS[@]}"
+          else
+            gcloud run jobs create "$${job_name}" "$${JOB_ARGS[@]}"
+          fi
+
+          gcloud run jobs add-iam-policy-binding "$${job_name}" \
+            --project="${PROJECT_ID}" \
+            --region="${_REGION}" \
+            --member="serviceAccount:$${SCHEDULER_SERVICE_ACCOUNT}" \
+            --role=roles/run.invoker \
+            --quiet >/dev/null
+
+          SCHEDULER_ARGS=(
+            --project="${PROJECT_ID}"
+            --location="${_REGION}"
+            --schedule="$${SCHEDULE}"
+            --time-zone="$${TIME_ZONE}"
+            --uri="$${scheduler_uri}"
+            --http-method=POST
+            --oauth-service-account-email="$${SCHEDULER_SERVICE_ACCOUNT}"
+            --oauth-token-scope=https://www.googleapis.com/auth/cloud-platform
+            --max-retry-attempts=0
+            --quiet
+          )
+
+          if gcloud scheduler jobs describe "$${job_name}" \
+            --project="${PROJECT_ID}" \
+            --location="${_REGION}" >/dev/null 2>&1
+          then
+            gcloud scheduler jobs update http "$${job_name}" "$${SCHEDULER_ARGS[@]}"
+          else
+            gcloud scheduler jobs create http "$${job_name}" \
+              "$${SCHEDULER_ARGS[@]}" \
+              --description="Run Cloud Run Job $${job_name}"
+          fi
+
+          current_state="$$(gcloud scheduler jobs describe "$${job_name}" \
+            --project="${PROJECT_ID}" \
+            --location="${_REGION}" \
+            --format='value(state)')"
+
+          if [[ "$${SCHEDULER_STATE}" == paused && "$${current_state}" != PAUSED ]]; then
+            gcloud scheduler jobs pause "$${job_name}" \
+              --project="${PROJECT_ID}" \
+              --location="${_REGION}" \
+              --quiet
+          elif [[ "$${SCHEDULER_STATE}" == enabled && "$${current_state}" == PAUSED ]]; then
+            gcloud scheduler jobs resume "$${job_name}" \
+              --project="${PROJECT_ID}" \
+              --location="${_REGION}" \
+              --quiet
+          fi
+        }
+
+        deploy_job rss 1800s
+        deploy_job scheduled-post 300s
+
+  # Publish latest only after both jobs and schedulers are configured.
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - 'gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest'
+      - 'asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:latest'
 
 timeout: 2400s
 
@@ -86,8 +198,8 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 substitutions:
-  _TARGET_PACKAGE: '' # default value
-  _IMAGE_NAME: '' # default value
-  _CLOUD_RUN_JOB_PREFIX: 'cronjob-' # default value
-  _NPM_SCRIPT: 'start' # default value
-  _ENV_FILE: '' # default value
+  _IMAGE_NAME: cronjob
+  _BRANCH_NAME: dev
+  _ENV: dev # dev, staging, or prod
+  _REGION: asia-east1
+  _ARTIFACT_REGISTRY_REPO: cloud-run-source-deploy

@@ -6,11 +6,12 @@ specification for both the public content-api service and its internal
 preview variant.
 
 The Cloud Build trigger must set `_ENV` to `dev`, `staging`, or `prod`.
+
 - The public service name is derived as `${_ENV}-content-api`
   (`_TARGET_PACKAGE=content-api`, no `_SERVICE_NAME` override needed).
 - The internal preview variant's service name is `${_ENV}-content-api-for-preview`,
   produced from the same `packages/content-api` directory by setting
-  `_SERVICE_NAME=content-api-for-preview`. Only a `prod` variant exists.
+  `_SERVICE_NAME=content-api-for-preview`.
 
 ## Public Configuration
 
@@ -20,6 +21,8 @@ Public environment variables are stored per service:
 deploy/env.dev.content-api.public.yaml
 deploy/env.staging.content-api.public.yaml
 deploy/env.prod.content-api.public.yaml
+deploy/env.dev.content-api-for-preview.public.yaml
+deploy/env.staging.content-api-for-preview.public.yaml
 deploy/env.prod.content-api-for-preview.public.yaml
 ```
 
@@ -56,7 +59,7 @@ access to each secret.
 
 Deploy and verify dev, then staging, then production. Confirm the health
 check and a real content read (e.g. a published post by slug). When
-deploying `prod-content-api-for-preview`, additionally confirm it correctly
+deploying a `content-api-for-preview` variant, additionally confirm it correctly
 returns draft/unpublished content and that it is not reachable from the
 public internet (only from the internal preview frontend). Confirm the
 deployed service's public variables, secret references, runtime service

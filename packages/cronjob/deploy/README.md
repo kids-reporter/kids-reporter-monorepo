@@ -7,7 +7,10 @@ Manager specification for both.
 
 The Cloud Build trigger must set `_ENV` to `dev`, `staging`, or `prod`. Job
 names are derived as `${_ENV}-cronjob-rss` and
-`${_ENV}-cronjob-scheduled-post`.
+`${_ENV}-cronjob-scheduled-post`. The build also creates or updates matching
+Cloud Scheduler jobs. Both run daily at `01:00` in `Asia/Taipei`; dev and
+staging schedulers are paused after configuration, while production is kept
+enabled.
 
 ## Public Configuration
 
@@ -51,11 +54,11 @@ The script prompts for values interactively and grants the Cloud Run
 runtime service account access to each secret.
 
 The jobs may use the same CMS login values, but each job provisions and
-references its own secrets. If the old `${ENV}-cronjob-account_*` secrets
-are already in use, create the job-specific secrets and update each job's
-environment variable bindings before retiring the old secrets. These
-scripts do not update job bindings; the current Cloud Build configuration
-does not yet wire these Secret Manager references into the jobs.
+references its own secrets. Cloud Build wires these Secret Manager versions
+into the matching job and grants the scheduler service account the Cloud Run
+invoker role. If the old `${ENV}-cronjob-account_*` secrets are already in
+use, create the job-specific secrets before the first deployment and retire
+the old secrets after verification.
 
 ## Rollout
 
@@ -65,5 +68,6 @@ deploy, manually trigger the job once (`gcloud run jobs execute
 `scheduled-post` deploy, confirm it can authenticate against the CMS
 GraphQL API. Confirm the deployed job's public variables, secret
 references, runtime service account, VPC subnet, task timeout, and
-max-retries. There is no traffic-based rollback for jobs — to roll back,
+max-retries. Also confirm the scheduler is paused/enabled as intended. There
+is no traffic-based rollback for jobs — to roll back,
 redeploy the previous image tag.
