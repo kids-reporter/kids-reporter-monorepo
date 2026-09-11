@@ -58,4 +58,4 @@ upload a test image to the `images/*` path of that environment's bucket and
 confirm resized variants appear in the `resized` folder, and check
 application logs for errors. Confirm the deployed service's public
 variables, secret references, runtime service account, and the Eventarc
-trigger's target service name still matches. 
+trigger's target service name still matches.
