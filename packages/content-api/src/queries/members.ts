@@ -216,8 +216,7 @@ const resolveAvatarPaths = (avatar: {
   const base = envVar.images.storagePath
   const rel = buildAvatarRelName(avatar)
   if (!base || !rel) return null
-  const imagesDir = path.join(base, 'images')
-  return { imagesDir, rel, fullPath: path.join(imagesDir, rel) }
+  return { imagesDir: base, rel, fullPath: path.join(base, rel) }
 }
 
 const tryUnlinkAvatarFile = async (avatar: {

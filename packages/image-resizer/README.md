@@ -13,31 +13,9 @@ This is a Cloud Run service that resizes images uploaded to a Cloud Storage buck
 
 ## Deploy
 
-### Docker
-
-Build image
-
-```bash
-docker build --platform linux/amd64 --no-cache --tag gcr.io/kids-reporter/image-resizer:v1.0 .
-```
-
-Push image
-
-```bash
-docker push gcr.io/kids-reporter/image-resizer:v1.0
-```
-
-### Cloud Run
-
-```bash
-gcloud run deploy image-resizer \
---image=gcr.io/kids-reporter/image-resizer \
---region=asia-east1 \
---project=kids-reporter \
- && gcloud run services update-traffic image-resizer --to-latest
-```
-
-Note: select correct image tag
+The root Cloud Build configuration builds and deploys the image-resizer Cloud
+Run service. See [deploy/README.md](deploy/README.md) for configuration, secret
+provisioning, and rollout instructions.
 
 ### Eventarc
 

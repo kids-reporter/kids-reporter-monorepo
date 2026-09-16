@@ -24,15 +24,10 @@ NextJS 將環境變數分成 public 和 non-public。
 public 的環境變數在命名上需要加上 `NEXT_PUBLIC_` 前綴，而 `NEXT_PUBLIC_` 開頭的環境變數在 build time（也就跑 `next build`）時會被 NextJS build 進 bundles 裡。
 non-public 的環境變數則只能使用在 server side，不會被 NextJS build 進 bundles。
 
-因為我們在不同的環境(dev, staging 和 prod)下，會需要不同的 public 環境變數，
-而這些環境變數需要在 build time 時提供（也就是 Cloud Build 在跑 build 的時候使用）。
-我們的做法是將不同的環境變數定義在不同的檔案之中，
-檔案分別是 `.env.dev.public`、 `.env.staging.public` 和 `.env.prod.public`。
-後綴 `.public` 是要提醒這個檔案只能放 public 的環境變數。
-這些不同的檔案，在 Cloud Build 執行時，會根據當時跑的 Git branch 來決定要使用哪個環境變數檔案。
-例如：dev branch 執行時會使用 `.env.dev.public` 檔案。
-詳細執行方式可以參考 [PR #207](https://github.com/kids-reporter/kids-reporter-monorepo/pull/207) 。
-因為我們會將 `.env.dev.public` 複製成 `.env.local` 檔案，而 `.env.local` 檔案會被放進 docker image 中，
+不同環境（dev、staging 和 prod）及服務（frontend 和 frontend-for-preview）的 public build-time
+環境變數定義在 `deploy/env.<env>.<service>.build`。Cloud Build 會根據 `_ENV` 和
+`_SERVICE_NAME` 選擇設定檔，並在建立 image 前將它複製成 `.env.local`。
+`.env.local` 會被放進 docker image 中，
 當 Cloud Run 執行 docker container（起 NextJS server 時），NextJS 也會讀取 `.env.local` 中的環境變數；
 因此，我們可以確保 run time 和 build time 所使用的環境變數是一致的。
 

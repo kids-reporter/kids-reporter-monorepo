@@ -20,20 +20,9 @@ For easy deployment, the file name of the script is the same as the command name
 
 ## Deployment
 
-1. Build the Docker image:
-
-   ```bash
-   docker build --platform linux/amd64 --no-cache --tag gcr.io/kids-reporter/cronjob:v1.0 .
-   ```
-
-2. Push the Docker image to Google Container Registry:
-
-   ```bash
-   docker push gcr.io/kids-reporter/cronjob:v1.0
-   ```
-
-3. Create a Cloud Run job with the image.
-4. Add Job Scheduler Trigger.
+The package Cloud Build configuration builds the shared image and deploys the
+RSS and scheduled-post Cloud Run jobs. See [deploy/README.md](deploy/README.md)
+for configuration, secret provisioning, and rollout instructions.
 
 ## Scripts
 
