@@ -90,6 +90,11 @@ steps:
             MIN_INSTANCES=1
             MAX_INSTANCES=10
             STORAGE_BUCKET=kids-storage.twreporter.org
+            case "${_SERVICE_NAME}" in
+              frontend-for-preview|content-api-for-preview)
+                MIN_INSTANCES=0
+                ;;
+            esac
             ;;
           *)
             echo "Unsupported _ENV: ${_ENV}" >&2
@@ -232,8 +237,10 @@ steps:
           --cpu-boost
           --timeout="$${TIMEOUT}"
           --concurrency="$${CONCURRENCY}"
-          --min-instances="$${MIN_INSTANCES}"
-          --max-instances="$${MAX_INSTANCES}"
+          --min="$${MIN_INSTANCES}"
+          --max="$${MAX_INSTANCES}"
+          --min-instances=default
+          --max-instances=default
           --execution-environment=gen2
           --ingress="$${INGRESS}"
           --labels="env=${_ENV},service=${_TARGET_PACKAGE},system=kids-reporter,resource-type=cloud-run-service,managed-by=cloud-build"

@@ -8,8 +8,10 @@ The Cloud Build trigger must set `_ENV` to `dev`, `staging`, or `prod`. The
 Cloud Run service name is derived as `${_ENV}-frontend`.
 
 The internal preview variant is `${_ENV}-frontend-for-preview`, selected with
-`_SERVICE_NAME=frontend-for-preview`. It uses the same runtime resource settings and its own secrets, and points server-side content requests at the matching
-`content-api-for-preview` service and deploys with internal ingress.
+`_SERVICE_NAME=frontend-for-preview`. It uses its own secrets, points server-side
+content requests at the matching `content-api-for-preview` service, and deploys
+with internal ingress. The production preview services use zero minimum instances
+so they can scale to zero when idle.
 
 Frontend needs two categories of environment configuration, unlike this
 repo's other services:
