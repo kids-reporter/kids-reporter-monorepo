@@ -21,7 +21,7 @@ export const orderTargetsByOrderJson = <T extends { id: unknown }>(
     .filter((t): t is T => t !== undefined)
 }
 
-/** Match Keystone `Post` access for FrontendHeadlessAccount (published or scheduled+past). */
+/** Public post visibility: published or scheduled with a past publication date. */
 export const buildPublicPostWhere = (now: Date) => ({
   OR: [
     { status: 'published' },
@@ -37,7 +37,7 @@ export const buildPostBySlugVisibilityWhere = (
 ): Prisma.PostWhereInput =>
   envVar.isPreviewServer ? {} : buildPublicPostWhere(now)
 
-/** Match Keystone `Project` access for FrontendHeadlessAccount (published only). */
+/** Public project visibility: published only. */
 export const buildPublicProjectWhere = (): Prisma.ProjectWhereInput => ({
   status: 'published',
 })

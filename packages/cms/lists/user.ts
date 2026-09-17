@@ -59,14 +59,6 @@ const listConfigurations: ListConfig<any> = list({
           value: RoleEnum.Preview,
         },
         {
-          label: RoleEnum.FrontendHeadlessAccount,
-          value: RoleEnum.FrontendHeadlessAccount,
-        },
-        {
-          label: RoleEnum.PreviewHeadlessAccount,
-          value: RoleEnum.PreviewHeadlessAccount,
-        },
-        {
           label: RoleEnum.CronjobHeadlessAccount,
           value: RoleEnum.CronjobHeadlessAccount,
         },

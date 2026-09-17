@@ -19,9 +19,8 @@ cloud runs:
 - [staging-cms](https://console.cloud.google.com/run/detail/asia-east1/staging-cms?project=kids-reporter)
 - [prod-cms](https://console.cloud.google.com/run/detail/asia-east1/prod-cms?project=kids-reporter)
 
-Cloud Build 目前只部署 CMS；舊的 gql-only Dockerfile 與環境設定暫時保留，
-但不在這次部署流程中使用。CMS 的 `/app/public` 由 Cloud Run 直接掛載
-Cloud Storage volume，container 不再自行啟動 gcsfuse。
+Cloud Build 部署完整的 CMS 與 Admin UI。CMS 的 `/app/public` 由 Cloud Run
+直接掛載 Cloud Storage volume，container 不再自行啟動 gcsfuse。
 
 ## Environment Variables
 
@@ -29,7 +28,7 @@ Cloud Storage volume，container 不再自行啟動 gcsfuse。
 
 其中值得注意的是，`NODE_ENV` 除了 convention 的 `development` 和 `production` 之外，亦有 `test`的選項。當 `NODE_ENV=test` 時，Keystone server 會關閉 Role-based Authentication，不再檢查 request 是否可以 Query/Create/Update/Delete Keystone 的資源，[請見相關程式碼](https://github.com/kids-reporter/kids-reporter-monorepo/blob/dev/packages/cms/lists/utils/access-control-list.ts#L22-L24)。
 
-若你想要在 local 端開發 frontend，而 frontend 需要 GQL server 來測試，那你可以嘗試 `NODE_ENV=test yarn dev` 來起 server。
+若要在 local 端直接測試 CMS GraphQL，可使用 `NODE_ENV=test yarn dev` 啟動略過 role access checks 的開發 server。
 
 ## Getting started on local environment
 
@@ -167,27 +166,17 @@ Database migration 執行的時機點是在部署的時候，
 
 ### Preview Server（預覽文章）
 
-在 CMS 裡，post（文章） list 和 project（專題） list 有分 `draft` 和 `published` 狀態，
-使用者必須是特定的角色（role），才能讀取 `draft` 的文章和專題。
+CMS 中的 post（文章）和 project（專題）具有 `draft` 與 `published` 等狀態。
+一般 content API 只提供可公開內容，preview content API 則提供預覽所需的 draft 內容。
 
-因為 Keystone 本身就提供 Role-based Authentication 的功能，所以當使用者想要讀取文章／專題時，
-系統會判斷該使用者的角色是否符合權限，如果不符合權限設定，則無法拿到資料。
-更多實作方式，請見[程式碼](https://github.com/kids-reporter/kids-reporter-monorepo/blob/dev/packages/cms/lists/post.ts#L239-L241)。
-
-系統為了讓使用者可以看到完整的文章預覽頁，有為預覽模式建立了兩個「只接受內部網路需求的 Cloud Runs」，分別是
+系統為了讓使用者可以看到完整的文章預覽頁，有為預覽模式建立兩個「只接受內部網路需求的 Cloud Runs」，分別是
 
 - [prod-frontend-for-preview](https://console.cloud.google.com/run/detail/asia-east1/prod-frontend-for-preview?project=kids-reporter)
-- [prod-api-gateway-for-preview](https://console.cloud.google.com/run/detail/asia-east1/prod-api-gateway-for-preview?project=kids-reporter)
-  以上兩個 Cloud Runs 與 `prod-frontend` 和 `prod-api-gateway` 的程式碼相同，僅使用的環境變數不同。
+- `prod-content-api-for-preview`
 
-`prod-frontend-for-preview` 使用 `prod-api-gateway-for-preview` 當作 API server，而 `prod-api-gateway-for-preview` 發送 request 到 CMS GraphQL 時，使用的角色是 `preview_headless_account`；`preview_headless_account` 在 CMS 角色權限設定上，有權限可以讀取 `draft` 的內容。
-
-註：
-
-1. `prod-frontend` 使用 `prod-api-gateway` 當作 API server。
-2. `prod-api-gateway` 發送 request CMS GraphQL 時，使用的角色是 `frontend_headless_account`，而 `frontend_headless_account` 並沒有權限讀取 `draft` 內容。
-
-因此，`prod-frontend-for-preview` 起來的前端網站，是可以預覽 `draft` 的內容的。
+`prod-frontend-for-preview` 的 server-side content requests 使用
+`prod-content-api-for-preview`，由 preview content API 提供包含 draft 的內容；一般 frontend
+則使用 public content API，只提供可公開內容。
 
 為了避免「外部使用者讀取預覽文章」，`prod-frontend-for-preview` 在 Cloud Run 設定上，將 `Ingress Control` 設定成 `internal`，不讓外部網路的需求造訪。然而，此設定同樣會將「內部使用者拒於門外」。
 

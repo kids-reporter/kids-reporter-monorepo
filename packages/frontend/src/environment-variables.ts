@@ -1,10 +1,5 @@
-const apiGatewayEndpoint =
-  process.env.NEXT_PUBLIC_API_GATEWAY_ENDPOINT || 'http://localhost:3000'
-const internalApiGatewayEndpoint =
-  process.env.INTERNAL_API_GATEWAY_ENDPOINT || apiGatewayEndpoint
-
 const contentApiEndpoint =
-  process.env.NEXT_PUBLIC_CONTENT_API_ENDPOINT || apiGatewayEndpoint
+  process.env.NEXT_PUBLIC_CONTENT_API_ENDPOINT || 'http://localhost:8081'
 const internalContentApiEndpoint =
   process.env.INTERNAL_CONTENT_API_ENDPOINT || contentApiEndpoint
 
@@ -35,8 +30,6 @@ const requestTimeoutMs =
     : 10000
 
 const environmentVariables = {
-  internalApiGatewayEndpoint,
-  apiGatewayEndpoint,
   internalContentApiEndpoint,
   contentApiEndpoint,
   isProduction,
