@@ -9,8 +9,7 @@ import { config } from './configs.js'
 export const errors = _errors.default
 
 /**
- * Format axios errors for consistent logging (aligned with api-gateway).
- * @see packages/api-gateway/src/utils/format-axios-error.ts
+ * Format axios errors for consistent structured logging.
  */
 export const formatAxiosError = (err) => {
   if (!axios.isAxiosError(err)) {
@@ -98,7 +97,7 @@ export const logWithSlack = async (message) => {
 }
 
 /**
- * Log error and exit (aligned with api-gateway app-level error handler).
+ * Log error and exit through the shared cronjob error path.
  * Wraps unknown errors so all failures have a consistent annotated structure.
  */
 export const errorHandling = (err) => {

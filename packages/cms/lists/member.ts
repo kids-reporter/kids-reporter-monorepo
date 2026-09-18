@@ -11,20 +11,18 @@ import {
 } from '@keystone-6/core/fields'
 
 import type { ListType } from '../types/keystone-list-types'
-import { allowAllRoles } from './utils/access-control-list'
 import {
-  makeMemberOwnedFilter,
-  memberOwnedOperationAccess,
-  memberOwnedPrivateFieldQueryAccess,
-} from './utils/member-owned-access'
+  allowAllRoles,
+  allowRoles,
+  RoleEnum,
+} from './utils/access-control-list'
 import {
   MEMBER_IDENTITY_OPTIONS,
   MEMBER_LOCATION_COUNTRY_OPTIONS,
   MEMBER_LOCATION_REGION_OPTIONS,
 } from './utils/member-profile-options'
 
-const operationAccessControl = memberOwnedOperationAccess
-const filterAccessControl = makeMemberOwnedFilter('self')
+const adminAccess = allowRoles([RoleEnum.Admin, RoleEnum.Owner])
 
 export default list<ListType<'Member'>>({
   fields: {
@@ -41,13 +39,13 @@ export default list<ListType<'Member'>>({
     contactEmail: text({
       label: '聯絡信箱',
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     birthday: calendarDay({
       label: '生日',
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     locationCountry: select({
@@ -55,7 +53,7 @@ export default list<ListType<'Member'>>({
       type: 'string',
       options: [...MEMBER_LOCATION_COUNTRY_OPTIONS],
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     locationRegion: select({
@@ -63,7 +61,7 @@ export default list<ListType<'Member'>>({
       type: 'string',
       options: [...MEMBER_LOCATION_REGION_OPTIONS],
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     identity: select({
@@ -71,7 +69,7 @@ export default list<ListType<'Member'>>({
       type: 'string',
       options: [...MEMBER_IDENTITY_OPTIONS],
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     twreporter_user_id: text({
@@ -90,7 +88,7 @@ export default list<ListType<'Member'>>({
         },
       },
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
         create: () => false,
         update: () => false,
       },
@@ -109,7 +107,7 @@ export default list<ListType<'Member'>>({
         },
       },
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
         create: () => false,
         update: () => false,
       },
@@ -139,14 +137,14 @@ export default list<ListType<'Member'>>({
       label: '是否顯示報導仔',
       defaultValue: true,
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     essayQuestionCount: integer({
       label: '思辨題數量',
       defaultValue: 1,
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     avatar: relationship({
@@ -157,7 +155,7 @@ export default list<ListType<'Member'>>({
     createdAt: timestamp({
       defaultValue: { kind: 'now' },
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
     updatedAt: timestamp({
@@ -165,7 +163,7 @@ export default list<ListType<'Member'>>({
         updatedAt: true,
       },
       access: {
-        read: memberOwnedPrivateFieldQueryAccess,
+        read: adminAccess,
       },
     }),
   },
@@ -182,13 +180,9 @@ export default list<ListType<'Member'>>({
   access: {
     operation: {
       query: allowAllRoles(),
-      create: operationAccessControl,
-      update: operationAccessControl,
-      delete: operationAccessControl,
-    },
-    filter: {
-      update: filterAccessControl,
-      delete: filterAccessControl,
+      create: adminAccess,
+      update: adminAccess,
+      delete: adminAccess,
     },
   },
   hooks: {},

@@ -10,9 +10,8 @@ usage() {
 Usage:
   ENV=dev|staging|prod ./deploy/secrets/create-secrets.sh [SECRET_SUFFIX|--all]
 
-Shared by both the cms and gql Cloud Run services (identical code, one set
-of secrets under the ${ENV}-cms prefix). With no selector, all cms secrets
-are created or updated.
+Secrets are created under the ${ENV}-cms prefix. With no selector, all CMS
+secrets are created or updated.
 EOF
 }
 

@@ -1836,7 +1836,6 @@ input MemberUpdateInput {
 }
 
 input MemberAvatarRelateToOneForUpdateInput {
-  create: MemberAvatarCreateInput
   connect: MemberAvatarWhereUniqueInput
   disconnect: Boolean
 }
@@ -1865,7 +1864,6 @@ input MemberCreateInput {
 }
 
 input MemberAvatarRelateToOneForCreateInput {
-  create: MemberAvatarCreateInput
   connect: MemberAvatarWhereUniqueInput
 }
 
@@ -1900,38 +1898,6 @@ input MemberAvatarOrderByInput {
   name: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
-}
-
-input MemberAvatarUpdateInput {
-  name: String
-  imageFile: ImageFieldInput
-  member: MemberRelateToOneForUpdateInput
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input MemberRelateToOneForUpdateInput {
-  create: MemberCreateInput
-  connect: MemberWhereUniqueInput
-  disconnect: Boolean
-}
-
-input MemberAvatarUpdateArgs {
-  where: MemberAvatarWhereUniqueInput!
-  data: MemberAvatarUpdateInput!
-}
-
-input MemberAvatarCreateInput {
-  name: String
-  imageFile: ImageFieldInput
-  member: MemberRelateToOneForCreateInput
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input MemberRelateToOneForCreateInput {
-  create: MemberCreateInput
-  connect: MemberWhereUniqueInput
 }
 
 type PostChoiceAnswer {
@@ -1982,36 +1948,6 @@ input PostChoiceAnswerOrderByInput {
   compositeKey: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
-}
-
-input PostChoiceAnswerUpdateInput {
-  question: PostChoiceQuestionRelateToOneForUpdateInput
-  choiceIndex: Int
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input PostChoiceQuestionRelateToOneForUpdateInput {
-  create: PostChoiceQuestionCreateInput
-  connect: PostChoiceQuestionWhereUniqueInput
-  disconnect: Boolean
-}
-
-input PostChoiceAnswerUpdateArgs {
-  where: PostChoiceAnswerWhereUniqueInput!
-  data: PostChoiceAnswerUpdateInput!
-}
-
-input PostChoiceAnswerCreateInput {
-  question: PostChoiceQuestionRelateToOneForCreateInput
-  choiceIndex: Int
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input PostChoiceQuestionRelateToOneForCreateInput {
-  create: PostChoiceQuestionCreateInput
-  connect: PostChoiceQuestionWhereUniqueInput
 }
 
 type PostChoiceQuestion {
@@ -2076,7 +2012,6 @@ input PostRelateToOneForUpdateInput {
 input PostChoiceAnswerRelateToManyForUpdateInput {
   disconnect: [PostChoiceAnswerWhereUniqueInput!]
   set: [PostChoiceAnswerWhereUniqueInput!]
-  create: [PostChoiceAnswerCreateInput!]
   connect: [PostChoiceAnswerWhereUniqueInput!]
 }
 
@@ -2101,7 +2036,6 @@ input PostRelateToOneForCreateInput {
 }
 
 input PostChoiceAnswerRelateToManyForCreateInput {
-  create: [PostChoiceAnswerCreateInput!]
   connect: [PostChoiceAnswerWhereUniqueInput!]
 }
 
@@ -2142,36 +2076,6 @@ input PostEssayAnswerOrderByInput {
   compositeKey: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
-}
-
-input PostEssayAnswerUpdateInput {
-  question: PostEssayQuestionRelateToOneForUpdateInput
-  content: String
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input PostEssayQuestionRelateToOneForUpdateInput {
-  create: PostEssayQuestionCreateInput
-  connect: PostEssayQuestionWhereUniqueInput
-  disconnect: Boolean
-}
-
-input PostEssayAnswerUpdateArgs {
-  where: PostEssayAnswerWhereUniqueInput!
-  data: PostEssayAnswerUpdateInput!
-}
-
-input PostEssayAnswerCreateInput {
-  question: PostEssayQuestionRelateToOneForCreateInput
-  content: String
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input PostEssayQuestionRelateToOneForCreateInput {
-  create: PostEssayQuestionCreateInput
-  connect: PostEssayQuestionWhereUniqueInput
 }
 
 type PostEssayQuestion {
@@ -2228,7 +2132,6 @@ input PostEssayQuestionUpdateInput {
 input PostEssayAnswerRelateToManyForUpdateInput {
   disconnect: [PostEssayAnswerWhereUniqueInput!]
   set: [PostEssayAnswerWhereUniqueInput!]
-  create: [PostEssayAnswerCreateInput!]
   connect: [PostEssayAnswerWhereUniqueInput!]
 }
 
@@ -2247,7 +2150,6 @@ input PostEssayQuestionCreateInput {
 }
 
 input PostEssayAnswerRelateToManyForCreateInput {
-  create: [PostEssayAnswerCreateInput!]
   connect: [PostEssayAnswerWhereUniqueInput!]
 }
 
@@ -2282,17 +2184,6 @@ input PostEssayAnswerLikeOrderByInput {
   compositeKey: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
-}
-
-input PostEssayAnswerLikeCreateInput {
-  answer: PostEssayAnswerRelateToOneForCreateInput
-  createdAt: DateTime
-  updatedAt: DateTime
-}
-
-input PostEssayAnswerRelateToOneForCreateInput {
-  create: PostEssayAnswerCreateInput
-  connect: PostEssayAnswerWhereUniqueInput
 }
 
 type PopularKeyword {
@@ -2454,16 +2345,8 @@ type Mutation {
   updateMembers(data: [MemberUpdateArgs!]!): [Member]
   deleteMember(where: MemberWhereUniqueInput!): Member
   deleteMembers(where: [MemberWhereUniqueInput!]!): [Member]
-  createMemberAvatar(data: MemberAvatarCreateInput!): MemberAvatar
-  createMemberAvatars(data: [MemberAvatarCreateInput!]!): [MemberAvatar]
-  updateMemberAvatar(where: MemberAvatarWhereUniqueInput!, data: MemberAvatarUpdateInput!): MemberAvatar
-  updateMemberAvatars(data: [MemberAvatarUpdateArgs!]!): [MemberAvatar]
   deleteMemberAvatar(where: MemberAvatarWhereUniqueInput!): MemberAvatar
   deleteMemberAvatars(where: [MemberAvatarWhereUniqueInput!]!): [MemberAvatar]
-  createPostChoiceAnswer(data: PostChoiceAnswerCreateInput!): PostChoiceAnswer
-  createPostChoiceAnswers(data: [PostChoiceAnswerCreateInput!]!): [PostChoiceAnswer]
-  updatePostChoiceAnswer(where: PostChoiceAnswerWhereUniqueInput!, data: PostChoiceAnswerUpdateInput!): PostChoiceAnswer
-  updatePostChoiceAnswers(data: [PostChoiceAnswerUpdateArgs!]!): [PostChoiceAnswer]
   deletePostChoiceAnswer(where: PostChoiceAnswerWhereUniqueInput!): PostChoiceAnswer
   deletePostChoiceAnswers(where: [PostChoiceAnswerWhereUniqueInput!]!): [PostChoiceAnswer]
   createPostChoiceQuestion(data: PostChoiceQuestionCreateInput!): PostChoiceQuestion
@@ -2472,10 +2355,6 @@ type Mutation {
   updatePostChoiceQuestions(data: [PostChoiceQuestionUpdateArgs!]!): [PostChoiceQuestion]
   deletePostChoiceQuestion(where: PostChoiceQuestionWhereUniqueInput!): PostChoiceQuestion
   deletePostChoiceQuestions(where: [PostChoiceQuestionWhereUniqueInput!]!): [PostChoiceQuestion]
-  createPostEssayAnswer(data: PostEssayAnswerCreateInput!): PostEssayAnswer
-  createPostEssayAnswers(data: [PostEssayAnswerCreateInput!]!): [PostEssayAnswer]
-  updatePostEssayAnswer(where: PostEssayAnswerWhereUniqueInput!, data: PostEssayAnswerUpdateInput!): PostEssayAnswer
-  updatePostEssayAnswers(data: [PostEssayAnswerUpdateArgs!]!): [PostEssayAnswer]
   deletePostEssayAnswer(where: PostEssayAnswerWhereUniqueInput!): PostEssayAnswer
   deletePostEssayAnswers(where: [PostEssayAnswerWhereUniqueInput!]!): [PostEssayAnswer]
   createPostEssayQuestion(data: PostEssayQuestionCreateInput!): PostEssayQuestion
@@ -2484,8 +2363,6 @@ type Mutation {
   updatePostEssayQuestions(data: [PostEssayQuestionUpdateArgs!]!): [PostEssayQuestion]
   deletePostEssayQuestion(where: PostEssayQuestionWhereUniqueInput!): PostEssayQuestion
   deletePostEssayQuestions(where: [PostEssayQuestionWhereUniqueInput!]!): [PostEssayQuestion]
-  createPostEssayAnswerLike(data: PostEssayAnswerLikeCreateInput!): PostEssayAnswerLike
-  createPostEssayAnswerLikes(data: [PostEssayAnswerLikeCreateInput!]!): [PostEssayAnswerLike]
   deletePostEssayAnswerLike(where: PostEssayAnswerLikeWhereUniqueInput!): PostEssayAnswerLike
   deletePostEssayAnswerLikes(where: [PostEssayAnswerLikeWhereUniqueInput!]!): [PostEssayAnswerLike]
   createPopularKeyword(data: PopularKeywordCreateInput!): PopularKeyword
@@ -2597,8 +2474,6 @@ type Query {
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
   searchTWReporterPosts(keywords: String!): [searchTWReporterPostsResult]
-  getMemberPostsWithAnswers(take: Int = 5, cursor: String): JSON
-  getMemberEssayAnswersHasLiked(essayAnswerIds: [ID]): [getMemberEssayAnswersHasLikedResult]
 }
 
 type searchTWReporterPostsResult {
@@ -2609,12 +2484,6 @@ type searchTWReporterPostsResult {
   publishedDate: String
   subcategory: String
   category: String
-}
-
-type getMemberEssayAnswersHasLikedResult {
-  essayAnswerId: ID
-  hasLiked: Boolean
-  essayAnswerLikeId: ID
 }
 
 union AuthenticatedItem = User

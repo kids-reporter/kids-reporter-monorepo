@@ -8,8 +8,6 @@ The Cloud Build trigger must set `_ENV` to `dev`, `staging`, or `prod`.
 
 - The service name is derived as `${_ENV}-cms`
   (`_TARGET_PACKAGE=cms`, no `_SERVICE_NAME` override needed).
-- The legacy gql-only image and environment files are retained for now, but
-  the root Cloud Build configuration does not build or deploy that service.
 
 The Dockerfile hardcodes `ENV PORT 3000`, and Cloud Build declares the same
 container port explicitly.

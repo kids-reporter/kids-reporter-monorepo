@@ -9,7 +9,6 @@
     "update": "yarn changeset && yarn changeset version",
     "dev:cms": "cd packages/cms && dotenv -e .env.local -- yarn dev",
     "dev:frontend": "cd packages/frontend && PORT=3001 yarn dev",
-    "dev:api-gateway": "cd packages/api-gateway && dotenv -e .env.local -- yarn dev",
     "dev:content-api": "cd packages/content-api && dotenv -e .env.local -- yarn dev",
     "format:write": "yarn workspaces foreach -A run prettier --write .",
     "format:check": "yarn workspaces foreach -A run prettier --check .",
@@ -45,7 +44,6 @@
     "typescript": "^5.9.2"
   },
   "lint-staged": {
-    "packages/api-gateway/**/*.{js,ts,jsx,tsx}": "cd packages/api-gateway && eslint --config eslint.config.mjs --cache --fix",
     "packages/content-api/**/*.{js,ts,jsx,tsx}": "cd packages/content-api && eslint --config eslint.config.mjs --cache --fix",
     "packages/db/**/*.{js,ts,jsx,tsx}": "cd packages/db && eslint --config eslint.config.mjs --cache --fix",
     "packages/api-types/**/*.{js,ts,jsx,tsx}": "cd packages/api-types && eslint --config eslint.config.mjs --cache --fix",

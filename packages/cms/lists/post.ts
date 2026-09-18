@@ -575,31 +575,6 @@ const listConfigurations: ListConfig<any> = list({
       ]),
       delete: allowRoles([RoleEnum.Owner, RoleEnum.Admin, RoleEnum.Editor]),
     },
-    filter: {
-      query: ({ session }) => {
-        if (envVars.nodeEnv === 'test') {
-          return {}
-        }
-        if (session?.data?.role === RoleEnum.FrontendHeadlessAccount) {
-          return {
-            OR: [
-              { status: { equals: 'published' } },
-              {
-                AND: [
-                  { status: { equals: 'scheduled' } },
-                  {
-                    publishedDate: {
-                      lt: `${new Date().toISOString()}`,
-                    },
-                  },
-                ],
-              },
-            ],
-          }
-        }
-        return {}
-      },
-    },
   },
   hooks: {
     resolveInput: async ({

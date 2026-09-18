@@ -1,5 +1,4 @@
 const {
-  IS_UI_DISABLED,
   PREVIEW_SERVER_ORIGIN,
   PREVIEW_SERVER_PATH,
   DATABASE_PROVIDER,
@@ -24,9 +23,6 @@ const {
   OPEN_AI_PROJECT,
   TWREPORTER_ID,
   SEARCH_API_KEY,
-  GO_API_JWT_SECRET,
-  GO_API_JWT_ISSUER,
-  GO_API_JWT_AUDIENCE,
 } = process.env
 
 enum DatabaseProvider {
@@ -45,7 +41,6 @@ const getAllowOrigins = (cors: string) => {
 }
 
 const environmentVariables = {
-  isUIDisabled: IS_UI_DISABLED === 'true',
   memoryCacheTtl: Number.isNaN(Number(MEMORY_CACHE_TTL))
     ? 300_000
     : Number(MEMORY_CACHE_TTL),
@@ -100,11 +95,6 @@ const environmentVariables = {
     key: OPEN_AI_KEY || 'open-ai-key',
     organization: OPEN_AI_ORGANIZATION || '',
     project: OPEN_AI_PROJECT || '',
-  },
-  goApiJwt: {
-    secret: GO_API_JWT_SECRET || '',
-    issuer: GO_API_JWT_ISSUER || 'https://go-api.twreporter.org',
-    audience: GO_API_JWT_AUDIENCE || 'https://www.twreporter.org',
   },
 }
 

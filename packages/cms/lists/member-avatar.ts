@@ -14,19 +14,7 @@ import {
   allowRoles,
   RoleEnum,
 } from './utils/access-control-list'
-import { memberOwnedOperationAccess } from './utils/member-owned-access'
 
-const ALLOWED_IMAGE_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-]
-
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
-
-const operationAccessControl = memberOwnedOperationAccess
 export default list<ListType<'MemberAvatar'>>({
   fields: {
     name: text({
@@ -77,9 +65,9 @@ export default list<ListType<'MemberAvatar'>>({
   access: {
     operation: {
       query: allowAllRoles(),
-      create: allowRoles([RoleEnum.Member]),
+      create: () => false,
       update: () => false,
-      delete: operationAccessControl,
+      delete: allowRoles([RoleEnum.Admin, RoleEnum.Owner]),
     },
     filter: {
       query: undefined,
@@ -87,49 +75,10 @@ export default list<ListType<'MemberAvatar'>>({
       delete: () => ({ member: null }),
     },
   },
-  hooks: {
-    validateInput: async ({ inputData, addValidationError, operation }) => {
-      // Validate file upload on create and update
-      if (operation === 'create' || operation === 'update') {
-        const imageFile = inputData?.imageFile
-        if (imageFile?.upload) {
-          // Check file size
-          const fileSize = imageFile.upload.size
-          if (fileSize && fileSize > MAX_IMAGE_SIZE) {
-            addValidationError(
-              `Image file size must be under ${MAX_IMAGE_SIZE / 1024 / 1024}MB.`
-            )
-          }
-
-          // Check file type
-          const mimetype = imageFile.upload.mimetype
-          if (mimetype && !ALLOWED_IMAGE_TYPES.includes(mimetype)) {
-            addValidationError(
-              `Only image files are allowed. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}`
-            )
-          }
-        }
-      }
-    },
-    resolveInput: async ({ resolvedData, context, operation }) => {
-      const sessionMemberId = context.session?.data?.memberId?.toString()
-
-      if (!sessionMemberId) {
-        throw new Error(
-          'You must be signed in as a member to upload a member avatar.'
-        )
-      }
-
-      if (operation === 'create') {
-        // connect the MemberAvatar record to the current member
-        resolvedData.member = {
-          connect: {
-            id: sessionMemberId,
-          },
-        }
-      }
-
-      return resolvedData
+  graphql: {
+    omit: {
+      create: true,
+      update: true,
     },
   },
 })

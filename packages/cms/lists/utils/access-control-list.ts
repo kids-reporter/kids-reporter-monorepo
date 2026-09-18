@@ -35,10 +35,7 @@ export const allowAllRoles = () => {
     RoleEnum.Developer,
     RoleEnum.Editor,
     RoleEnum.Contributor,
-    RoleEnum.FrontendHeadlessAccount,
-    RoleEnum.PreviewHeadlessAccount,
     RoleEnum.CronjobHeadlessAccount,
-    RoleEnum.Member,
   ]
   return allowRoles(roles)
 }

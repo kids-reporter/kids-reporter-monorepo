@@ -39,12 +39,8 @@ environment and sets `NEXT_PUBLIC_IS_PREVIEW_MODE=true`. Browser-side content
 requests keep using the public content-api endpoint; server-side draft content
 requests use the preview service configured in the runtime file.
 
-In dev and staging, browser requests to `{dev,staging}-kids-api.twreporter.org`
-must go through this frontend's `/api-gateway` proxy route because those
-domains are protected by IAP (Identity-Aware Proxy) at the GCP load
-balancer — configuration outside this repo. Prod does not have IAP enabled,
-so `NEXT_PUBLIC_API_GATEWAY_ENDPOINT` points directly at
-`kids-api.twreporter.org` with no `/api-gateway` proxy hop.
+Browser-side content requests use `NEXT_PUBLIC_CONTENT_API_ENDPOINT` in every
+environment. No legacy proxy or GraphQL endpoint is required.
 
 ## Runtime Configuration
 

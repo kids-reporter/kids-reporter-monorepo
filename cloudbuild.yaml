@@ -144,7 +144,7 @@ steps:
             PORT=3000
             TIMEOUT=30s
             CONCURRENCY=30
-            SECRETS="DATABASE_URL=${_ENV}-cms_database-url:latest,SESSION_SECRET=${_ENV}-cms_session-secret:latest,TWO_FACTOR_AUTH_SECRET=${_ENV}-cms_two-factor-auth-secret:latest,OPEN_AI_KEY=${_ENV}-cms_open-ai-key:latest,SEARCH_API_KEY=${_ENV}-cms_search-api-key:latest,GO_API_JWT_SECRET=${_ENV}-cms_go-api-jwt-secret:latest"
+            SECRETS="DATABASE_URL=${_ENV}-cms_database-url:latest,SESSION_SECRET=${_ENV}-cms_session-secret:latest,TWO_FACTOR_AUTH_SECRET=${_ENV}-cms_two-factor-auth-secret:latest,OPEN_AI_KEY=${_ENV}-cms_open-ai-key:latest,SEARCH_API_KEY=${_ENV}-cms_search-api-key:latest"
             PROBE_ARGS=(
               --startup-probe="httpGet.path=/health,initialDelaySeconds=0,timeoutSeconds=5,periodSeconds=10,failureThreshold=24"
               --readiness-probe="httpGet.path=/health,timeoutSeconds=5,periodSeconds=10,failureThreshold=3,successThreshold=1"

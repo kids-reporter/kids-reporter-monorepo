@@ -4,11 +4,9 @@ import { InMemoryLRUCache } from '@apollo/utils.keyvaluecache'
 import { createAuth } from '@keystone-6/auth'
 import { config } from '@keystone-6/core'
 import { statelessSessions } from '@keystone-6/core/session'
-import type { SessionStrategy } from '@keystone-6/core/types'
 import { emitStructured, getTraceLogFields } from '@kids-reporter/logger'
 import cors from 'cors'
 import express from 'express'
-import jwt from 'jsonwebtoken'
 
 import appConfig from './config'
 import { RoleEnum } from './constants/index'
@@ -17,7 +15,7 @@ import { createPreviewMiniApp } from './express-mini-apps/preview/app'
 import { twoFactorAuth } from './express-mini-apps/two-factor-auth'
 import { extendGraphqlSchema } from './graphql/extend-schema'
 import { listDefinition as lists } from './lists/index'
-import type { AdminSession, Context, Session, TypeInfo } from './types/index'
+import type { Session } from './types/index'
 
 const sessionDataQuery = 'id name role email twoFactorAuth'
 
@@ -33,204 +31,7 @@ const { withAuth } = createAuth({
   },
 })
 
-/**
- *  Existing Keystone cookie-based session: used for Admin login/logout
- */
 const adminUISession = statelessSessions<Session>(appConfig.session)
-
-/**
- *  Generate Keystone Session from an external JWT
- *    - Extract token from Authorization: Bearer <token>
- *    - Verify signature + iss/aud/exp
- *    - Map to a Keystone Member itemId (if not found, either create a new one or reject)
- */
-async function getSessionFromGoApiJwt({
-  context,
-}: {
-  context: Context
-}): Promise<Session | undefined> {
-  const req = context.req
-  if (!req) {
-    return
-  }
-
-  const auth = req.headers['authorization'] as string | undefined
-
-  if (!auth?.startsWith('Bearer ')) {
-    return
-  }
-
-  const token = auth.slice('Bearer '.length)
-
-  if (!token) {
-    return
-  }
-
-  let decoded
-
-  try {
-    decoded = jwt.verify(token, envVar.goApiJwt.secret, {
-      algorithms: ['HS256'],
-      ignoreNotBefore: true,
-    }) as jwt.JwtPayload
-    // extra claims validation
-    if (decoded.iss !== envVar.goApiJwt.issuer) {
-      throw new Error(`Invalid issuer: ${decoded.iss}`)
-    }
-    if (!decoded.user_id) {
-      throw new Error(`Missing identity claim`)
-    }
-    if (decoded.aud !== envVar.goApiJwt.audience) {
-      throw new Error(`Invalid audience: ${decoded.aud}`)
-    }
-  } catch (err) {
-    const traceLogFields = getTraceLogFields(req.headers)
-    emitStructured({
-      severity: 'INFO',
-      message:
-        'Authorization Bearer token is invalid. ' +
-        (err instanceof Error ? err.message : 'Invalid JWT'),
-      context: {
-        function: 'getSessionFromGoApiJwt',
-      },
-      ...traceLogFields,
-    })
-
-    // JWT verification fails, treat it as no session
-    return
-  }
-
-  let member
-  try {
-    member = await context.prisma.member.findUnique({
-      where: {
-        twreporter_user_id: `${decoded.user_id}`,
-      },
-      select: {
-        id: true,
-        twreporter_user_id: true,
-        email: true,
-      },
-    })
-
-    if (!member) {
-      const data = {
-        email: decoded.email,
-        twreporter_user_id: `${decoded.user_id}`,
-      }
-      member = await context.prisma.member.create({
-        data,
-        select: {
-          id: true,
-          twreporter_user_id: true,
-          email: true,
-        },
-      })
-    }
-  } catch (_err) {
-    const err = _err instanceof Error ? _err : new Error(String(_err))
-    const traceLogFields = getTraceLogFields(req.headers)
-
-    emitStructured({
-      severity: 'ERROR',
-      context: {
-        twreporter_user_id: decoded.user_id,
-        email: decoded.email,
-      },
-      message: err.stack, // trigger error reporting
-      ...traceLogFields,
-    })
-
-    // JWT verification fails, treat it as no session
-    return
-  }
-
-  /**
-   *  Return a session object expected by Keystone
-   *    ⚠️ Important:
-   *    - Admin UI session authentication maps to listKey: 'User'
-   *    - External JWT auth maps to listKey: 'Member'
-   *      → Make sure the listKey corresponds to the correct list
-   *        depending on the authentication source
-   */
-  return {
-    listKey: 'Member',
-    itemId: member.id,
-    data: {
-      memberId: member.id,
-      twreporterUserId: member.twreporter_user_id,
-      role: RoleEnum.Member,
-
-      // bypass two-factor authentication
-      twoFactorAuth: {
-        bypass: true,
-      },
-    },
-  }
-}
-/**
- *  Composite strategy:
- *    - get(): try Admin UI session first, if not found then try external JWT
- *    - start/end: delegate directly to Admin UI session (Admin login/logout)
- */
-const compositeSession: SessionStrategy<Session, TypeInfo> = {
-  async get({ context }) {
-    // First, try Admin UI session
-    let session = (await adminUISession.get({ context })) as AdminSession
-
-    if (session) {
-      const sudoContext = context.sudo()
-
-      const { listKey, itemId } = session
-
-      if (!listKey || !itemId) {
-        return
-      }
-
-      try {
-        const data = await sudoContext.query[listKey].findOne({
-          where: { id: itemId },
-          query: sessionDataQuery,
-        })
-
-        if (!data) {
-          return
-        }
-
-        return {
-          listKey,
-          itemId,
-          data,
-        }
-      } catch (_err) {
-        const err = _err instanceof Error ? _err : new Error(String(_err))
-        const traceLogFields = getTraceLogFields(context.req?.headers)
-
-        emitStructured({
-          severity: 'ERROR',
-          context: {
-            listKey,
-            itemId,
-          },
-          message: err.stack, // trigger error reporting
-          ...traceLogFields,
-        })
-        return
-      }
-    }
-
-    // Then try external JWT
-    return await getSessionFromGoApiJwt({ context })
-  },
-  async start({ context, data }) {
-    // Only Admin login calls this: this will set keystonejs-session cookie
-    return adminUISession.start({ context, data })
-  },
-  async end({ context }) {
-    // Only Admin logout calls this: this will unset keystonejs-session cookie
-    return adminUISession.end({ context })
-  },
-}
 
 const authConfig = withAuth(
   config({
@@ -268,14 +69,10 @@ const authConfig = withAuth(
       },
     },
     ui: {
-      // If `isDisabled` is set to `true` then the Admin UI will be completely disabled.
-      isDisabled: envVar.isUIDisabled,
       // For our starter, we check that someone has session data before letting them see the Admin UI.
       isAccessAllowed: (context) => {
-        // Member role has no permission to access Admin UI.
-        return (
-          context.session?.data && context.session.data.role !== RoleEnum.Member
-        )
+        const role = context.session?.data?.role
+        return Boolean(role && Object.values(RoleEnum).includes(role))
       },
       // Replace default favicon, ref: https://github.com/keystonejs/keystone/discussions/7506
       getAdditionalFiles: [
@@ -403,17 +200,5 @@ const authConfig = withAuth(
     },
   })
 )
-
-/**
- * ⚠️  Note:
- * `withAuth` overrides the return value of the session strategy
- * and only recognizes the `listKey: 'User'` defined in `createAuth`.
- * Any other return value (e.g. `{ listKey: 'Member', ... }`) would be
- * replaced with `undefined`.
- *
- * To preserve the compositeSession config, it must be assigned directly
- * to `authConfig.session` instead of passing it through `withAuth`.
- */
-authConfig.session = compositeSession
 
 export default authConfig

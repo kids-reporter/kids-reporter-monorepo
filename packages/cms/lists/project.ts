@@ -221,18 +221,6 @@ const listConfigurations: ListConfig<any> = list({
       update: allowRoles([RoleEnum.Owner, RoleEnum.Admin, RoleEnum.Editor]),
       delete: allowRoles([RoleEnum.Owner, RoleEnum.Admin, RoleEnum.Editor]),
     },
-    filter: {
-      query: ({ session }) => {
-        if (envVars.nodeEnv === 'test') {
-          return {}
-        }
-
-        if (session?.data?.role === RoleEnum.FrontendHeadlessAccount) {
-          return { status: { equals: 'published' } }
-        }
-        return {}
-      },
-    },
   },
   ui: {
     label: 'Topics',
