@@ -35,9 +35,17 @@ export class ContentApiRequestError extends Error {
     url: string,
     message: string,
     status?: number,
-    options?: { cause?: unknown; errorCode?: string; errorDetails?: unknown }
+    options?: { cause?: Error; errorCode?: string; errorDetails?: unknown }
   ) {
-    super(message, options)
+    // Copy only message/name/stack — never Axios/AnnotatingError
+    // (AxiosError.request is a Writable that Cloud Logging splits).
+    let cause: Error | undefined
+    if (options?.cause) {
+      cause = new Error(options.cause.message)
+      cause.name = options.cause.name
+      if (options.cause.stack) cause.stack = options.cause.stack
+    }
+    super(message, cause ? { cause } : undefined)
     this.name = 'ContentApiRequestError'
     this.path = path
     this.url = url
@@ -198,8 +206,14 @@ export async function sendContentApiRequest<TData = unknown>({
         status,
       },
     })
+    const cleanCause = new Error(errorMessage)
+    cleanCause.name =
+      annotatedErr instanceof Error ? annotatedErr.name : 'AxiosError'
+    if (annotatedErr instanceof Error && annotatedErr.stack) {
+      cleanCause.stack = annotatedErr.stack
+    }
     throw new ContentApiRequestError(path, url, errorMessage, status, {
-      cause: annotatedErr,
+      cause: cleanCause,
       errorCode,
       errorDetails,
     })
