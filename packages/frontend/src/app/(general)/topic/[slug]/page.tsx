@@ -86,6 +86,7 @@ export default async function TopicPage({
 
   return (
     <TopicSlugModule
+      slug={params.slug}
       title={project.title ?? ''}
       subtitle={project.subtitle ?? ''}
       titlePosition={(project.titlePosition ?? 'center') as TitlePosition}

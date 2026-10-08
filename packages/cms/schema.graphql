@@ -1900,6 +1900,44 @@ input MemberAvatarOrderByInput {
   updatedAt: OrderDirection
 }
 
+type Bookmark {
+  id: ID!
+  type: String
+  post: Post
+  project: Project
+  member: Member
+  compositeKey: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input BookmarkWhereUniqueInput {
+  id: ID
+  compositeKey: String
+}
+
+input BookmarkWhereInput {
+  AND: [BookmarkWhereInput!]
+  OR: [BookmarkWhereInput!]
+  NOT: [BookmarkWhereInput!]
+  id: IDFilter
+  type: StringFilter
+  post: PostWhereInput
+  project: ProjectWhereInput
+  member: MemberWhereInput
+  compositeKey: StringNullableFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input BookmarkOrderByInput {
+  id: OrderDirection
+  type: OrderDirection
+  compositeKey: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
 type PostChoiceAnswer {
   id: ID!
   question: PostChoiceQuestion
@@ -2347,6 +2385,8 @@ type Mutation {
   deleteMembers(where: [MemberWhereUniqueInput!]!): [Member]
   deleteMemberAvatar(where: MemberAvatarWhereUniqueInput!): MemberAvatar
   deleteMemberAvatars(where: [MemberAvatarWhereUniqueInput!]!): [MemberAvatar]
+  deleteBookmark(where: BookmarkWhereUniqueInput!): Bookmark
+  deleteBookmarks(where: [BookmarkWhereUniqueInput!]!): [Bookmark]
   deletePostChoiceAnswer(where: PostChoiceAnswerWhereUniqueInput!): PostChoiceAnswer
   deletePostChoiceAnswers(where: [PostChoiceAnswerWhereUniqueInput!]!): [PostChoiceAnswer]
   createPostChoiceQuestion(data: PostChoiceQuestionCreateInput!): PostChoiceQuestion
@@ -2453,6 +2493,9 @@ type Query {
   memberAvatar(where: MemberAvatarWhereUniqueInput!): MemberAvatar
   memberAvatars(where: MemberAvatarWhereInput! = {}, orderBy: [MemberAvatarOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: MemberAvatarWhereUniqueInput): [MemberAvatar!]
   memberAvatarsCount(where: MemberAvatarWhereInput! = {}): Int
+  bookmark(where: BookmarkWhereUniqueInput!): Bookmark
+  bookmarks(where: BookmarkWhereInput! = {}, orderBy: [BookmarkOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BookmarkWhereUniqueInput): [Bookmark!]
+  bookmarksCount(where: BookmarkWhereInput! = {}): Int
   postChoiceAnswer(where: PostChoiceAnswerWhereUniqueInput!): PostChoiceAnswer
   postChoiceAnswers(where: PostChoiceAnswerWhereInput! = {}, orderBy: [PostChoiceAnswerOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostChoiceAnswerWhereUniqueInput): [PostChoiceAnswer!]
   postChoiceAnswersCount(where: PostChoiceAnswerWhereInput! = {}): Int

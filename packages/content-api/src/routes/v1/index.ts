@@ -17,8 +17,11 @@ import {
   V1SubSubcategoryBySlugPostsQuerySchema,
 } from '@kids-reporter/api-types'
 import { asyncRoute, sendJsonError } from '@kids-reporter/content-api-kit'
+import { verifyGoApiJwt } from '@kids-reporter/content-api-kit/auth/go-api-jwt'
+import { emitStructured } from '@kids-reporter/logger'
 import express from 'express'
 
+import envVar from '../../environment-variables.js'
 import {
   fetchAuthorAvatar,
   fetchAuthorFeedPosts,
@@ -60,6 +63,7 @@ import {
   fetchSubcategoryFeedPosts,
   fetchSubSubcategoryFeedPosts,
 } from '../../queries/taxonomy.js'
+import { createV1BookmarksRouter } from './v1-bookmarks.js'
 import { createV1MembersRouter } from './v1-members.js'
 import { createV1QnaMembersRouter } from './v1-qna-members.js'
 
@@ -86,8 +90,28 @@ const sendNotFound = (res: express.Response) =>
 export function createV1Router() {
   const router = express.Router()
 
+  router.use(
+    '/members',
+    verifyGoApiJwt({
+      secret: envVar.goApiJwt.secret,
+      issuer: envVar.goApiJwt.issuer,
+      audience: envVar.goApiJwt.audience,
+      onReject: (info, res) => {
+        emitStructured({
+          severity: 'WARNING',
+          message: 'Go API JWT request rejected',
+          goApiJwtAuthFailureReason: info.reason,
+          path: info.path,
+          method: info.method,
+          jwtLibraryErrorName: info.jwtLibraryErrorName,
+          ...res.locals?.globalLogFields,
+        })
+      },
+    })
+  )
   router.use('/members', createV1MembersRouter())
   router.use('/members', createV1QnaMembersRouter())
+  router.use('/members', createV1BookmarksRouter())
 
   router.get(
     '/posts',

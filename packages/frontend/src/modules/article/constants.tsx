@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
 
+import { aboveToolbarToastOptions } from '@/components/toaster'
 import {
   FaceBookIcon,
   LineIcon,
@@ -47,10 +48,10 @@ export const SHARE_ICONS = [
       navigator.clipboard
         .writeText(currentURL)
         .then(() => {
-          toast.success('已複製文章網址')
+          toast.success('已複製文章網址', aboveToolbarToastOptions)
         })
         .catch(() => {
-          toast.error('複製文章網址失敗')
+          toast.error('複製文章網址失敗', aboveToolbarToastOptions)
         })
     },
   },

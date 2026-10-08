@@ -1,4 +1,5 @@
 import Author from './author'
+import Bookmark from './bookmark'
 import CallBaodaozaiIntro from './call-baodaozai-intro'
 import Category from './category'
 import EditorPicksSetting from './editor-picks-setting'
@@ -43,6 +44,7 @@ export const listDefinition = {
   OnlineUser,
   Member,
   MemberAvatar,
+  Bookmark,
   PostChoiceAnswer,
   PostChoiceQuestion,
   PostEssayAnswer,

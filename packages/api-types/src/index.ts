@@ -1,6 +1,7 @@
 export * from './api-variables.js'
 export * from './openapi.js'
 export * from './rest.js'
+export * from './schemas/bookmarks.js'
 export * from './schemas/content.js'
 export * from './schemas/content-feed-queries.js'
 export * from './schemas/content-feed-responses.js'

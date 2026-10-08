@@ -1,3 +1,4 @@
+import './schemas/bookmarks.js'
 import './schemas/extra-openapi-paths.js'
 import './schemas/qna.js'
 
@@ -23,6 +24,10 @@ const openApiRootTags = [
   {
     name: 'Member Q&A',
     description: 'Member-scoped choice/essay answers and likes.',
+  },
+  {
+    name: 'Member Bookmarks',
+    description: 'Member-scoped bookmarks for posts and projects.',
   },
   {
     name: 'Public Q&A',

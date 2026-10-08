@@ -69,6 +69,7 @@ model Post {
   updatedById                                Int?                 @map("updatedBy")
   from_Post_relatedPosts                     Post[]               @relation("Post_relatedPosts")
   from_EditorPicksSetting_editorPicksOfPosts EditorPicksSetting[] @relation("EditorPicksSetting_editorPicksOfPosts")
+  from_Bookmark_post                         Bookmark[]           @relation("Bookmark_post")
 
   @@index([title])
   @@index([status])
@@ -154,6 +155,7 @@ model Project {
   updatedAt                                     DateTime?            @updatedAt
   from_Post_mainProject                         Post[]               @relation("Post_mainProject")
   from_EditorPicksSetting_editorPicksOfProjects EditorPicksSetting[] @relation("EditorPicksSetting_editorPicksOfProjects")
+  from_Bookmark_project                         Bookmark[]           @relation("Bookmark_project")
 
   @@index([title])
   @@index([status])
@@ -351,6 +353,7 @@ model Member {
   avatarId                        Int?                  @unique @map("avatar")
   createdAt                       DateTime?             @default(now())
   updatedAt                       DateTime?             @updatedAt
+  from_Bookmark_member            Bookmark[]            @relation("Bookmark_member")
   from_PostChoiceAnswer_member    PostChoiceAnswer[]    @relation("PostChoiceAnswer_member")
   from_PostEssayAnswer_member     PostEssayAnswer[]     @relation("PostEssayAnswer_member")
   from_PostEssayAnswerLike_member PostEssayAnswerLike[] @relation("PostEssayAnswerLike_member")
@@ -369,6 +372,25 @@ model MemberAvatar {
   member              Member?   @relation("Member_avatar")
   createdAt           DateTime? @default(now())
   updatedAt           DateTime? @updatedAt
+}
+
+model Bookmark {
+  id           Int       @id @default(autoincrement())
+  type         String
+  post         Post?     @relation("Bookmark_post", fields: [postId], references: [id])
+  postId       Int?      @map("post")
+  project      Project?  @relation("Bookmark_project", fields: [projectId], references: [id])
+  projectId    Int?      @map("project")
+  member       Member?   @relation("Bookmark_member", fields: [memberId], references: [id])
+  memberId     String?   @map("member")
+  compositeKey String?   @unique
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
+
+  @@index([type])
+  @@index([postId])
+  @@index([projectId])
+  @@index([memberId])
 }
 
 model PostChoiceAnswer {

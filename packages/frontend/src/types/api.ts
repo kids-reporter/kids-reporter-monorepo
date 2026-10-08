@@ -19,6 +19,8 @@ import {
   type V1CategoryMetadataRequest,
   type V1CategoryPostsRequest,
   type V1CategorySubcategoriesThemeRequest,
+  type V1CreateBookmarkBody,
+  V1CreateBookmarkResponseSchema,
   type V1CreatePostChoiceAnswerBody,
   V1CreatePostChoiceAnswerResponseSchema,
   type V1CreatePostEssayAnswerBody,
@@ -80,6 +82,7 @@ export type {
   V1CategoryMetadataRequest,
   V1CategoryPostsRequest,
   V1CategorySubcategoriesThemeRequest,
+  V1CreateBookmarkBody,
   V1CreatePostChoiceAnswerBody,
   V1CreatePostEssayAnswerBody,
   V1CreatePostEssayAnswerLikeBody,
@@ -230,4 +233,7 @@ export type UpdatePostEssayAnswerResponse = z.infer<
 >
 export type CreatePostEssayAnswerLikeResponse = z.infer<
   typeof V1CreatePostEssayAnswerLikeResponseSchema
+>
+export type CreateBookmarkResponse = z.infer<
+  typeof V1CreateBookmarkResponseSchema
 >

@@ -12,6 +12,7 @@ import TopicRenderer from '../components/topic-renderer'
 import { TitlePosition } from '../types'
 
 type TopicSlugModuleProps = {
+  slug: string
   title: string
   subtitle: string
   titlePosition: TitlePosition
@@ -24,6 +25,7 @@ type TopicSlugModuleProps = {
 }
 
 function TopicSlugModule({
+  slug,
   title,
   subtitle,
   titlePosition,
@@ -47,7 +49,7 @@ function TopicSlugModule({
         articleCount={relatedPosts.length}
       />
       <div className="my-10 tablet:my-16 desktop:my-20">
-        <TopicContentWithMask rawContentState={content} />
+        <TopicContentWithMask slug={slug} rawContentState={content} />
         <div className="my-6 tablet:my-10 [&>svg]:mx-auto">
           <SeparateIcon />
         </div>

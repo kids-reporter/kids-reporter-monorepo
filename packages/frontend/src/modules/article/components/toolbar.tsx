@@ -3,10 +3,14 @@ import { cn, ScrollLevel, useScrollLevel } from '@kids-reporter/routing-ui'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { useTogglePostBookmark } from '@/api-utils/react-query/hooks/bookmark'
 import { DEFAULT_SCROLL_DOWN_DISTANCE } from '@/components/table-of-content'
+import { aboveToolbarToastOptions } from '@/components/toaster'
 import { FontSizeLevel } from '@/constants'
 import useClickOutside from '@/hooks/use-click-outside'
 import {
+  ToolbarBookmarkAddIcon,
+  ToolbarBookmarkFilledIcon,
   ToolbarCheckAnswerIcon,
   ToolbarFontIcon,
   ToolbarPrintIcon,
@@ -15,15 +19,27 @@ import {
 } from '@/icons/miscellaneous'
 import { useArticleContext } from '@/modules/article/context'
 import PostEssayQuestionsModal from '@/modules/idea-hub/post-essay-questions-modal'
+import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 
 import { SHARE_ICONS } from '../constants'
+
+type BookmarkControl = {
+  isBookmarked: boolean
+  isPending: boolean
+  onToggle: () => void
+}
 
 type MobileToolbarProp = {
   topicURL?: string
   onCheckAnswerClick: () => void
+  bookmark?: BookmarkControl
 }
 
-function MobileToolbar({ topicURL, onCheckAnswerClick }: MobileToolbarProp) {
+function MobileToolbar({
+  topicURL,
+  onCheckAnswerClick,
+  bookmark,
+}: MobileToolbarProp) {
   const [isSharePanelOpen, setIsSharePanelOpen] = useState(false)
   const scrollLevel = useScrollLevel({
     scrollDownDistance: DEFAULT_SCROLL_DOWN_DISTANCE,
@@ -36,6 +52,7 @@ function MobileToolbar({ topicURL, onCheckAnswerClick }: MobileToolbarProp) {
   }
 
   const isHidden = scrollLevel === ScrollLevel.DOWN_HIDDEN
+  const showBookmark = !!bookmark
 
   useEffect(() => {
     if (isHidden) {
@@ -114,8 +131,32 @@ function MobileToolbar({ topicURL, onCheckAnswerClick }: MobileToolbarProp) {
               查看回答
             </span>
           </button>
+          {showBookmark && (
+            <button
+              className="flex w-[50px] cursor-pointer flex-col items-center justify-center border-none bg-transparent text-neutral-600 disabled:opacity-60"
+              onClick={bookmark.onToggle}
+              disabled={bookmark.isPending}
+              aria-label={
+                bookmark.isBookmarked ? 'Remove bookmark' : 'Bookmark article'
+              }
+            >
+              <div className="flex h-6 w-6 items-center justify-center">
+                {bookmark.isBookmarked ? (
+                  <ToolbarBookmarkFilledIcon />
+                ) : (
+                  <ToolbarBookmarkAddIcon />
+                )}
+              </div>
+              <span className="prose-p4 text-neutral-900 [text-shadow:-1px_-1px_0_white,1px_-1px_0_white,-1px_1px_0_white,1px_1px_0_white]">
+                {bookmark.isBookmarked ? '已收藏' : '收藏文章'}
+              </span>
+            </button>
+          )}
           <button
-            className="flex w-[50px] cursor-pointer flex-col items-center justify-center border-none bg-transparent text-neutral-600"
+            className={cn(
+              'w-[50px] cursor-pointer flex-col items-center justify-center border-none bg-transparent text-neutral-600',
+              showBookmark ? 'hidden tablet:flex' : 'flex'
+            )}
             onClick={onShareClick}
             aria-label="Share article"
           >
@@ -147,9 +188,14 @@ function MobileToolbar({ topicURL, onCheckAnswerClick }: MobileToolbarProp) {
 type DesktopToolbarProp = {
   topicURL?: string
   onCheckAnswerClick: () => void
+  bookmark?: BookmarkControl
 }
 
-function DesktopToolbar({ topicURL, onCheckAnswerClick }: DesktopToolbarProp) {
+function DesktopToolbar({
+  topicURL,
+  onCheckAnswerClick,
+  bookmark,
+}: DesktopToolbarProp) {
   const [isSharePanelOpen, setIsSharePanelOpen] = useState(false)
   const { onFontSizeChange, fontSize } = useArticleContext()
   const toolbarRef = useRef<HTMLDivElement>(null)
@@ -197,10 +243,42 @@ function DesktopToolbar({ topicURL, onCheckAnswerClick }: DesktopToolbarProp) {
         </button>
       </div>
       <div className="relative flex w-full flex-col items-center gap-3 rounded-full bg-neutral-100 py-3">
+        {bookmark && (
+          <button
+            className={cn(
+              'group relative flex aspect-square w-10 cursor-pointer appearance-none items-center justify-center rounded-full border-none bg-neutral-600 p-2 text-neutral-white transition-colors duration-200 hover:bg-neutral-800 disabled:opacity-60',
+              {
+                'bg-neutral-800': bookmark.isBookmarked,
+              }
+            )}
+            onClick={bookmark.onToggle}
+            disabled={bookmark.isPending}
+            aria-label={
+              bookmark.isBookmarked ? 'Remove bookmark' : 'Bookmark article'
+            }
+            type="button"
+          >
+            <div className="relative z-1">
+              {bookmark.isBookmarked ? (
+                <ToolbarBookmarkFilledIcon />
+              ) : (
+                <ToolbarBookmarkAddIcon />
+              )}
+            </div>
+            <span
+              className={cn(
+                'pointer-events-none absolute left-15 z-0 w-4 text-start prose-p3-bold text-nowrap text-neutral-black opacity-0 transition-opacity duration-200 [text-shadow:-1px_-1px_0_white,1px_-1px_0_white,-1px_1px_0_white,1px_1px_0_white] group-hover:pointer-events-auto group-hover:opacity-100'
+              )}
+            >
+              {bookmark.isBookmarked ? '取消收藏' : '收藏文章'}
+            </span>
+          </button>
+        )}
         <button
           className="group relative flex aspect-square w-10 cursor-pointer appearance-none items-center justify-center rounded-full border-none bg-neutral-600 p-2 text-neutral-white transition-colors duration-200 hover:bg-neutral-800"
           onClick={onFontSizeChange}
           aria-label="Change font size"
+          type="button"
         >
           <div className="relative z-1">
             <ToolbarFontIcon />
@@ -226,6 +304,8 @@ function DesktopToolbar({ topicURL, onCheckAnswerClick }: DesktopToolbarProp) {
             'pointer-events-none absolute top-6 left-21 flex flex-col gap-3 rounded-[40px] bg-neutral-white p-3 opacity-0 shadow-[var(--shadow-baodaozai-card)] transition-opacity duration-300 ease-in-out',
             {
               'pointer-events-auto opacity-100': isSharePanelOpen,
+              // Bookmark adds one slot above share in the gray pill
+              'top-[4.75rem]': !!bookmark,
             }
           )}
         >
@@ -290,6 +370,19 @@ type ToolbarProp = {
 function Toolbar({ topicURL, postSlug }: ToolbarProp) {
   const [isPostEssayQuestionsModalOpen, setIsPostEssayQuestionsModalOpen] =
     useState(false)
+  const { hydrated, member, tokens } = useHydratedAuthStore()
+  const isLogin = hydrated && !!member && !!tokens?.accessToken
+  const { isBookmarked, isLoading, isPending, toggle } = useTogglePostBookmark({
+    postSlug,
+    memberId: member?.id,
+    accessToken: tokens?.accessToken,
+    enabled: isLogin,
+    toastOptions: aboveToolbarToastOptions,
+  })
+  const bookmark = isLogin
+    ? { isBookmarked, isPending: isPending || isLoading, onToggle: toggle }
+    : undefined
+
   return (
     <>
       {/* 148px is 1/2 of toolbar height */}
@@ -298,12 +391,14 @@ function Toolbar({ topicURL, postSlug }: ToolbarProp) {
           <MobileToolbar
             topicURL={topicURL}
             onCheckAnswerClick={() => setIsPostEssayQuestionsModalOpen(true)}
+            bookmark={bookmark}
           />
         </div>
         <div className="hidden desktop:block">
           <DesktopToolbar
             topicURL={topicURL}
             onCheckAnswerClick={() => setIsPostEssayQuestionsModalOpen(true)}
+            bookmark={bookmark}
           />
         </div>
       </div>
