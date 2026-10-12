@@ -114,8 +114,8 @@ function TopicContentWithMask({
         {showButton && (
           <div
             className={cn(
-              'absolute bottom-0 left-1/2 z-2 flex -translate-x-1/2 justify-center',
-              isExpanded ? 'relative' : ''
+              'absolute bottom-15 left-1/2 z-2 flex -translate-x-1/2 justify-center',
+              isExpanded ? 'relative bottom-0 mb-4' : ''
             )}
           >
             <Button
@@ -123,30 +123,35 @@ function TopicContentWithMask({
               onClick={handleButtonClick}
               aria-expanded={isExpanded}
               variant="secondary"
-              className="mb-4 w-60 desktop:w-75"
+              className="w-60 desktop:w-75"
             >
               {isExpanded ? '顯示部分' : '顯示全文'}
             </Button>
           </div>
         )}
-      </div>
-      <div className="flex justify-center">
-        <Button
-          type="button"
-          variant="neutral"
-          onClick={onBookmarkClick}
-          disabled={isLogin && isLoading}
-          isLoading={isLogin && isPending}
-          aria-label={isLogin && isBookmarked ? '取消收藏專題' : '收藏此專題'}
-          className="w-60 desktop:w-75"
-        >
-          {isLogin && isBookmarked ? (
-            <BookmarkFilledIcon />
-          ) : (
-            <BookmarkOutlineIcon />
+        <div
+          className={cn(
+            'absolute bottom-0 left-1/2 z-2 flex -translate-x-1/2 justify-center',
+            isExpanded ? 'relative' : ''
           )}
-          {isLogin && isBookmarked ? '已收藏專題' : '收藏此專題'}
-        </Button>
+        >
+          <Button
+            type="button"
+            variant="neutral"
+            onClick={onBookmarkClick}
+            disabled={isLogin && isLoading}
+            isLoading={isLogin && isPending}
+            aria-label={isLogin && isBookmarked ? '取消收藏專題' : '收藏此專題'}
+            className="w-60 desktop:w-75"
+          >
+            {isLogin && isBookmarked ? (
+              <BookmarkFilledIcon />
+            ) : (
+              <BookmarkOutlineIcon />
+            )}
+            {isLogin && isBookmarked ? '已收藏專題' : '收藏此專題'}
+          </Button>
+        </div>
       </div>
     </div>
   )
