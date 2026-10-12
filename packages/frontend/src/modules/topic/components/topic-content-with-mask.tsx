@@ -2,11 +2,13 @@
 
 import { Button, cn, useMediaQuery } from '@kids-reporter/routing-ui'
 import { RawDraftContentState } from 'draft-js'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 
 import { useToggleBookmark } from '@/api-utils/react-query/hooks/bookmark'
 import { BookmarkFilledIcon, BookmarkOutlineIcon } from '@/icons/miscellaneous'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
+import getLoginUrl from '@/utils/get-login-url'
 
 import TopicRenderer from './topic-renderer'
 
@@ -31,6 +33,7 @@ function TopicContentWithMask({
   const isTablet = useMediaQuery('(min-width: 768px)')
   const maxHeight = isTablet ? TABLET_MAX_HEIGHT : MOBILE_MAX_HEIGHT
 
+  const router = useRouter()
   const { hydrated, member, tokens } = useHydratedAuthStore()
   const isLogin = hydrated && !!member && !!tokens?.accessToken
   const { isBookmarked, isLoading, isPending, toggle } = useToggleBookmark({
@@ -40,6 +43,14 @@ function TopicContentWithMask({
     accessToken: tokens?.accessToken,
     enabled: isLogin,
   })
+  const onBookmarkClick = () => {
+    if (!hydrated) return
+    if (!isLogin) {
+      router.push(getLoginUrl())
+      return
+    }
+    toggle()
+  }
 
   useEffect(() => {
     const el = contentRef.current
@@ -112,27 +123,31 @@ function TopicContentWithMask({
               onClick={handleButtonClick}
               aria-expanded={isExpanded}
               variant="secondary"
-              className="w-60 desktop:w-75"
+              className="mb-4 w-60 desktop:w-75"
             >
               {isExpanded ? '顯示部分' : '顯示全文'}
             </Button>
           </div>
         )}
       </div>
-      {isLogin && (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={toggle}
-            disabled={isPending || isLoading}
-            aria-label={isBookmarked ? '取消收藏專題' : '收藏此專題'}
-            className="my-2 flex h-11 w-60 cursor-pointer items-center justify-center gap-1 rounded-full border-2 border-neutral-400 bg-white px-5 py-2 prose-p1-bold text-neutral-900 transition-colors disabled:cursor-default disabled:opacity-60 desktop:w-75"
-          >
-            {isBookmarked ? <BookmarkFilledIcon /> : <BookmarkOutlineIcon />}
-            {isBookmarked ? '已收藏專題' : '收藏此專題'}
-          </button>
-        </div>
-      )}
+      <div className="flex justify-center">
+        <Button
+          type="button"
+          variant="neutral"
+          onClick={onBookmarkClick}
+          disabled={isLogin && isLoading}
+          isLoading={isLogin && isPending}
+          aria-label={isLogin && isBookmarked ? '取消收藏專題' : '收藏此專題'}
+          className="w-60 desktop:w-75"
+        >
+          {isLogin && isBookmarked ? (
+            <BookmarkFilledIcon />
+          ) : (
+            <BookmarkOutlineIcon />
+          )}
+          {isLogin && isBookmarked ? '已收藏專題' : '收藏此專題'}
+        </Button>
+      </div>
     </div>
   )
 }

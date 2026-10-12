@@ -1,6 +1,7 @@
 'use client'
 import { cn, ScrollLevel, useScrollLevel } from '@kids-reporter/routing-ui'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useTogglePostBookmark } from '@/api-utils/react-query/hooks/bookmark'
@@ -20,6 +21,7 @@ import {
 import { useArticleContext } from '@/modules/article/context'
 import PostEssayQuestionsModal from '@/modules/idea-hub/post-essay-questions-modal'
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
+import getLoginUrl from '@/utils/get-login-url'
 
 import { SHARE_ICONS } from '../constants'
 
@@ -370,6 +372,7 @@ type ToolbarProp = {
 function Toolbar({ topicURL, postSlug }: ToolbarProp) {
   const [isPostEssayQuestionsModalOpen, setIsPostEssayQuestionsModalOpen] =
     useState(false)
+  const router = useRouter()
   const { hydrated, member, tokens } = useHydratedAuthStore()
   const isLogin = hydrated && !!member && !!tokens?.accessToken
   const { isBookmarked, isLoading, isPending, toggle } = useTogglePostBookmark({
@@ -379,9 +382,19 @@ function Toolbar({ topicURL, postSlug }: ToolbarProp) {
     enabled: isLogin,
     toastOptions: aboveToolbarToastOptions,
   })
-  const bookmark = isLogin
-    ? { isBookmarked, isPending: isPending || isLoading, onToggle: toggle }
-    : undefined
+  const onBookmarkClick = () => {
+    if (!hydrated) return
+    if (!isLogin) {
+      router.push(getLoginUrl())
+      return
+    }
+    toggle()
+  }
+  const bookmark = {
+    isBookmarked: isLogin && isBookmarked,
+    isPending: isLogin && (isPending || isLoading),
+    onToggle: onBookmarkClick,
+  }
 
   return (
     <>

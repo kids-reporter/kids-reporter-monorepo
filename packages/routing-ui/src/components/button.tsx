@@ -8,7 +8,7 @@ import { cn } from '../utils/cn'
 
 const buttonVariants = cva(
   // Base styles
-  'font-noto gap-2.5 font-bold inline-flex cursor-pointer items-center justify-center rounded-full transition-colors duration-200',
+  'font-noto gap-1 font-bold inline-flex cursor-pointer items-center justify-center rounded-full transition-colors duration-200',
   {
     variants: {
       variant: {
@@ -22,6 +22,12 @@ const buttonVariants = cva(
           'bg-white text-gray-900 border-2 border-red-400',
           'hover:text-white hover:border-red-500 hover:bg-red-500',
           'active:text-white active:border-red-600 active:bg-red-600',
+          'disabled:bg-white disabled:cursor-default disabled:border-neutral-400 disabled:text-neutral-400',
+        ],
+        neutral: [
+          'bg-white border-2 border-neutral-400 text-neutral-900',
+          'hover:text-white hover:border-neutral-500 hover:bg-neutral-500',
+          'active:text-white active:border-neutral-600 active:bg-neutral-600',
           'disabled:bg-white disabled:cursor-default disabled:border-neutral-400 disabled:text-neutral-400',
         ],
       },

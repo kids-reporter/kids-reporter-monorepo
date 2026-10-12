@@ -719,7 +719,15 @@ export const BookmarkOutlineIcon = () => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M6 4H18V19.5L12 17L6 19.5V4Z"
+        d="M12 4H6V19.5L12 17L18 19.5V12"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeMiterlimit="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M16 6H20M18 4V8"
         stroke="currentColor"
         strokeWidth="2.2"
         strokeMiterlimit="10"

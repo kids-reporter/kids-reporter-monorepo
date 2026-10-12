@@ -17,6 +17,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       style={
         {
           '--normal-bg': 'var(--color-neutral-900)',
+          '--normal-border': 'transparent',
           '--normal-text': 'var(--color-neutral-white)',
           '--border-radius': '8px',
           '--width': 'fit-content',
