@@ -2,13 +2,15 @@
 
 import { cn } from '@kids-reporter/routing-ui'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 
 import { ArrowLeft, ArrowRight } from '@/icons'
 
 type PaginationProp = {
   currentPage: number
   totalPages: number
-  routingPrefix: string
+  routingPrefix?: string
+  onPageChange?: (page: number) => void
   className?: string
 }
 
@@ -21,9 +23,51 @@ export const Pagination = (props: PaginationProp) => {
   const currentPage = props?.currentPage
   const totalPages = props?.totalPages
   const routingPrefix = props?.routingPrefix
+  const onPageChange = props?.onPageChange
   const className = props?.className
-  if (!totalPages || !currentPage || !routingPrefix) {
+  if (!totalPages || !currentPage || !(routingPrefix || onPageChange)) {
     return null
+  }
+
+  const renderControl = ({
+    pageIndex,
+    className: controlClassName,
+    children,
+    ariaCurrent,
+    ariaLabel,
+    ariaHidden,
+  }: {
+    pageIndex: number
+    className: string
+    children: ReactNode
+    ariaCurrent?: 'page'
+    ariaLabel?: string
+    ariaHidden?: boolean
+  }) => {
+    if (onPageChange) {
+      return (
+        <button
+          type="button"
+          className={controlClassName}
+          aria-current={ariaCurrent}
+          aria-label={ariaLabel}
+          onClick={() => onPageChange(pageIndex)}
+        >
+          {children}
+        </button>
+      )
+    }
+    return (
+      <Link
+        href={`${routingPrefix}/${pageIndex}`}
+        className={controlClassName}
+        aria-current={ariaCurrent}
+        aria-label={ariaLabel}
+        aria-hidden={ariaHidden}
+      >
+        {children}
+      </Link>
+    )
   }
 
   const buildPageBox = (pageIndex: number) => {
@@ -33,18 +77,17 @@ export const Pagination = (props: PaginationProp) => {
         key={`pagination-index-${pageIndex}`}
         className="inline-block shrink-0"
       >
-        <Link
-          href={`${routingPrefix}/${pageIndex}`}
-          className={cn(
+        {renderControl({
+          pageIndex,
+          className: cn(
             'flex h-8 min-h-8 w-8 min-w-8 cursor-pointer items-center justify-center rounded-full text-center prose-p1-bold transition-colors duration-120',
             isActive
               ? 'pointer-events-none bg-red-400 text-neutral-white'
               : 'bg-neutral-200 text-neutral-900 hover:bg-neutral-300'
-          )}
-          aria-current={isActive ? 'page' : undefined}
-        >
-          {pageIndex}
-        </Link>
+          ),
+          ariaCurrent: isActive ? 'page' : undefined,
+          children: pageIndex,
+        })}
       </div>
     )
   }
@@ -155,27 +198,25 @@ export const Pagination = (props: PaginationProp) => {
         role="navigation"
         aria-label="分頁導航"
       >
-        {!belowFirstPage && (
-          <Link
-            href={`${routingPrefix}/${currentPage - 1}`}
-            className="flex h-8 min-h-8 w-8 min-w-8 shrink-0 cursor-pointer items-center justify-center text-neutral-600 transition-colors duration-120 hover:text-neutral-800"
-            aria-hidden="true"
-            aria-label="上一頁"
-          >
-            <ArrowLeft />
-          </Link>
-        )}
+        {!belowFirstPage &&
+          renderControl({
+            pageIndex: currentPage - 1,
+            className:
+              'flex h-8 min-h-8 w-8 min-w-8 shrink-0 cursor-pointer items-center justify-center text-neutral-600 transition-colors duration-120 hover:text-neutral-800',
+            ariaHidden: true,
+            ariaLabel: '上一頁',
+            children: <ArrowLeft />,
+          })}
         {pagesArrayJSX}
-        {!aboveFinalPage && (
-          <Link
-            href={`${routingPrefix}/${currentPage + 1}`}
-            className="flex h-8 min-h-8 w-8 min-w-8 shrink-0 cursor-pointer items-center justify-center text-neutral-600 transition-colors duration-120 hover:text-neutral-800"
-            aria-hidden="true"
-            aria-label="下一頁"
-          >
-            <ArrowRight />
-          </Link>
-        )}
+        {!aboveFinalPage &&
+          renderControl({
+            pageIndex: currentPage + 1,
+            className:
+              'flex h-8 min-h-8 w-8 min-w-8 shrink-0 cursor-pointer items-center justify-center text-neutral-600 transition-colors duration-120 hover:text-neutral-800',
+            ariaHidden: true,
+            ariaLabel: '下一頁',
+            children: <ArrowRight />,
+          })}
       </nav>
     )
   )
