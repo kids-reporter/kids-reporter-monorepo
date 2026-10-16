@@ -2,7 +2,12 @@ import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 
 import { RestErrorBodySchema } from '../rest.js'
-import { PostContentSchema, registry, V1ProjectsItemSchema } from './content.js'
+import {
+  PostContentSchema,
+  PostHeroImageSchema,
+  registry,
+  V1ProjectsItemSchema,
+} from './content.js'
 
 extendZodWithOpenApi(z)
 
@@ -44,8 +49,18 @@ export const V1BookmarksQuerySchema = z
     }
   })
 
+const BookmarkPostCardSchema = PostContentSchema.extend({
+  ogTitle: z.string(),
+  ogImage: PostHeroImageSchema.nullable(),
+})
+
 const BookmarkProjectCardSchema = V1ProjectsItemSchema.omit({
   relatedPostsOrdered: true,
+}).extend({
+  ogTitle: z.string(),
+  ogImage: PostHeroImageSchema.nullable(),
+  updatedAt: z.iso.datetime().nullable(),
+  relatedPostsCount: z.number().int().min(0),
 })
 
 export const V1BookmarkItemSchema = z
@@ -54,7 +69,7 @@ export const V1BookmarkItemSchema = z
       id: z.string(),
       createdAt: z.iso.datetime().nullable(),
       type: z.literal('post'),
-      post: PostContentSchema,
+      post: BookmarkPostCardSchema,
     }),
     z.object({
       id: z.string(),
@@ -65,7 +80,12 @@ export const V1BookmarkItemSchema = z
   ])
   .openapi('BookmarkItem')
 
-export const V1BookmarksResponseSchema = z.array(V1BookmarkItemSchema)
+export const V1BookmarksResponseSchema = z
+  .object({
+    bookmarks: z.array(V1BookmarkItemSchema),
+    bookmarksCount: z.number().int().min(0),
+  })
+  .openapi('BookmarksResponse')
 
 registry.registerPath({
   method: 'post',
@@ -149,7 +169,7 @@ registry.registerPath({
   path: '/v1/members/me/bookmarks',
   tags: ['Member Bookmarks'],
   description:
-    'List the authenticated member bookmarks, newest first. Optional `type` filters; optional `slug` (requires `type`) returns the matching row if saved.',
+    'List the authenticated member bookmarks, newest first. Response includes `bookmarks` and total `bookmarksCount`. Optional `type` filters; optional `slug` (requires `type`) returns the matching row if saved.',
   request: {
     query: V1BookmarksQuerySchema,
   },

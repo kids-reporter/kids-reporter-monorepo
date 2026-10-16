@@ -35,7 +35,7 @@ function PostQuestionAnswersList({
   if (postQuestionAnswers.length === 0) {
     return (
       <div className="flex min-h-50 w-full items-center justify-center">
-        <p className="prose-p1 text-neutral-500">
+        <p className="prose-p1 text-neutral-700">
           你還沒有任何回答紀錄
           <br />
           歡迎前往文章頁進行互動測驗

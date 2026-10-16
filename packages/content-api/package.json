@@ -16,7 +16,7 @@
     "postinstall": "make postinstall"
   },
   "dependencies": {
-    "@kids-reporter/api-types": "^0.0.7",
+    "@kids-reporter/api-types": "^0.0.8",
     "@kids-reporter/content-api-kit": "^0.0.1",
     "@kids-reporter/db": "^0.0.5",
     "@kids-reporter/logger": "^0.0.2",

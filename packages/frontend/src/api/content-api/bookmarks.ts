@@ -1,9 +1,43 @@
-import type { CreateBookmarkResponse, V1CreateBookmarkBody } from '@/types/api'
+import type {
+  CreateBookmarkResponse,
+  MemberBookmarksResponse,
+  V1CreateBookmarkBody,
+} from '@/types/api'
 import type { TraceHeaders } from '@/types/trace-headers'
 import { sendContentApiRequest } from '@/utils/send-content-api'
 
 export type BookmarkLookup = { id: string }
 export type BookmarkType = V1CreateBookmarkBody['type']
+
+function assertBookmarksResponse(
+  data: MemberBookmarksResponse | null | undefined
+): MemberBookmarksResponse {
+  if (!data || !Array.isArray(data.bookmarks)) {
+    throw new Error('content-api invalid bookmarks response')
+  }
+  return data
+}
+
+export async function listBookmarksContentApi({
+  accessToken,
+  take,
+  skip,
+  traceHeaders,
+}: {
+  accessToken: string
+  take: number
+  skip: number
+  traceHeaders?: TraceHeaders
+}): Promise<MemberBookmarksResponse> {
+  const data = await sendContentApiRequest<MemberBookmarksResponse>({
+    path: '/v1/members/me/bookmarks',
+    method: 'GET',
+    authToken: accessToken,
+    query: { take, skip },
+    traceHeaders,
+  })
+  return assertBookmarksResponse(data)
+}
 
 export async function getBookmarkBySlugContentApi({
   accessToken,
@@ -16,17 +50,15 @@ export async function getBookmarkBySlugContentApi({
   slug: string
   traceHeaders?: TraceHeaders
 }): Promise<BookmarkLookup | null> {
-  const rows = await sendContentApiRequest<Array<{ id: string }>>({
+  const data = await sendContentApiRequest<MemberBookmarksResponse>({
     path: '/v1/members/me/bookmarks',
     method: 'GET',
     authToken: accessToken,
     query: { type, slug, take: 1 },
     traceHeaders,
   })
-  if (!Array.isArray(rows)) {
-    throw new Error('content-api invalid bookmarks response')
-  }
-  const first = rows[0]
+  const bookmarks = assertBookmarksResponse(data).bookmarks
+  const first = bookmarks[0]
   return first?.id ? { id: first.id } : null
 }
 

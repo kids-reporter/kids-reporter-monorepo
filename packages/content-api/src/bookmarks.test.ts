@@ -14,11 +14,15 @@ const {
   mockCreateBookmark,
   mockFindPost,
   mockFindManyBookmarks,
+  mockCountBookmarks,
+  mockFindManyProjects,
 } = vi.hoisted(() => ({
   mockFindMember: vi.fn(),
   mockCreateBookmark: vi.fn(),
   mockFindPost: vi.fn(),
   mockFindManyBookmarks: vi.fn(),
+  mockCountBookmarks: vi.fn(),
+  mockFindManyProjects: vi.fn(),
 }))
 
 vi.mock('@kids-reporter/db', () => ({
@@ -40,10 +44,12 @@ vi.mock('@kids-reporter/db', () => ({
     },
     project: {
       findFirst: vi.fn(),
+      findMany: (...args: unknown[]) => mockFindManyProjects(...args),
     },
     bookmark: {
       create: (...args: unknown[]) => mockCreateBookmark(...args),
       findMany: (...args: unknown[]) => mockFindManyBookmarks(...args),
+      count: (...args: unknown[]) => mockCountBookmarks(...args),
       findUnique: vi.fn(),
       delete: vi.fn(),
     },
@@ -51,28 +57,114 @@ vi.mock('@kids-reporter/db', () => ({
 }))
 
 describe('listMemberBookmarks', () => {
+  const now = new Date('2026-01-15T00:00:00.000Z')
+  const where = {
+    memberId: 'member-cuid-1',
+    OR: [
+      { type: 'post', post: buildPublicPostWhere(now) },
+      { type: 'project', project: buildPublicProjectWhere() },
+    ],
+  }
+
   beforeEach(() => {
     mockFindManyBookmarks.mockReset()
     mockFindManyBookmarks.mockResolvedValue([])
+    mockCountBookmarks.mockReset()
+    mockCountBookmarks.mockResolvedValue(0)
+    mockFindManyProjects.mockReset()
+    mockFindManyProjects.mockResolvedValue([])
   })
 
   it('applies public visibility in findMany before take/skip', async () => {
-    const now = new Date('2026-01-15T00:00:00.000Z')
-    await listMemberBookmarks('member-cuid-1', { take: 12, skip: 0 }, now)
+    const result = await listMemberBookmarks(
+      'member-cuid-1',
+      { take: 12, skip: 0 },
+      now
+    )
 
     expect(mockFindManyBookmarks).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: {
-          memberId: 'member-cuid-1',
-          OR: [
-            { type: 'post', post: buildPublicPostWhere(now) },
-            { type: 'project', project: buildPublicProjectWhere() },
-          ],
-        },
+        where,
         take: 12,
         skip: 0,
       })
     )
+    expect(mockCountBookmarks).toHaveBeenCalledWith({ where })
+    expect(mockFindManyProjects).not.toHaveBeenCalled()
+    expect(result).toEqual({ bookmarks: [], bookmarksCount: 0 })
+  })
+
+  it('returns og fields and one batched related-post count', async () => {
+    mockCountBookmarks.mockResolvedValue(2)
+    mockFindManyBookmarks.mockResolvedValue([
+      {
+        id: 1,
+        type: 'post',
+        createdAt: new Date('2026-01-02T00:00:00.000Z'),
+        post: {
+          id: 9,
+          title: 'Title',
+          slug: 'post-slug',
+          ogDescription: '',
+          ogTitle: 'OG title',
+          publishedDate: new Date('2025-06-06T00:00:00.000Z'),
+          heroImage: null,
+          ogImage: { imageFile_id: 'og-file', imageFile_extension: 'jpg' },
+          subSubcategories: [],
+          subSubcategoriesOrderJson: [],
+        },
+        project: null,
+      },
+      {
+        id: 2,
+        type: 'project',
+        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        post: null,
+        project: {
+          id: 5,
+          title: 'Topic',
+          subtitle: '',
+          slug: 'topic-slug',
+          ogTitle: 'Topic OG',
+          ogDescription: '',
+          publishedDate: new Date('2025-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2026-07-22T00:00:00.000Z'),
+          heroImage: null,
+          ogImage: { imageFile_id: 'topic-og', imageFile_extension: 'jpg' },
+        },
+      },
+    ])
+    mockFindManyProjects.mockResolvedValue([
+      { id: 5, _count: { relatedPosts: 5 } },
+    ])
+
+    const result = await listMemberBookmarks(
+      'member-cuid-1',
+      { take: 12, skip: 0 },
+      now
+    )
+
+    expect(mockFindManyProjects).toHaveBeenCalledTimes(1)
+    expect(result.bookmarksCount).toBe(2)
+    expect(result.bookmarks[0]).toMatchObject({
+      type: 'post',
+      post: {
+        ogTitle: 'OG title',
+        slug: 'post-slug',
+        ogImage: {
+          resized: { small: expect.stringContaining('og-file-800.webp') },
+        },
+      },
+    })
+    expect(result.bookmarks[1]).toMatchObject({
+      type: 'project',
+      project: {
+        ogTitle: 'Topic OG',
+        slug: 'topic-slug',
+        updatedAt: '2026-07-22T00:00:00.000Z',
+        relatedPostsCount: 5,
+      },
+    })
   })
 })
 

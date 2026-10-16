@@ -10,6 +10,7 @@ import {
   createBookmarkContentApi,
   deleteBookmarkContentApi,
   getBookmarkBySlugContentApi,
+  listBookmarksContentApi,
 } from '@/api/content-api/bookmarks'
 import { ContentApiRequestError } from '@/utils/send-content-api'
 
@@ -23,6 +24,12 @@ import {
 const BOOKMARKED_TOAST: Record<BookmarkType, string> = {
   post: '已收藏此文章',
   project: '已收藏此專題',
+}
+
+const MEMBER_BOOKMARKS_QUERY_KEY = 'member-bookmarks'
+
+function memberBookmarksListKey(memberId: string) {
+  return [MEMBER_BOOKMARKS_QUERY_KEY, memberId] as const
 }
 
 export function useBookmarkQuery({
@@ -133,6 +140,9 @@ export function useToggleBookmark({
           // Already saved on server — refresh real id
           if (error instanceof ContentApiRequestError && error.status === 409) {
             await queryClient.invalidateQueries({ queryKey })
+            await queryClient.invalidateQueries({
+              queryKey: memberBookmarksListKey(memberId),
+            })
             toast.success(bookmarkedToast, toastOptions)
             return
           }
@@ -140,6 +150,9 @@ export function useToggleBookmark({
         }
         toast.success(bookmarkedToast, toastOptions)
       }
+      await queryClient.invalidateQueries({
+        queryKey: memberBookmarksListKey(memberId),
+      })
     } catch {
       queryClient.setQueryData(queryKey, rollbackBookmarkCache(previous))
     } finally {
@@ -163,6 +176,38 @@ export function useToggleBookmark({
     toggle,
   }
 }
+
+export function useMemberBookmarksQuery({
+  memberId,
+  accessToken,
+  take,
+  skip,
+}: {
+  memberId?: string
+  accessToken?: string
+  take: number
+  skip: number
+}) {
+  return useQuery({
+    queryKey: useMemberBookmarksQuery.getQueryKey(memberId ?? '', take, skip),
+    queryFn: () =>
+      listBookmarksContentApi({
+        accessToken: accessToken!,
+        take,
+        skip,
+      }),
+    enabled: !!accessToken && !!memberId,
+    placeholderData: (previous) => previous,
+  })
+}
+
+useMemberBookmarksQuery.getQueryKey = (
+  memberId: string,
+  take: number,
+  skip: number
+) => [MEMBER_BOOKMARKS_QUERY_KEY, memberId, take, skip] as const
+
+useMemberBookmarksQuery.listQueryKey = memberBookmarksListKey
 
 export function useTogglePostBookmark({
   postSlug,

@@ -7,6 +7,7 @@ import { Prisma, prisma } from '@kids-reporter/db'
 import type { z } from 'zod'
 
 import {
+  buildPostBySlugVisibilityWhere,
   buildPublicPostWhere,
   buildPublicProjectWhere,
   buildResizedMedium,
@@ -28,37 +29,69 @@ export type MutationResult<T> =
 
 export type BookmarkType = 'post' | 'project'
 
+type PhotoFile = {
+  imageFile_id: string | null
+  imageFile_extension: string | null
+}
+
+const photoSelect = {
+  imageFile_id: true,
+  imageFile_extension: true,
+} as const
+
+const bookmarkPostSelect = {
+  ...postCardSelect,
+  ogTitle: true,
+  ogImage: { select: photoSelect },
+} as const
+
 const projectCardSelect = {
+  id: true,
   title: true,
   subtitle: true,
   slug: true,
+  ogTitle: true,
   ogDescription: true,
   publishedDate: true,
-  heroImage: {
-    select: { imageFile_id: true, imageFile_extension: true },
-  },
+  updatedAt: true,
+  heroImage: { select: photoSelect },
+  ogImage: { select: photoSelect },
 } as const
 
+type BookmarkPostRow = PostCardRow & {
+  ogTitle: string
+  ogImage: PhotoFile | null
+}
+
 type ProjectCardRow = {
+  id: number
   title: string
   subtitle: string
   slug: string
+  ogTitle: string
   ogDescription: string
   publishedDate: Date | null
-  heroImage: {
-    imageFile_id: string | null
-    imageFile_extension: string | null
-  } | null
+  updatedAt: Date | null
+  heroImage: PhotoFile | null
+  ogImage: PhotoFile | null
 }
 
-const mapProjectCard = (p: ProjectCardRow) => {
+const mapOgImage = (photo: PhotoFile | null) => {
+  if (!photo?.imageFile_id) return null
+  return { resized: { small: buildResizedSmall(photo) } }
+}
+
+const mapProjectCard = (p: ProjectCardRow, relatedPostsCount: number) => {
   const hero = p.heroImage
   return {
     title: p.title,
     subtitle: p.subtitle,
     slug: p.slug,
+    ogTitle: p.ogTitle,
     ogDescription: p.ogDescription,
     publishedDate: p.publishedDate ? p.publishedDate.toISOString() : null,
+    updatedAt: p.updatedAt ? p.updatedAt.toISOString() : null,
+    relatedPostsCount,
     heroImage: hero
       ? {
           resized: {
@@ -67,6 +100,7 @@ const mapProjectCard = (p: ProjectCardRow) => {
           },
         }
       : null,
+    ogImage: mapOgImage(p.ogImage),
   }
 }
 
@@ -112,45 +146,74 @@ export async function listMemberBookmarks(
   opts: ListBookmarksOpts,
   now: Date
 ): Promise<V1BookmarksResponse> {
-  const rows = await prisma.bookmark.findMany({
-    where: buildListBookmarksWhere(memberId, opts, now),
-    orderBy: { createdAt: 'desc' },
-    take: opts.take,
-    skip: opts.skip,
-    select: {
-      id: true,
-      type: true,
-      createdAt: true,
-      post: { select: postCardSelect },
-      project: { select: projectCardSelect },
-    },
-  })
+  const where = buildListBookmarksWhere(memberId, opts, now)
+  const [rows, bookmarksCount] = await Promise.all([
+    prisma.bookmark.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      take: opts.take,
+      skip: opts.skip,
+      select: {
+        id: true,
+        type: true,
+        createdAt: true,
+        post: { select: bookmarkPostSelect },
+        project: { select: projectCardSelect },
+      },
+    }),
+    prisma.bookmark.count({ where }),
+  ])
 
-  const out: V1BookmarksResponse = []
+  const projectIds = rows.flatMap((row) =>
+    row.type === 'project' && row.project ? [row.project.id] : []
+  )
+  const relatedCounts = new Map<number, number>()
+  if (projectIds.length > 0) {
+    const counted = await prisma.project.findMany({
+      where: { id: { in: projectIds } },
+      select: {
+        id: true,
+        _count: {
+          select: {
+            relatedPosts: { where: buildPostBySlugVisibilityWhere(now) },
+          },
+        },
+      },
+    })
+    for (const project of counted) {
+      relatedCounts.set(project.id, project._count.relatedPosts)
+    }
+  }
+
+  const bookmarks: V1BookmarksResponse['bookmarks'] = []
   for (const row of rows) {
     if (row.type === 'post') {
-      const post = row.post as PostCardRow | null
+      const post = row.post as BookmarkPostRow | null
       if (!post) continue
-      out.push({
+      bookmarks.push({
         id: String(row.id),
         createdAt: row.createdAt ? row.createdAt.toISOString() : null,
         type: 'post',
-        post: mapPostCard(post),
+        post: {
+          ...mapPostCard(post),
+          ogTitle: post.ogTitle,
+          ogImage: mapOgImage(post.ogImage),
+        },
       })
       continue
     }
     if (row.type === 'project') {
       const project = row.project as ProjectCardRow | null
       if (!project) continue
-      out.push({
+      bookmarks.push({
         id: String(row.id),
         createdAt: row.createdAt ? row.createdAt.toISOString() : null,
         type: 'project',
-        project: mapProjectCard(project),
+        project: mapProjectCard(project, relatedCounts.get(project.id) ?? 0),
       })
     }
   }
-  return out
+  return { bookmarks, bookmarksCount }
 }
 
 /** `POST /v1/members/me/bookmarks` (P2002 → duplicate). */

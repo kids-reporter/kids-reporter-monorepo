@@ -12,6 +12,7 @@ import {
   V1AuthorBySlugMetaResponseSchema,
   V1AuthorBySlugPostsResponseSchema,
   type V1AuthorPostsRequest,
+  V1BookmarksResponseSchema,
   type V1CallBaodaozaiIntroPathParams,
   V1CategoryBySlugCategoryPostsResponseSchema,
   V1CategoryBySlugMetadataResponseSchema,
@@ -237,3 +238,4 @@ export type CreatePostEssayAnswerLikeResponse = z.infer<
 export type CreateBookmarkResponse = z.infer<
   typeof V1CreateBookmarkResponseSchema
 >
+export type MemberBookmarksResponse = z.infer<typeof V1BookmarksResponseSchema>
