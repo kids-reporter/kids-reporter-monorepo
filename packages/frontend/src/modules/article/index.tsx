@@ -11,6 +11,7 @@ import type { RawDraftContentState } from 'draft-js'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { RecordBrowsingHistory } from '@/api-utils/react-query/hooks/browsing-history'
 import { TableOfContentSideMenu } from '@/components/table-of-content'
 import { FontSizeLevel } from '@/constants'
 import {
@@ -250,6 +251,7 @@ const ArticleModule = ({ post, slug }: { post: PostDetail; slug: string }) => {
 
   return (
     <>
+      <RecordBrowsingHistory type="post" slug={slug} />
       <BaodaozaiVisibilitySetter show={showBaodaozai} />
       <HeaderPostTitleSetter postTitle={post?.title} />
       {tocIndexes.length > 0 && (

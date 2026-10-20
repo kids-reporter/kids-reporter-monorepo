@@ -10,11 +10,15 @@ import {
   buildPostBySlugVisibilityWhere,
   buildPublicPostWhere,
   buildPublicProjectWhere,
-  buildResizedMedium,
-  buildResizedSmall,
+  mapOgImage,
   mapPostCard,
+  mapProjectCard,
+  type PhotoFile,
+  photoSelect,
   type PostCardRow,
   postCardSelect,
+  type ProjectCardRow,
+  projectCardSelect,
 } from '../utils/v1-helpers.js'
 
 type V1BookmarksResponse = z.infer<typeof V1BookmarksResponseSchema>
@@ -29,79 +33,15 @@ export type MutationResult<T> =
 
 export type BookmarkType = 'post' | 'project'
 
-type PhotoFile = {
-  imageFile_id: string | null
-  imageFile_extension: string | null
-}
-
-const photoSelect = {
-  imageFile_id: true,
-  imageFile_extension: true,
-} as const
-
 const bookmarkPostSelect = {
   ...postCardSelect,
   ogTitle: true,
   ogImage: { select: photoSelect },
 } as const
 
-const projectCardSelect = {
-  id: true,
-  title: true,
-  subtitle: true,
-  slug: true,
-  ogTitle: true,
-  ogDescription: true,
-  publishedDate: true,
-  updatedAt: true,
-  heroImage: { select: photoSelect },
-  ogImage: { select: photoSelect },
-} as const
-
 type BookmarkPostRow = PostCardRow & {
   ogTitle: string
   ogImage: PhotoFile | null
-}
-
-type ProjectCardRow = {
-  id: number
-  title: string
-  subtitle: string
-  slug: string
-  ogTitle: string
-  ogDescription: string
-  publishedDate: Date | null
-  updatedAt: Date | null
-  heroImage: PhotoFile | null
-  ogImage: PhotoFile | null
-}
-
-const mapOgImage = (photo: PhotoFile | null) => {
-  if (!photo?.imageFile_id) return null
-  return { resized: { small: buildResizedSmall(photo) } }
-}
-
-const mapProjectCard = (p: ProjectCardRow, relatedPostsCount: number) => {
-  const hero = p.heroImage
-  return {
-    title: p.title,
-    subtitle: p.subtitle,
-    slug: p.slug,
-    ogTitle: p.ogTitle,
-    ogDescription: p.ogDescription,
-    publishedDate: p.publishedDate ? p.publishedDate.toISOString() : null,
-    updatedAt: p.updatedAt ? p.updatedAt.toISOString() : null,
-    relatedPostsCount,
-    heroImage: hero
-      ? {
-          resized: {
-            small: buildResizedSmall(hero),
-            medium: buildResizedMedium(hero),
-          },
-        }
-      : null,
-    ogImage: mapOgImage(p.ogImage),
-  }
 }
 
 export type ListBookmarksOpts = {

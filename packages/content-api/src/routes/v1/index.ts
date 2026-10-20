@@ -64,6 +64,7 @@ import {
   fetchSubSubcategoryFeedPosts,
 } from '../../queries/taxonomy.js'
 import { createV1BookmarksRouter } from './v1-bookmarks.js'
+import { createV1BrowsingHistoriesRouter } from './v1-browsing-histories.js'
 import { createV1MembersRouter } from './v1-members.js'
 import { createV1QnaMembersRouter } from './v1-qna-members.js'
 
@@ -112,6 +113,7 @@ export function createV1Router() {
   router.use('/members', createV1MembersRouter())
   router.use('/members', createV1QnaMembersRouter())
   router.use('/members', createV1BookmarksRouter())
+  router.use('/members', createV1BrowsingHistoriesRouter())
 
   router.get(
     '/posts',

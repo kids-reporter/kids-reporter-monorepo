@@ -13,6 +13,7 @@ import {
   V1AuthorBySlugPostsResponseSchema,
   type V1AuthorPostsRequest,
   V1BookmarksResponseSchema,
+  V1BrowsingHistoriesResponseSchema,
   type V1CallBaodaozaiIntroPathParams,
   V1CategoryBySlugCategoryPostsResponseSchema,
   V1CategoryBySlugMetadataResponseSchema,
@@ -22,6 +23,8 @@ import {
   type V1CategorySubcategoriesThemeRequest,
   type V1CreateBookmarkBody,
   V1CreateBookmarkResponseSchema,
+  type V1CreateBrowsingHistoryBody,
+  V1CreateBrowsingHistoryResponseSchema,
   type V1CreatePostChoiceAnswerBody,
   V1CreatePostChoiceAnswerResponseSchema,
   type V1CreatePostEssayAnswerBody,
@@ -84,6 +87,7 @@ export type {
   V1CategoryPostsRequest,
   V1CategorySubcategoriesThemeRequest,
   V1CreateBookmarkBody,
+  V1CreateBrowsingHistoryBody,
   V1CreatePostChoiceAnswerBody,
   V1CreatePostEssayAnswerBody,
   V1CreatePostEssayAnswerLikeBody,
@@ -239,3 +243,9 @@ export type CreateBookmarkResponse = z.infer<
   typeof V1CreateBookmarkResponseSchema
 >
 export type MemberBookmarksResponse = z.infer<typeof V1BookmarksResponseSchema>
+export type CreateBrowsingHistoryResponse = z.infer<
+  typeof V1CreateBrowsingHistoryResponseSchema
+>
+export type MemberBrowsingHistoriesResponse = z.infer<
+  typeof V1BrowsingHistoriesResponseSchema
+>

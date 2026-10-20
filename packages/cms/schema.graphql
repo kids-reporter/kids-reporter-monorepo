@@ -1938,6 +1938,47 @@ input BookmarkOrderByInput {
   updatedAt: OrderDirection
 }
 
+type BrowsingHistory {
+  id: ID!
+  type: String
+  post: Post
+  project: Project
+  member: Member
+  compositeKey: String
+  visitedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input BrowsingHistoryWhereUniqueInput {
+  id: ID
+  compositeKey: String
+}
+
+input BrowsingHistoryWhereInput {
+  AND: [BrowsingHistoryWhereInput!]
+  OR: [BrowsingHistoryWhereInput!]
+  NOT: [BrowsingHistoryWhereInput!]
+  id: IDFilter
+  type: StringFilter
+  post: PostWhereInput
+  project: ProjectWhereInput
+  member: MemberWhereInput
+  compositeKey: StringNullableFilter
+  visitedAt: DateTimeNullableFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input BrowsingHistoryOrderByInput {
+  id: OrderDirection
+  type: OrderDirection
+  compositeKey: OrderDirection
+  visitedAt: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
 type PostChoiceAnswer {
   id: ID!
   question: PostChoiceQuestion
@@ -2387,6 +2428,8 @@ type Mutation {
   deleteMemberAvatars(where: [MemberAvatarWhereUniqueInput!]!): [MemberAvatar]
   deleteBookmark(where: BookmarkWhereUniqueInput!): Bookmark
   deleteBookmarks(where: [BookmarkWhereUniqueInput!]!): [Bookmark]
+  deleteBrowsingHistory(where: BrowsingHistoryWhereUniqueInput!): BrowsingHistory
+  deleteBrowsingHistories(where: [BrowsingHistoryWhereUniqueInput!]!): [BrowsingHistory]
   deletePostChoiceAnswer(where: PostChoiceAnswerWhereUniqueInput!): PostChoiceAnswer
   deletePostChoiceAnswers(where: [PostChoiceAnswerWhereUniqueInput!]!): [PostChoiceAnswer]
   createPostChoiceQuestion(data: PostChoiceQuestionCreateInput!): PostChoiceQuestion
@@ -2496,6 +2539,9 @@ type Query {
   bookmark(where: BookmarkWhereUniqueInput!): Bookmark
   bookmarks(where: BookmarkWhereInput! = {}, orderBy: [BookmarkOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BookmarkWhereUniqueInput): [Bookmark!]
   bookmarksCount(where: BookmarkWhereInput! = {}): Int
+  browsingHistory(where: BrowsingHistoryWhereUniqueInput!): BrowsingHistory
+  browsingHistories(where: BrowsingHistoryWhereInput! = {}, orderBy: [BrowsingHistoryOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: BrowsingHistoryWhereUniqueInput): [BrowsingHistory!]
+  browsingHistoriesCount(where: BrowsingHistoryWhereInput! = {}): Int
   postChoiceAnswer(where: PostChoiceAnswerWhereUniqueInput!): PostChoiceAnswer
   postChoiceAnswers(where: PostChoiceAnswerWhereInput! = {}, orderBy: [PostChoiceAnswerOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostChoiceAnswerWhereUniqueInput): [PostChoiceAnswer!]
   postChoiceAnswersCount(where: PostChoiceAnswerWhereInput! = {}): Int

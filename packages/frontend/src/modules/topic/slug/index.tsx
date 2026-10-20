@@ -1,6 +1,7 @@
 import { HeaderPostTitleSetter } from '@kids-reporter/routing-ui'
 import { RawDraftContentState } from 'draft-js'
 
+import { RecordBrowsingHistory } from '@/api-utils/react-query/hooks/browsing-history'
 import { PostSummary } from '@/components/types'
 import { SeparateIcon } from '@/icons'
 import { Photo } from '@/types'
@@ -38,6 +39,7 @@ function TopicSlugModule({
 }: TopicSlugModuleProps) {
   return (
     <div className="w-full">
+      <RecordBrowsingHistory type="project" slug={slug} />
       <HeaderPostTitleSetter postTitle={title} />
       <HeroTitle
         title={title}
