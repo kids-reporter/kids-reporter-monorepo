@@ -300,6 +300,28 @@ function HistoryCard({
   )
 }
 
+function HistoryCardSkeleton() {
+  return (
+    <div
+      className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:gap-6"
+      aria-hidden
+    >
+      <div className="order-2 flex min-w-0 flex-1 flex-col gap-2 tablet:order-1">
+        <div className="flex items-center justify-between gap-3 tablet:justify-start">
+          <div className="h-[27px] w-20 animate-pulse rounded-full bg-neutral-200" />
+          <div className="h-4 w-24 animate-pulse rounded bg-neutral-200" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="h-6 w-4/5 animate-pulse rounded bg-neutral-200 tablet:h-7" />
+          <div className="h-5 w-full animate-pulse rounded bg-neutral-200" />
+          <div className="h-5 w-3/5 animate-pulse rounded bg-neutral-200" />
+        </div>
+      </div>
+      <div className="order-1 aspect-[327/183] w-full animate-pulse rounded-2xl bg-neutral-200 tablet:order-2 tablet:aspect-auto tablet:h-[152px] tablet:w-[270px] tablet:shrink-0" />
+    </div>
+  )
+}
+
 function MyReadingHistory() {
   const [currentPage, setCurrentPage] = useState(1)
   const { member, tokens } = useHydratedAuthStore()
@@ -337,7 +359,7 @@ function MyReadingHistory() {
 
   return (
     <div className="w-full bg-neutral-100 px-6 pt-6 pb-40 tablet:px-8 tablet:pt-8 desktop:px-12 desktop:pt-16 desktop:pb-50 hd:px-0">
-      <div className="mx-auto flex w-full max-w-[789px] flex-col">
+      <div className="mx-auto flex w-full flex-col desktop:max-w-[995px]">
         <HeaderMobileBackButtonHrefSetter href="/myreading" />
         <div className="mb-6 flex items-center gap-4 desktop:mb-8">
           <Button
@@ -370,6 +392,13 @@ function MyReadingHistory() {
             >
               重試
             </Button>
+          </div>
+        ) : !data ? (
+          <div className="flex flex-col gap-6 desktop:gap-10" role="status">
+            <span className="sr-only">載入中</span>
+            {Array.from({ length: 4 }, (_, index) => (
+              <HistoryCardSkeleton key={index} />
+            ))}
           </div>
         ) : historiesCount === 0 ? (
           <div className="flex min-h-50 flex-col items-center justify-center gap-1 text-center prose-p1 text-neutral-700">
