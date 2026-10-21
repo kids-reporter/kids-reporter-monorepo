@@ -26,6 +26,9 @@ import { getFormattedDate } from '@/utils'
 
 const PAGE_SIZE = 12
 
+const CARD_GRID_CLASS =
+  'grid grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-3 desktop:gap-x-8 desktop:gap-y-10'
+
 type BookmarkItem = MemberBookmarksResponse['bookmarks'][number]
 
 function cardFields(item: BookmarkItem) {
@@ -40,6 +43,7 @@ function cardFields(item: BookmarkItem) {
       badge: item.post.subSubcategoriesOrdered[0]?.name ?? '',
       meta: getFormattedDate(item.post.publishedDate ?? ''),
       title: item.post.ogTitle.trim() || item.post.title,
+      description: item.post.ogDescription?.trim() ?? '',
     }
   }
   const date = getFormattedDate(
@@ -56,6 +60,7 @@ function cardFields(item: BookmarkItem) {
     badge: '專題',
     meta: date ? `${date} 更新｜${countLabel}` : countLabel,
     title: item.project.ogTitle.trim() || item.project.title,
+    description: item.project.ogDescription?.trim() ?? '',
   }
 }
 
@@ -103,9 +108,16 @@ function SavedCard({
               {fields.meta}
             </span>
           </div>
-          <h2 className="line-clamp-2 prose-p1-bold text-neutral-900 transition-colors duration-200 group-hover:text-red-400 desktop:prose-h6-large">
-            {fields.title}
-          </h2>
+          <div className="flex flex-col gap-2">
+            <h2 className="line-clamp-2 prose-p1-bold text-neutral-900 transition-colors duration-200 group-hover:text-red-400 desktop:prose-h6-large">
+              {fields.title}
+            </h2>
+            {fields.description ? (
+              <p className="line-clamp-4 prose-p1 text-neutral-700">
+                {fields.description}
+              </p>
+            ) : null}
+          </div>
         </div>
       </Link>
       <Button
@@ -123,6 +135,28 @@ function SavedCard({
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/60"></div>
       )}
     </article>
+  )
+}
+
+function SavedCardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-[30px] bg-white" aria-hidden>
+      <div className="aspect-[336/189] w-full animate-pulse bg-neutral-200" />
+      <div className="flex flex-col gap-3 p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="h-[27px] w-20 animate-pulse rounded-full bg-neutral-200" />
+          <div className="h-4 w-16 animate-pulse rounded bg-neutral-200" />
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="h-[26px] w-full animate-pulse rounded bg-neutral-200" />
+          <div className="h-[26px] w-4/5 animate-pulse rounded bg-neutral-200" />
+          <div className="h-5 w-full animate-pulse rounded bg-neutral-200" />
+          <div className="h-5 w-full animate-pulse rounded bg-neutral-200" />
+          <div className="h-5 w-full animate-pulse rounded bg-neutral-200" />
+          <div className="h-5 w-3/5 animate-pulse rounded bg-neutral-200" />
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -262,7 +296,7 @@ function MyReadingSaved() {
 
   return (
     <div className="w-full bg-neutral-100 px-6 pt-6 pb-40 tablet:px-8 tablet:pt-8 desktop:px-12 desktop:pt-16 desktop:pb-50 hd:px-0">
-      <div className="mx-auto flex w-full flex-col hd:max-w-[995px]">
+      <div className="mx-auto flex w-full flex-col desktop:max-w-[995px]">
         <HeaderMobileBackButtonHrefSetter href="/myreading" />
         <div className="mb-6 flex items-center gap-4 desktop:mb-8">
           <Button
@@ -296,6 +330,12 @@ function MyReadingSaved() {
               重試
             </Button>
           </div>
+        ) : !data ? (
+          <div className={CARD_GRID_CLASS} aria-busy="true" aria-label="載入中">
+            {Array.from({ length: PAGE_SIZE }, (_, index) => (
+              <SavedCardSkeleton key={index} />
+            ))}
+          </div>
         ) : bookmarksCount === 0 ? (
           <div className="flex min-h-50 flex-col items-center justify-center gap-1 text-center prose-p1 text-neutral-700">
             <p>你還沒有收藏任何報導</p>
@@ -311,7 +351,7 @@ function MyReadingSaved() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-3 desktop:gap-x-8 desktop:gap-y-10">
+          <div className={CARD_GRID_CLASS}>
             {bookmarks.map((item) => (
               <SavedCard
                 key={item.id}
