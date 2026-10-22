@@ -1,4 +1,4 @@
-FROM node:20.19.5-slim
+FROM node:22.23.4-slim
 
 RUN corepack enable
 
