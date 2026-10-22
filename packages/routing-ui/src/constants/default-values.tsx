@@ -83,7 +83,7 @@ export const READING_SETTINGS_URL = '/custom'
 
 export const ADDITIONAL_MENU_ITEMS: MenuItem[] = [
   {
-    label: '我的回答',
+    label: '我的閱讀',
     href: MY_READING_URL,
     subItems: [],
     showIcon: true,
