@@ -4339,7 +4339,7 @@ __metadata:
     "@twreporter/errors": "npm:^1.1.2"
     "@types/draft-js": "npm:^0.11.10"
     "@types/lodash": "npm:^4.17.7"
-    "@types/node": "npm:20.19.17"
+    "@types/node": "npm:22.20.5"
     "@types/react": "npm:^18.3.7"
     "@types/react-dom": "npm:18.3.7"
     "@types/react-helmet": "npm:^6.1.7"
@@ -7257,7 +7257,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=18.0.0, @types/node@npm:^20.19.5":
+"@types/node@npm:*, @types/node@npm:>=18.0.0":
   version: 20.19.27
   resolution: "@types/node@npm:20.19.27"
   dependencies:
@@ -7266,12 +7266,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:20.19.17":
-  version: 20.19.17
-  resolution: "@types/node@npm:20.19.17"
+"@types/node@npm:22.20.5, @types/node@npm:^22.0.0":
+  version: 22.20.5
+  resolution: "@types/node@npm:22.20.5"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/ab4c5dd8bdeacb1c04c2724c75023eec0ac9469583b39032f5daaf56768a31ee6fa3a0bfcc597e4a3e74eb49744deeb9d5eb760f30e984e25088f6d895e0811d
+  checksum: 10c0/0cf61a89c6a69917ab49f976a6bb11a29e3b348a6ae19f5827ceb91d3ade781faab58dcf3b8fa625f975f5d7536b9166ff94e8250c29272c667164f77c28fa88
   languageName: node
   linkType: hard
 
@@ -16019,7 +16019,7 @@ __metadata:
     "@types/draft-js": "npm:^0.11.10"
     "@types/eslint-config-prettier": "npm:^6.11.3"
     "@types/lodash": "npm:^4.14.197"
-    "@types/node": "npm:^20.19.5"
+    "@types/node": "npm:^22.0.0"
     "@types/react": "npm:^18.3.7"
     "@types/styled-components": "npm:^5.1.34"
     "@typescript-eslint/eslint-plugin": "npm:^8.0.0"

@@ -26,7 +26,7 @@ We need `husky` and `lint-staged` installed first.
 
 ### Installation
 
-- Corepack (Yarn v4): ensure Node 20 and run `corepack enable` once on your machine.
+- Corepack (Yarn v4): ensure Node 22.23.4 (see `.nvmrc`) and run `corepack enable` once on your machine.
 - Install deps: `yarn install` (Berry config enforces immutable installs by default).
 - CI/Docker: use `yarn install --immutable` to prevent lockfile drift.
 
