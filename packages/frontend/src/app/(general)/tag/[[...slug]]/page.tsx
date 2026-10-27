@@ -16,13 +16,12 @@ import { getPostSummaries } from '@/utils'
 import { getSanitizedCurrentPage } from '@/utils/get-sanitized-current-page'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: any }
+export async function generateMetadata(props: {
+  params: Promise<{ slug: any }>
 }): Promise<Metadata> {
+  const params = await props.params
   const slug = params.slug?.[0]
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
 
   const tagMeta = slug ? await getTagMetaBySlug({ slug, traceHeaders }) : null
   if (!tagMeta) {
@@ -54,10 +53,11 @@ export async function generateMetadata({
 }
 
 // Tag's routing path: /tag/[slug]/[page num], ex: /tag/life/1
-export default async function Tag({ params }: { params: { slug: any } }) {
+export default async function Tag(props: { params: Promise<{ slug: any }> }) {
+  const params = await props.params
   const slug = params.slug?.[0]
   const currentPage = getSanitizedCurrentPage(params.slug?.[1])
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   if (params.slug?.length > 2 || !slug || currentPage == null) {
     emitStructured({ severity: 'WARNING', message: 'Incorrect tag routing!' })
     notFound()

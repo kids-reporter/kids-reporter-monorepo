@@ -39,14 +39,13 @@ function isPost(
   return post !== null && post !== undefined
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { path: string[] | undefined }
+export async function generateMetadata(props: {
+  params: Promise<{ path: string[] | undefined }>
 }): Promise<Metadata> {
+  const params = await props.params
   const path = params.path
   const { category, subcategory } = parseCategoryInfoFromPath(path)
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
 
   if (!category) {
     emitStructured({
@@ -147,11 +146,10 @@ function getPosts(
   )
 }
 
-export default async function Category({
-  params,
-}: {
-  params: { path: string[] | undefined }
+export default async function Category(props: {
+  params: Promise<{ path: string[] | undefined }>
 }) {
+  const params = await props.params
   // Category page routing scenarios:   ex: /category/path[0]/path[1]/path[2]...
   // -------------------------------------------------------------------------------
   // length = 1(category)               ex: /category/news
@@ -168,7 +166,7 @@ export default async function Category({
     currentPage = 1,
     isNotFound,
   } = parseCategoryInfoFromPath(path)
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   if (isNotFound || !category) {
     emitStructured({
       severity: 'WARNING',

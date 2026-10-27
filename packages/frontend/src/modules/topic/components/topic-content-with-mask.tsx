@@ -2,7 +2,13 @@
 
 import { Button, cn, useMediaQuery } from '@kids-reporter/routing-ui'
 import { RawDraftContentState } from 'draft-js'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+
+import { useToggleBookmark } from '@/api-utils/react-query/hooks/bookmark'
+import { BookmarkFilledIcon, BookmarkOutlineIcon } from '@/icons/miscellaneous'
+import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
+import getLoginUrl from '@/utils/get-login-url'
 
 import TopicRenderer from './topic-renderer'
 
@@ -11,10 +17,14 @@ const TABLET_MAX_HEIGHT = 700
 const MASK_OFFSET = 128
 
 type TopicContentWithMaskProps = {
+  slug: string
   rawContentState?: RawDraftContentState
 }
 
-function TopicContentWithMask({ rawContentState }: TopicContentWithMaskProps) {
+function TopicContentWithMask({
+  slug,
+  rawContentState,
+}: TopicContentWithMaskProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [exceedsMaxHeight, setExceedsMaxHeight] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -22,6 +32,25 @@ function TopicContentWithMask({ rawContentState }: TopicContentWithMaskProps) {
   const shouldScrollToButtonOnCollapseRef = useRef(false)
   const isTablet = useMediaQuery('(min-width: 768px)')
   const maxHeight = isTablet ? TABLET_MAX_HEIGHT : MOBILE_MAX_HEIGHT
+
+  const router = useRouter()
+  const { hydrated, member, tokens } = useHydratedAuthStore()
+  const isLogin = hydrated && !!member && !!tokens?.accessToken
+  const { isBookmarked, isLoading, isPending, toggle } = useToggleBookmark({
+    type: 'project',
+    slug,
+    memberId: member?.id,
+    accessToken: tokens?.accessToken,
+    enabled: isLogin,
+  })
+  const onBookmarkClick = () => {
+    if (!hydrated) return
+    if (!isLogin) {
+      router.push(getLoginUrl())
+      return
+    }
+    toggle()
+  }
 
   useEffect(() => {
     const el = contentRef.current
@@ -85,8 +114,8 @@ function TopicContentWithMask({ rawContentState }: TopicContentWithMaskProps) {
         {showButton && (
           <div
             className={cn(
-              'absolute bottom-0 left-1/2 z-2 flex -translate-x-1/2 justify-center',
-              isExpanded ? 'relative' : ''
+              'absolute bottom-15 left-1/2 z-2 flex -translate-x-1/2 justify-center',
+              isExpanded ? 'relative bottom-0 mb-4' : ''
             )}
           >
             <Button
@@ -100,6 +129,29 @@ function TopicContentWithMask({ rawContentState }: TopicContentWithMaskProps) {
             </Button>
           </div>
         )}
+        <div
+          className={cn(
+            'absolute bottom-0 left-1/2 z-2 flex -translate-x-1/2 justify-center',
+            isExpanded ? 'relative' : ''
+          )}
+        >
+          <Button
+            type="button"
+            variant="neutral"
+            onClick={onBookmarkClick}
+            disabled={isLogin && isLoading}
+            isLoading={isLogin && isPending}
+            aria-label={isLogin && isBookmarked ? '取消收藏專題' : '收藏此專題'}
+            className="w-60 desktop:w-75"
+          >
+            {isLogin && isBookmarked ? (
+              <BookmarkFilledIcon />
+            ) : (
+              <BookmarkOutlineIcon />
+            )}
+            {isLogin && isBookmarked ? '已收藏專題' : '收藏此專題'}
+          </Button>
+        </div>
       </div>
     </div>
   )

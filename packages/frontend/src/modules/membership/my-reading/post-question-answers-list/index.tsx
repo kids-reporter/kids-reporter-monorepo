@@ -35,10 +35,10 @@ function PostQuestionAnswersList({
   if (postQuestionAnswers.length === 0) {
     return (
       <div className="flex min-h-50 w-full items-center justify-center">
-        <p className="prose-p1 text-neutral-500">
-          尚無回答紀錄，
+        <p className="prose-p1 text-neutral-700">
+          你還沒有任何回答紀錄
           <br />
-          歡迎前往文章頁進行互動測驗。
+          歡迎前往文章頁進行互動測驗
         </p>
       </div>
     )
@@ -47,7 +47,7 @@ function PostQuestionAnswersList({
   return (
     <Accordion
       type="multiple"
-      className="flex w-full flex-col gap-0 border-t-[2px] border-t-neutral-200"
+      className="flex w-full flex-col gap-0 border-y-2 border-y-neutral-200"
       defaultValue={
         openedAccordionItemValue ? [openedAccordionItemValue] : undefined
       }
@@ -57,7 +57,7 @@ function PostQuestionAnswersList({
           <AccordionItem
             key={group.slug}
             value={group.slug}
-            className="border-b-[2px] border-b-neutral-200 last:border-b"
+            className="border-b-[2px] border-b-neutral-200 last:border-b-0"
           >
             <AccordionTrigger
               className={cn(

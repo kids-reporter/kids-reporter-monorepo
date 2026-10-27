@@ -89,6 +89,7 @@ export const V1MemberPostsWithAnswersItemSchema = z
 export const V1MemberPostsWithAnswersResponseSchema = z.object({
   posts: z.array(V1MemberPostsWithAnswersItemSchema),
   nextCursor: z.string().nullable(),
+  postsCount: z.number().int().min(0),
 })
 
 export const V1MemberAvatarUploadResponseSchema = z.object({

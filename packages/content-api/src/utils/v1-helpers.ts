@@ -180,3 +180,70 @@ export const mapPostCard = (p: PostCardRow) => {
     subSubcategoriesOrdered,
   }
 }
+
+export type PhotoFile = {
+  imageFile_id: string | null
+  imageFile_extension: string | null
+}
+
+export const photoSelect = {
+  imageFile_id: true,
+  imageFile_extension: true,
+} as const
+
+export const mapOgImage = (photo: PhotoFile | null) => {
+  if (!photo?.imageFile_id) return null
+  return { resized: { small: buildResizedSmall(photo) } }
+}
+
+export const projectCardSelect = {
+  id: true,
+  title: true,
+  subtitle: true,
+  slug: true,
+  ogTitle: true,
+  ogDescription: true,
+  publishedDate: true,
+  updatedAt: true,
+  heroImage: { select: photoSelect },
+  ogImage: { select: photoSelect },
+} as const
+
+export type ProjectCardRow = {
+  id: number
+  title: string
+  subtitle: string
+  slug: string
+  ogTitle: string
+  ogDescription: string
+  publishedDate: Date | null
+  updatedAt: Date | null
+  heroImage: PhotoFile | null
+  ogImage: PhotoFile | null
+}
+
+export const mapProjectCard = (
+  p: ProjectCardRow,
+  relatedPostsCount: number
+) => {
+  const hero = p.heroImage
+  return {
+    title: p.title,
+    subtitle: p.subtitle,
+    slug: p.slug,
+    ogTitle: p.ogTitle,
+    ogDescription: p.ogDescription,
+    publishedDate: p.publishedDate ? p.publishedDate.toISOString() : null,
+    updatedAt: p.updatedAt ? p.updatedAt.toISOString() : null,
+    relatedPostsCount,
+    heroImage: hero
+      ? {
+          resized: {
+            small: buildResizedSmall(hero),
+            medium: buildResizedMedium(hero),
+          },
+        }
+      : null,
+    ogImage: mapOgImage(p.ogImage),
+  }
+}

@@ -36,6 +36,33 @@ export type FetchMemberPostsWithAnswersOpts = {
   cursor: string | undefined
 }
 
+const answeredPostsCte = (memberId: string) => Prisma.sql`
+  WITH all_answer_times AS (
+    SELECT 
+      peq."post" as post_id,
+      COALESCE(pea."updatedAt", pea."createdAt") as answer_time
+    FROM "PostEssayAnswer" pea
+    INNER JOIN "PostEssayQuestion" peq ON peq.id = pea."question"
+    WHERE pea."member" = ${memberId}
+    
+    UNION ALL
+    
+    SELECT 
+      pcq."post" as post_id,
+      COALESCE(pca."updatedAt", pca."createdAt") as answer_time
+    FROM "PostChoiceAnswer" pca
+    INNER JOIN "PostChoiceQuestion" pcq ON pcq.id = pca."question"
+    WHERE pca."member" = ${memberId}
+  ),
+  post_last_answered AS (
+    SELECT 
+      post_id,
+      MAX(answer_time) as last_answered_time
+    FROM all_answer_times
+    GROUP BY post_id
+  )
+`
+
 /** `GET /v1/members/me/posts-with-answers` */
 export async function fetchMemberPostsWithAnswers(
   memberId: string,
@@ -44,32 +71,10 @@ export async function fetchMemberPostsWithAnswers(
   const whereClause = opts.cursor
     ? Prisma.sql`WHERE pla.last_answered_time < ${opts.cursor}::timestamp`
     : Prisma.empty
+  const cte = answeredPostsCte(memberId)
 
   const sqlQuery = Prisma.sql`
-    WITH all_answer_times AS (
-      SELECT 
-        peq."post" as post_id,
-        COALESCE(pea."updatedAt", pea."createdAt") as answer_time
-      FROM "PostEssayAnswer" pea
-      INNER JOIN "PostEssayQuestion" peq ON peq.id = pea."question"
-      WHERE pea."member" = ${memberId}
-      
-      UNION ALL
-      
-      SELECT 
-        pcq."post" as post_id,
-        COALESCE(pca."updatedAt", pca."createdAt") as answer_time
-      FROM "PostChoiceAnswer" pca
-      INNER JOIN "PostChoiceQuestion" pcq ON pcq.id = pca."question"
-      WHERE pca."member" = ${memberId}
-    ),
-    post_last_answered AS (
-      SELECT 
-        post_id,
-        MAX(answer_time) as last_answered_time
-      FROM all_answer_times
-      GROUP BY post_id
-    )
+    ${cte}
     SELECT 
       p.id,
       p.title,
@@ -82,11 +87,19 @@ export async function fetchMemberPostsWithAnswers(
     ORDER BY pla.last_answered_time DESC
     LIMIT ${opts.take + 1}
   `
+  const countQuery = Prisma.sql`
+    ${cte}
+    SELECT COUNT(*)::int AS count FROM post_last_answered
+  `
 
-  const postsRaw = await prisma.$queryRaw<RawPostRow[]>(sqlQuery)
+  const [postsRaw, countRows] = await Promise.all([
+    prisma.$queryRaw<RawPostRow[]>(sqlQuery),
+    prisma.$queryRaw<Array<{ count: number }>>(countQuery),
+  ])
+  const postsCount = Number(countRows[0]?.count ?? 0)
 
   if (postsRaw.length === 0) {
-    return { posts: [], nextCursor: null as string | null }
+    return { posts: [], nextCursor: null, postsCount }
   }
 
   const hasNextPage = postsRaw.length > opts.take
@@ -189,7 +202,7 @@ export async function fetchMemberPostsWithAnswers(
     ? (posts[posts.length - 1]?.lastAnsweredTime ?? null)
     : null
 
-  return { posts, nextCursor }
+  return { posts, nextCursor, postsCount }
 }
 
 /** `GET /v1/members/me/essay-answers/has-liked` */

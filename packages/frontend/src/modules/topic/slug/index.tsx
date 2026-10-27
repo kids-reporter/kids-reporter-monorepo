@@ -1,6 +1,7 @@
 import { HeaderPostTitleSetter } from '@kids-reporter/routing-ui'
 import { RawDraftContentState } from 'draft-js'
 
+import { RecordBrowsingHistory } from '@/api-utils/react-query/hooks/browsing-history'
 import { PostSummary } from '@/components/types'
 import { SeparateIcon } from '@/icons'
 import { Photo } from '@/types'
@@ -12,6 +13,7 @@ import TopicRenderer from '../components/topic-renderer'
 import { TitlePosition } from '../types'
 
 type TopicSlugModuleProps = {
+  slug: string
   title: string
   subtitle: string
   titlePosition: TitlePosition
@@ -24,6 +26,7 @@ type TopicSlugModuleProps = {
 }
 
 function TopicSlugModule({
+  slug,
   title,
   subtitle,
   titlePosition,
@@ -36,6 +39,7 @@ function TopicSlugModule({
 }: TopicSlugModuleProps) {
   return (
     <div className="w-full">
+      <RecordBrowsingHistory type="project" slug={slug} />
       <HeaderPostTitleSetter postTitle={title} />
       <HeroTitle
         title={title}
@@ -47,7 +51,7 @@ function TopicSlugModule({
         articleCount={relatedPosts.length}
       />
       <div className="my-10 tablet:my-16 desktop:my-20">
-        <TopicContentWithMask rawContentState={content} />
+        <TopicContentWithMask slug={slug} rawContentState={content} />
         <div className="my-6 tablet:my-10 [&>svg]:mx-auto">
           <SeparateIcon />
         </div>

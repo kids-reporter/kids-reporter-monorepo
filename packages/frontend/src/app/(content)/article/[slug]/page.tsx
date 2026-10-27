@@ -17,13 +17,12 @@ const postRelatedPostsNum = 6
 const postEssayQuestionsTake = 3
 const postChoiceQuestionsTake = 3
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string }
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
+  const params = await props.params
   const slug = params.slug
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   const postMeta = await getPostMeta({ slug }, traceHeaders)
 
   if (!postMeta) {
@@ -62,11 +61,10 @@ export async function generateMetadata({
   }
 }
 
-export default async function PostPage({
-  params,
-}: {
-  params: { slug: string }
+export default async function PostPage(props: {
+  params: Promise<{ slug: string }>
 }) {
+  const params = await props.params
   const slug = params.slug
   if (!slug) {
     emitStructured({ severity: 'WARNING', message: 'Invalid post slug!' })

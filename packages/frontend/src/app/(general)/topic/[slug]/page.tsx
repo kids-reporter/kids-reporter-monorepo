@@ -21,13 +21,12 @@ import type { ProjectDetail, ProjectMeta } from '@/types/api'
 import { getFormattedDate, getPostSummaries } from '@/utils'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string }
+export async function generateMetadata(props: {
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
+  const params = await props.params
   const slug = params.slug
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
 
   const topicMeta: ProjectMeta | undefined = await getProjectMetaContentApi({
     slug,
@@ -59,16 +58,15 @@ export async function generateMetadata({
   }
 }
 
-export default async function TopicPage({
-  params,
-}: {
-  params: { slug: string }
+export default async function TopicPage(props: {
+  params: Promise<{ slug: string }>
 }) {
+  const params = await props.params
   if (!params?.slug) {
     emitStructured({ severity: 'WARNING', message: 'Incorrect topic slug!' })
     notFound()
   }
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   const project: ProjectDetail | undefined = await getProjectDetailContentApi({
     slug: params.slug,
     traceHeaders,
@@ -86,6 +84,7 @@ export default async function TopicPage({
 
   return (
     <TopicSlugModule
+      slug={params.slug}
       title={project.title ?? ''}
       subtitle={project.subtitle ?? ''}
       titlePosition={(project.titlePosition ?? 'center') as TitlePosition}

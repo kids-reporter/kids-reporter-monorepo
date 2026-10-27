@@ -35,13 +35,12 @@ function sanitizeDestination(rawDestination?: string): {
   return { destination: defaultDestination, isSubpath: false }
 }
 
-async function LoginPage({
-  searchParams,
-}: {
-  searchParams: {
+async function LoginPage(props: {
+  searchParams: Promise<{
     destination?: string
-  }
+  }>
 }) {
+  const searchParams = await props.searchParams
   const { destination, isSubpath } = sanitizeDestination(
     searchParams.destination
   )

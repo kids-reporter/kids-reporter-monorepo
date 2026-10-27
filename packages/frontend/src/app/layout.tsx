@@ -29,12 +29,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   return (
     <html className={`${notoSansTC.variable} ${swei.variable}`}>
       <GoogleTagManager gtmId={GTM_ID} />

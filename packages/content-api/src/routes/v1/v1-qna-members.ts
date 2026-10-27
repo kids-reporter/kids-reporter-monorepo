@@ -11,13 +11,10 @@ import {
   V1PostEssayAnswerPathIdSchema,
 } from '@kids-reporter/api-types'
 import { asyncRoute, sendJsonError } from '@kids-reporter/content-api-kit'
-import { verifyGoApiJwt } from '@kids-reporter/content-api-kit/auth/go-api-jwt'
-import { emitStructured } from '@kids-reporter/logger'
 import express from 'express'
 import { z } from 'zod'
 
 import consts from '../../constants.js'
-import envVar from '../../environment-variables.js'
 import { findMemberIdRole } from '../../queries/members.js'
 import {
   createMemberEssayAnswerLike,
@@ -105,24 +102,6 @@ function parsePathIdParam(
 
 export function createV1QnaMembersRouter() {
   const router = express.Router()
-  router.use(
-    verifyGoApiJwt({
-      secret: envVar.goApiJwt.secret,
-      issuer: envVar.goApiJwt.issuer,
-      audience: envVar.goApiJwt.audience,
-      onReject: (info, res) => {
-        emitStructured({
-          severity: 'WARNING',
-          message: 'Go API JWT request rejected',
-          goApiJwtAuthFailureReason: info.reason,
-          path: info.path,
-          method: info.method,
-          jwtLibraryErrorName: info.jwtLibraryErrorName,
-          ...res.locals?.globalLogFields,
-        })
-      },
-    })
-  )
 
   router.get(
     '/me/post-choice-answers',

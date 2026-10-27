@@ -6,14 +6,15 @@ import { getPostMeta } from '@/api/post'
 import { isCmsSlug } from '@/utils/is-cms-slug'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
-async function PostPage({ params }: { params: { postSlug: string } }) {
+async function PostPage(props: { params: Promise<{ postSlug: string }> }) {
+  const params = await props.params
   const { postSlug } = params
 
   if (!isCmsSlug(postSlug)) {
     notFound()
   }
 
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   const post = await getPostMeta({ slug: postSlug }, traceHeaders)
 
   if (!post) {

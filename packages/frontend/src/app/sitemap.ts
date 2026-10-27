@@ -18,15 +18,16 @@ import {
   getSitemapProjectsContentApi,
 } from '@/api/content-api/sitemaps'
 import { KIDS_URL_ORIGIN } from '@/constants'
-import envVars from '@/environment-variables'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
-export const revalidate = envVars.isProduction ? 86400 : 0 // 1 day
+// ponytail: Next 15 segment config must be a literal. Non-prod used 0; headers()
+// already renders this route dynamically, and prod kept the one-day value.
+export const revalidate = 86400
 
 const fetchSitemaps = async (): Promise<
   { url: string; lastModified: Date }[]
 > => {
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   let sitemaps: { url: string; lastModified: Date }[] = []
 
   const postRows = await getSitemapPostsContentApi({

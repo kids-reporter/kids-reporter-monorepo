@@ -5,6 +5,15 @@
 import type { z } from 'zod'
 
 import {
+  V1BookmarkPathIdSchema,
+  V1BookmarksQuerySchema,
+  V1CreateBookmarkBodySchema,
+} from './schemas/bookmarks.js'
+import {
+  V1BrowsingHistoriesQuerySchema,
+  V1CreateBrowsingHistoryBodySchema,
+} from './schemas/browsing-histories.js'
+import {
   V1AuthorAvatarPathParamsSchema,
   V1CallBaodaozaiIntroPathParamsSchema,
   V1EditorPicksSettingsQuerySchema,
@@ -195,6 +204,19 @@ export type V1PostEssayAnswerPathId = z.infer<
 >
 export type V1PostEssayAnswerLikePathId = z.infer<
   typeof V1PostEssayAnswerLikePathIdSchema
+>
+
+// --- Bookmarks ---
+
+export type V1CreateBookmarkBody = z.infer<typeof V1CreateBookmarkBodySchema>
+export type V1BookmarksQuery = z.infer<typeof V1BookmarksQuerySchema>
+export type V1BookmarkPathId = z.infer<typeof V1BookmarkPathIdSchema>
+
+export type V1CreateBrowsingHistoryBody = z.infer<
+  typeof V1CreateBrowsingHistoryBodySchema
+>
+export type V1BrowsingHistoriesQuery = z.infer<
+  typeof V1BrowsingHistoriesQuerySchema
 >
 
 // --- Member activity ---

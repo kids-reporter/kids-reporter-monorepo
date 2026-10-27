@@ -32,7 +32,7 @@ export default async function Home() {
   const serverRenderTime = new Date().toISOString()
   console.log('Server re-render at:', serverRenderTime)
 
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
 
   const [
     topicProjectsRes,

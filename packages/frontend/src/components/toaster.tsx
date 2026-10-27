@@ -2,6 +2,14 @@
 
 import { Toaster as Sonner, type ToasterProps } from 'sonner'
 
+/**
+ * Clears article mobile/tablet toolbar (bottom-6/8 + h-14) + 16px.
+ * Lift is relative to the toaster (mobile offset 16 / desktop 24).
+ */
+export const aboveToolbarToastOptions = {
+  className: 'bottom-20! tablet:bottom-20! desktop:bottom-0!',
+} as const
+
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
@@ -9,6 +17,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       style={
         {
           '--normal-bg': 'var(--color-neutral-900)',
+          '--normal-border': 'transparent',
           '--normal-text': 'var(--color-neutral-white)',
           '--border-radius': '8px',
           '--width': 'fit-content',
