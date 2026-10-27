@@ -16,13 +16,12 @@ import { getPostSummaries } from '@/utils'
 import { getSanitizedCurrentPage } from '@/utils/get-sanitized-current-page'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: any }
+export async function generateMetadata(props: {
+  params: Promise<{ slug: any }>
 }): Promise<Metadata> {
+  const params = await props.params
   const slug = params.slug?.[0]
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
 
   const authorMeta = slug
     ? await getAuthorMetaBySlug({ slug, traceHeaders })
@@ -57,10 +56,13 @@ export async function generateMetadata({
 }
 
 // Author's routing path: /author/[slug]/[page num], ex: /author/yunruchen/1
-export default async function Author({ params }: { params: { slug: any } }) {
+export default async function Author(props: {
+  params: Promise<{ slug: any }>
+}) {
+  const params = await props.params
   const slug = params.slug?.[0]
   const currentPage = getSanitizedCurrentPage(params.slug?.[1])
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
   if (params.slug?.length > 2 || !slug || currentPage == null) {
     emitStructured({
       severity: 'WARNING',

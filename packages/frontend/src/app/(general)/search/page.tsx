@@ -24,11 +24,10 @@ const filterParams = Object.values(ContentType)
   .map((type) => `more:pagemap:metatags-contenttype:${type}`)
   .join(' OR ')
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: { q?: string }
+export async function generateMetadata(props: {
+  searchParams: Promise<{ q?: string }>
 }): Promise<Metadata> {
+  const searchParams = await props.searchParams
   const q = (
     Array.isArray(searchParams.q) ? searchParams.q[0] : searchParams.q
   )?.trim()
@@ -54,13 +53,12 @@ export async function generateMetadata({
   }
 }
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: {
+export default async function SearchPage(props: {
+  searchParams: Promise<{
     q: string
-  }
+  }>
 }) {
+  const searchParams = await props.searchParams
   if (!searchParams.q) {
     return (
       <SearchModule

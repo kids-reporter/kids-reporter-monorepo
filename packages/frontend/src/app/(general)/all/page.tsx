@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function LatestPosts() {
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
 
   const [posts, introRes] = await Promise.all([
     getPostsPaged(

@@ -62,7 +62,7 @@
   "resolutions": {
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "next": "14.2.35",
+    "@keystone-6/core/next": "14.2.35",
     "@types/express-serve-static-core": "4.19.5"
   },
   "version": "0.0.0",

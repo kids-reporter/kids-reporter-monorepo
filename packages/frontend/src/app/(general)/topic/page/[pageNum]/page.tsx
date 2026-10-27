@@ -23,10 +23,12 @@ export const metadata: Metadata = {
 }
 
 export default async function Topic({
-  params: { pageNum },
+  params,
 }: {
-  params: { pageNum: string }
+  params: Promise<{ pageNum: string }>
 }) {
+  const { pageNum } = await params
+
   if (
     isNaN(Number(pageNum)) ||
     !Number.isInteger(Number(pageNum)) ||
@@ -41,7 +43,7 @@ export default async function Topic({
 
   const currentPage = Number(pageNum)
 
-  const traceHeaders = getServerTraceHeaders(headers())
+  const traceHeaders = getServerTraceHeaders(await headers())
 
   const [projectsRes, topicsIntroRes] = await Promise.allSettled([
     // Fetch projects of specific page
