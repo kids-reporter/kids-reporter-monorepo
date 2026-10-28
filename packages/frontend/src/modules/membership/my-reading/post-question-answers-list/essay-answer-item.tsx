@@ -6,7 +6,6 @@ import errors from '@twreporter/errors'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
-import { DEFAULT_PAGE_ITEM_COUNT } from '@/api-utils/react-query/constants'
 import { useMemberPostsWithAnswersInfinityQuery } from '@/api-utils/react-query/hooks/extended'
 import {
   usePostEssayAnswersQuery,
@@ -59,10 +58,9 @@ function EssayAnswerItem({
         }),
       })
       queryClient.invalidateQueries({
-        queryKey: useMemberPostsWithAnswersInfinityQuery.getQueryKey({
-          memberId: member?.id ?? '',
-          take: DEFAULT_PAGE_ITEM_COUNT,
-        }),
+        queryKey: useMemberPostsWithAnswersInfinityQuery.listQueryKey(
+          member?.id ?? ''
+        ),
       })
       onBackToFirstPage(postSlug)
     } catch (_err) {

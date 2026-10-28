@@ -526,3 +526,36 @@ registry.registerPath({
     },
   },
 })
+
+export const V1HotTopicSchema = z
+  .object({
+    slug: z.string(),
+    title: z.string(),
+    answeredAt: z.iso.datetime(),
+    member: z.object({
+      nickname: z.string(),
+      name: z.string(),
+      email: z.string(),
+    }),
+  })
+  .openapi('HotTopic')
+
+export const V1HotTopicsResponseSchema = z
+  .array(V1HotTopicSchema)
+  .openapi('HotTopicsResponse')
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/hot-topics',
+  tags: ['Public Q&A'],
+  description:
+    'Up to 3 published posts with the latest choice or essay answer, one row per post.',
+  responses: {
+    200: {
+      description: 'Success',
+      content: {
+        'application/json': { schema: V1HotTopicsResponseSchema },
+      },
+    },
+  },
+})

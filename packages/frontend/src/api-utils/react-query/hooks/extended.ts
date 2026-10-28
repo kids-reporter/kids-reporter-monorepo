@@ -41,6 +41,9 @@ useMemberPostsWithAnswersInfinityQuery.getQueryKey = ({
   take: number
 }) => [MEMBER_POSTS_WITH_ANSWERS_QUERY_KEY, memberId, take]
 
+useMemberPostsWithAnswersInfinityQuery.listQueryKey = (memberId: string) =>
+  [MEMBER_POSTS_WITH_ANSWERS_QUERY_KEY, memberId] as const
+
 const MEMBER_ESSAY_ANSWERS_HAS_LIKED_QUERY_KEY =
   'member-essay-answers-has-liked'
 
