@@ -119,6 +119,7 @@ const authConfig = withAuth(
     },
     graphql: {
       apolloConfig: {
+        introspection: true,
         cache: new InMemoryLRUCache({
           // ~100MiB
           maxSize: Math.pow(2, 20) * envVar.memoryCacheSize,
@@ -127,6 +128,7 @@ const authConfig = withAuth(
         }),
       },
       extendGraphqlSchema,
+      playground: true,
     },
     server: {
       extendExpressApp: (app, commonContext) => {
