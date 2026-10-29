@@ -8,11 +8,8 @@ import {
 import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
 
-import { deleteBookmarkContentApi } from '@/api/content-api/bookmarks'
 import { useMemberBookmarksQuery } from '@/api-utils/react-query/hooks/bookmark'
-import { bookmarkQueryKey } from '@/api-utils/react-query/hooks/bookmark-cache'
 import ImageWithFallback from '@/components/image-with-fallback'
 import Pagination from '@/components/pagination'
 import {
@@ -23,6 +20,8 @@ import {
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import type { MemberBookmarksResponse } from '@/types/api'
 import { getFormattedDate } from '@/utils'
+
+import { requestUnsaveBookmark } from './unsave-bookmark'
 
 const PAGE_SIZE = 12
 
@@ -208,81 +207,21 @@ function MyReadingSaved() {
       if (!accessToken || !memberId || pendingRef.current.has(item.id)) return
       pendingRef.current.add(item.id)
       setPendingIds(new Set(pendingRef.current))
-
-      let undone = false
-      let settled = false
-      const confirmDelete = () => {
-        if (undone || settled) return
-        settled = true
-        const listKey = useMemberBookmarksQuery.getQueryKey(
+      requestUnsaveBookmark({
+        item: {
+          id: item.id,
+          type: item.type,
+          slug: cardFields(item).slug,
+        },
+        accessToken,
+        memberId,
+        queryClient,
+        listQueryKey: useMemberBookmarksQuery.getQueryKey(
           memberId,
           PAGE_SIZE,
           skip
-        )
-        const fields = cardFields(item)
-        void (async () => {
-          try {
-            await deleteBookmarkContentApi(item.id, accessToken)
-            queryClient.setQueryData(
-              bookmarkQueryKey(memberId, item.type, fields.slug),
-              null
-            )
-            queryClient.setQueryData<MemberBookmarksResponse>(
-              listKey,
-              (current) => {
-                if (
-                  !current ||
-                  !current.bookmarks.some((row) => row.id === item.id)
-                ) {
-                  return current
-                }
-                return {
-                  bookmarks: current.bookmarks.filter(
-                    (row) => row.id !== item.id
-                  ),
-                  bookmarksCount: Math.max(0, current.bookmarksCount - 1),
-                }
-              }
-            )
-            await queryClient.invalidateQueries({
-              queryKey: useMemberBookmarksQuery.listQueryKey(memberId),
-            })
-          } catch {
-            toast.error('取消收藏失敗')
-          } finally {
-            clearPending(item.id)
-          }
-        })()
-      }
-
-      toast.success('已取消收藏', {
-        action: {
-          label: '復原',
-          onClick: () => {
-            undone = true
-            settled = true
-            clearPending(item.id)
-          },
-        },
-        onDismiss: confirmDelete,
-        onAutoClose: confirmDelete,
-        className: 'shadow-custom! gap-5!',
-        actionButtonStyle: {
-          background: 'transparent',
-          border: 'none',
-          borderRadius: 0,
-          color: 'inherit',
-          fontSize: 14,
-          fontWeight: 700,
-          height: 'auto',
-          marginLeft: 0,
-          padding: 0,
-          textDecoration: 'underline',
-        },
-        classNames: {
-          content: 'overflow-visible!',
-          title: 'overflow-visible! whitespace-nowrap!',
-        },
+        ),
+        onFinished: () => clearPending(item.id),
       })
     },
     [clearPending, member?.id, queryClient, skip, tokens?.accessToken]

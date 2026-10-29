@@ -35,6 +35,7 @@ import {
   V1EssayAnswersHasLikedItemSchema,
   type V1EssayAnswersHasLikedQuery,
   V1EssayAnswersHasLikedResponseSchema,
+  V1HotTopicsResponseSchema,
   V1MemberAvatarSchema,
   V1MemberPostChoiceAnswersResponseSchema,
   V1MemberPostEssayAnswersResponseSchema,
@@ -209,6 +210,8 @@ export type PostEssayQuestionWithAnswers = z.infer<
 export type AllPostEssayAnswersItem = z.infer<
   typeof V1AllPostEssayAnswersResponseSchema
 >[number]
+
+export type HotTopic = z.infer<typeof V1HotTopicsResponseSchema>[number]
 
 export type QnaMemberPublic = NonNullable<AllPostEssayAnswersItem['member']>
 
