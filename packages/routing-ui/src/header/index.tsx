@@ -28,6 +28,7 @@ type HeaderProps = {
   subscribeUrl?: string
   donateUrl?: string
   joinUsUrl?: string
+  desktopBackgroundClassName?: string
 }
 
 function Header({
@@ -38,6 +39,7 @@ function Header({
   subscribeUrl = SUBSCRIBE_URL,
   donateUrl = DONATE_URL,
   joinUsUrl = JOIN_US_URL,
+  desktopBackgroundClassName,
 }: HeaderProps) {
   const context = useHeaderContext()
   const postTitle = context?.postTitle
@@ -80,6 +82,7 @@ function Header({
         isLoggedIn={isLoggedIn}
         loginUrl={loginUrl}
         joinUsUrl={joinUsUrl}
+        backgroundClassName={desktopBackgroundClassName}
       />
       <MobileHeader
         onCloseMenu={onCloseMenu}

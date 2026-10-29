@@ -133,7 +133,7 @@ function HotTopicsCarousel({ topics }: { topics: HotTopic[] }) {
   return (
     <div
       ref={rootRef}
-      className="flex items-center gap-5 overflow-hidden rounded-2xl border border-yellow-400 bg-yellow-100 py-4 pr-4 pl-6"
+      className="flex items-center gap-5 overflow-hidden rounded-2xl border border-yellow-400 bg-yellow-100 py-4 pr-4 pl-6 transition-colors duration-200 hover:bg-yellow-200"
       onMouseEnter={() => setHold('hover', true)}
       onMouseLeave={() => setHold('hover', false)}
       onFocusCapture={() => setHold('focus', true)}
@@ -186,7 +186,7 @@ function HotTopicsCarousel({ topics }: { topics: HotTopic[] }) {
                 role="tab"
                 aria-label={`第 ${index + 1} 則`}
                 aria-selected={selected}
-                className="flex size-4 items-center justify-center"
+                className="group flex size-4 cursor-pointer items-center justify-center"
                 onClick={() => {
                   stoppedRef.current = true
                   swiperRef.current?.slideToLoop(index)
@@ -195,10 +195,10 @@ function HotTopicsCarousel({ topics }: { topics: HotTopic[] }) {
               >
                 <span
                   className={cn(
-                    'size-2 rounded-full',
+                    'size-1.5 rounded-full transition-colors duration-200',
                     selected
-                      ? 'bg-yellow-600'
-                      : 'border border-yellow-600 bg-transparent'
+                      ? 'bg-neutral-800'
+                      : 'bg-black/15 group-hover:bg-neutral-800'
                   )}
                 />
               </button>

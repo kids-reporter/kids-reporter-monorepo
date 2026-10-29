@@ -246,7 +246,7 @@ function HistoryPreviewCard({ item }: { item: HistoryItem }) {
         <ImageWithFallback
           src={fields.image}
           alt=""
-          className="block size-full object-cover"
+          className="block size-full object-cover transition-transform duration-200 group-hover:scale-120"
         />
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -330,55 +330,59 @@ function SavedPreview() {
   const count = data?.bookmarksCount ?? null
 
   return (
-    <section className="flex w-full flex-col items-center gap-5 desktop:gap-6">
-      <SectionHeading barClassName="bg-red-400">
-        {withCount('已收藏', showLoading ? null : count)}
-      </SectionHeading>
-      {showLoading ? (
-        <div
-          className="grid w-full grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8"
-          aria-busy="true"
-        >
-          <span className="sr-only">載入中</span>
-          <SavedCardSkeleton />
-          <SavedCardSkeleton />
-        </div>
-      ) : isError && !data ? (
-        <SectionError
-          isFetching={isFetching}
-          onRetry={() => {
-            void refetch()
-          }}
-        />
-      ) : bookmarks.length === 0 ? (
-        <div className="flex min-h-50 w-full flex-col items-center justify-center gap-1 text-center prose-p1 text-neutral-700">
-          <p>你還沒有收藏任何報導</p>
-          <p className="flex items-center justify-center gap-1">
-            點擊
-            <span
-              className="inline-flex size-5 shrink-0 [&>svg]:size-5"
-              aria-hidden
-            >
-              <BookmarkOutlineIcon />
-            </span>
-            收藏你喜愛的文章或專題
-          </p>
-        </div>
-      ) : (
-        <div className="grid w-full grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8">
-          {bookmarks.map((item) => (
-            <SavedPreviewCard
-              key={item.id}
-              item={item}
-              pending={pendingIds.has(item.id)}
-              disabled={isPlaceholderData}
-              onUnsave={unsave}
-            />
-          ))}
-        </div>
-      )}
+    <section className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center gap-5 tablet:gap-6">
+        <SectionHeading barClassName="bg-red-400">
+          {withCount('已收藏', showLoading ? null : count)}
+        </SectionHeading>
+        {showLoading ? (
+          <div
+            className="grid w-full grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8"
+            aria-busy="true"
+          >
+            <span className="sr-only">載入中</span>
+            <SavedCardSkeleton />
+            <SavedCardSkeleton />
+          </div>
+        ) : isError && !data ? (
+          <SectionError
+            isFetching={isFetching}
+            onRetry={() => {
+              void refetch()
+            }}
+          />
+        ) : bookmarks.length === 0 ? (
+          <div className="flex w-full flex-col items-center justify-center gap-1 py-[72px] text-center prose-p1 text-neutral-700 tablet:mb-4 desktop:mb-6">
+            <p>你還沒有收藏任何報導</p>
+            <p className="flex items-center justify-center gap-1">
+              點擊
+              <span
+                className="inline-flex size-5 shrink-0 [&>svg]:size-5"
+                aria-hidden
+              >
+                <BookmarkOutlineIcon />
+              </span>
+              收藏你喜愛的文章或專題
+            </p>
+          </div>
+        ) : (
+          <div className="grid w-full grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8">
+            {bookmarks.map((item) => (
+              <SavedPreviewCard
+                key={item.id}
+                item={item}
+                pending={pendingIds.has(item.id)}
+                disabled={isPlaceholderData}
+                onUnsave={unsave}
+              />
+            ))}
+          </div>
+        )}
+      </div>
       {!showLoading && count != null && count > 0 ? (
-        <ViewAllLink href="/myreading/saved">查看全部收藏</ViewAllLink>
+        <div className="mt-5 desktop:mt-10">
+          <ViewAllLink href="/myreading/saved">查看全部收藏</ViewAllLink>
+        </div>
       ) : null}
     </section>
   )
@@ -408,37 +412,49 @@ function AnswersPreview() {
   )
 
   return (
-    <section className="flex w-full flex-col items-center gap-5 desktop:gap-6">
-      <SectionHeading barClassName="bg-yellow-400">
-        {withCount('我的回答', showLoading ? null : count)}
-      </SectionHeading>
-      {showLoading ? (
-        <div
-          className="w-full border-y-2 border-y-neutral-200"
-          aria-busy="true"
-        >
-          <span className="sr-only">載入中</span>
-          <AnswerRowSkeleton />
-          <AnswerRowSkeleton />
-          <AnswerRowSkeleton />
-        </div>
-      ) : isError && !page ? (
-        <SectionError
-          isFetching={isFetching}
-          onRetry={() => {
-            void refetch()
-          }}
-        />
-      ) : (
-        <PostQuestionAnswersList
-          postQuestionAnswers={answers}
-          isLoading={false}
-          onBackToFirstPage={handleBackToFirstPage}
-          openedAccordionItemValue={openedAccordionItemValue}
-        />
-      )}
+    <section className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center gap-5 tablet:gap-6">
+        <SectionHeading barClassName="bg-yellow-400">
+          {withCount('我的回答', showLoading ? null : count)}
+        </SectionHeading>
+        {showLoading ? (
+          <div
+            className="w-full border-y-2 border-y-neutral-200"
+            aria-busy="true"
+          >
+            <span className="sr-only">載入中</span>
+            <AnswerRowSkeleton />
+            <AnswerRowSkeleton />
+            <AnswerRowSkeleton />
+          </div>
+        ) : isError && !page ? (
+          <SectionError
+            isFetching={isFetching}
+            onRetry={() => {
+              void refetch()
+            }}
+          />
+        ) : (
+          <div
+            className={
+              answers.length === 0
+                ? 'w-full tablet:mb-4 desktop:mb-6'
+                : 'w-full'
+            }
+          >
+            <PostQuestionAnswersList
+              postQuestionAnswers={answers}
+              isLoading={false}
+              onBackToFirstPage={handleBackToFirstPage}
+              openedAccordionItemValue={openedAccordionItemValue}
+            />
+          </div>
+        )}
+      </div>
       {!showLoading && count != null && count > 0 ? (
-        <ViewAllLink href="/myreading/response">查看全部回答</ViewAllLink>
+        <div className="mt-5 desktop:mt-10">
+          <ViewAllLink href="/myreading/response">查看全部回答</ViewAllLink>
+        </div>
       ) : null}
     </section>
   )
@@ -460,60 +476,62 @@ function HistoryPreview() {
   const columns = splitColumns(histories)
 
   return (
-    <section className="flex w-full flex-col items-center gap-5 desktop:gap-6">
-      <SectionHeading barClassName="bg-blue-400">
-        {withCount('造訪紀錄', showLoading ? null : count)}
-      </SectionHeading>
-      {showLoading ? (
-        <div
-          className="flex w-full flex-col gap-6 tablet:flex-row tablet:gap-8"
-          aria-busy="true"
-        >
-          <span className="sr-only">載入中</span>
-          <div className="flex min-w-0 flex-1 flex-col gap-6">
-            <HistoryCardSkeleton />
-            <HistoryCardSkeleton />
-            <HistoryCardSkeleton />
-          </div>
-          <div className="flex min-w-0 flex-1 flex-col gap-6">
-            <HistoryCardSkeleton />
-            <HistoryCardSkeleton />
-            <HistoryCardSkeleton />
-          </div>
-        </div>
-      ) : isError && !data ? (
-        <SectionError
-          isFetching={isFetching}
-          onRetry={() => {
-            void refetch()
-          }}
-        />
-      ) : histories.length === 0 ? (
-        <div className="flex min-h-50 w-full flex-col items-center justify-center gap-1 text-center prose-p1 text-neutral-700">
-          <p>你還沒有造訪過任何報導</p>
-          <p>
-            <Link href="/" className="underline underline-offset-[3px]">
-              前往首頁
-            </Link>
-            探索更多內容
-          </p>
-        </div>
-      ) : (
-        <div className="flex w-full flex-col gap-6 tablet:flex-row tablet:gap-8">
-          {columns.map((column, index) => (
-            <div
-              key={column[0]?.id ?? index}
-              className="flex min-w-0 flex-1 flex-col gap-6"
-            >
-              {column.map((item) => (
-                <HistoryPreviewCard key={item.id} item={item} />
-              ))}
+    <section className="flex w-full flex-col items-center">
+      <div className="flex w-full flex-col items-center gap-5 tablet:gap-6">
+        <SectionHeading barClassName="bg-blue-400">造訪紀錄</SectionHeading>
+        {showLoading ? (
+          <div
+            className="flex w-full flex-col gap-6 tablet:flex-row tablet:gap-8"
+            aria-busy="true"
+          >
+            <span className="sr-only">載入中</span>
+            <div className="flex min-w-0 flex-1 flex-col gap-6">
+              <HistoryCardSkeleton />
+              <HistoryCardSkeleton />
+              <HistoryCardSkeleton />
             </div>
-          ))}
-        </div>
-      )}
+            <div className="flex min-w-0 flex-1 flex-col gap-6">
+              <HistoryCardSkeleton />
+              <HistoryCardSkeleton />
+              <HistoryCardSkeleton />
+            </div>
+          </div>
+        ) : isError && !data ? (
+          <SectionError
+            isFetching={isFetching}
+            onRetry={() => {
+              void refetch()
+            }}
+          />
+        ) : histories.length === 0 ? (
+          <div className="flex w-full flex-col items-center justify-center gap-1 py-[74px] text-center prose-p1 text-neutral-700 tablet:mb-4 desktop:mb-6">
+            <p>你還沒有造訪過任何報導</p>
+            <p>
+              <Link href="/" className="underline underline-offset-[3px]">
+                前往首頁
+              </Link>
+              探索更多內容
+            </p>
+          </div>
+        ) : (
+          <div className="flex w-full flex-col gap-6 tablet:flex-row tablet:gap-8">
+            {columns.map((column, index) => (
+              <div
+                key={column[0]?.id ?? index}
+                className="flex min-w-0 flex-1 flex-col gap-6"
+              >
+                {column.map((item) => (
+                  <HistoryPreviewCard key={item.id} item={item} />
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       {!showLoading && count != null && count > 0 ? (
-        <ViewAllLink href="/myreading/history">查看全部紀錄</ViewAllLink>
+        <div className="mt-5 desktop:mt-10">
+          <ViewAllLink href="/myreading/history">查看全部紀錄</ViewAllLink>
+        </div>
       ) : null}
     </section>
   )
