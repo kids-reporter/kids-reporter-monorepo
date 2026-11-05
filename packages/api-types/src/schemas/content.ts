@@ -576,6 +576,7 @@ export const V1ProjectDetailPhotoResizedSchema = z.object({
 })
 
 export const V1ProjectBySlugDetailResponseSchema = z.object({
+  id: z.string(),
   title: z.string(),
   titlePosition: z.string().nullable().optional(),
   subtitle: z.string(),
