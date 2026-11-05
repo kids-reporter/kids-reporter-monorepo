@@ -211,6 +211,7 @@ export async function fetchPublishedProjectDetailBySlug(
   const project = await prisma.project.findFirst({
     where: { AND: [{ slug }, buildProjectBySlugVisibilityWhere()] },
     select: {
+      id: true,
       title: true,
       titlePosition: true,
       subtitle: true,
@@ -237,6 +238,7 @@ export async function fetchPublishedProjectDetailBySlug(
     asOrderJson(project.relatedPostsOrderJson)
   ).map(mapRelatedPostOrdered)
   const result = {
+    id: String(project.id),
     title: project.title,
     titlePosition: project.titlePosition,
     subtitle: project.subtitle,
@@ -323,6 +325,7 @@ export async function fetchPostDetailBySlug(
   const post = await prisma.post.findFirst({
     where: { AND: [{ slug }, where] },
     select: {
+      id: true,
       opening: true,
       title: true,
       showBaodaozai: true,
@@ -418,6 +421,7 @@ export async function fetchPostDetailBySlug(
   const hero = post.heroImage
   const brief = post.brief
   const result = {
+    id: String(post.id),
     opening: post.opening,
     title: post.title,
     showBaodaozai: post.showBaodaozai,

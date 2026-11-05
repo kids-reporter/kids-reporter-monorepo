@@ -17,11 +17,13 @@ const TABLET_MAX_HEIGHT = 700
 const MASK_OFFSET = 128
 
 type TopicContentWithMaskProps = {
+  projectId: string
   slug: string
   rawContentState?: RawDraftContentState
 }
 
 function TopicContentWithMask({
+  projectId,
   slug,
   rawContentState,
 }: TopicContentWithMaskProps) {
@@ -39,6 +41,8 @@ function TopicContentWithMask({
   const { isBookmarked, isLoading, isPending, toggle } = useToggleBookmark({
     type: 'project',
     slug,
+    articleId: projectId,
+    saveLocation: 'topic_page',
     memberId: member?.id,
     accessToken: tokens?.accessToken,
     enabled: isLogin,

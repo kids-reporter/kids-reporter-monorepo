@@ -228,6 +228,7 @@ export const mapProjectCard = (
 ) => {
   const hero = p.heroImage
   return {
+    id: String(p.id),
     title: p.title,
     subtitle: p.subtitle,
     slug: p.slug,

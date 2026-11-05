@@ -84,6 +84,7 @@ export default async function TopicPage(props: {
 
   return (
     <TopicSlugModule
+      projectId={project.id}
       slug={params.slug}
       title={project.title ?? ''}
       subtitle={project.subtitle ?? ''}

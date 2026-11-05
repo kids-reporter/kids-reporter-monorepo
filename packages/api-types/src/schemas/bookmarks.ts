@@ -50,6 +50,7 @@ export const V1BookmarksQuerySchema = z
   })
 
 const BookmarkPostCardSchema = PostContentSchema.extend({
+  id: z.string(),
   ogTitle: z.string(),
   ogImage: PostHeroImageSchema.nullable(),
 })
@@ -57,6 +58,7 @@ const BookmarkPostCardSchema = PostContentSchema.extend({
 const BookmarkProjectCardSchema = V1ProjectsItemSchema.omit({
   relatedPostsOrdered: true,
 }).extend({
+  id: z.string(),
   ogTitle: z.string(),
   ogImage: PostHeroImageSchema.nullable(),
   updatedAt: z.iso.datetime().nullable(),

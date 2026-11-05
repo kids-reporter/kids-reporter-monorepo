@@ -31,6 +31,7 @@ export const V1BrowsingHistoriesQuerySchema = z.object({
 })
 
 const BrowsingHistoryPostCardSchema = PostContentSchema.extend({
+  id: z.string(),
   ogTitle: z.string(),
   ogImage: PostHeroImageSchema.nullable(),
 })
@@ -38,6 +39,7 @@ const BrowsingHistoryPostCardSchema = PostContentSchema.extend({
 const BrowsingHistoryProjectCardSchema = V1ProjectsItemSchema.omit({
   relatedPostsOrdered: true,
 }).extend({
+  id: z.string(),
   ogTitle: z.string(),
   ogImage: PostHeroImageSchema.nullable(),
   updatedAt: z.iso.datetime().nullable(),
