@@ -12,6 +12,11 @@ import {
   getBookmarkBySlugContentApi,
   listBookmarksContentApi,
 } from '@/api/content-api/bookmarks'
+import {
+  type SaveLocation,
+  trackArticleSave,
+  trackArticleUnsave,
+} from '@/utils/gtm'
 import { ContentApiRequestError } from '@/utils/send-content-api'
 
 import {
@@ -66,6 +71,8 @@ useBookmarkQuery.getQueryKey = (
 export function useToggleBookmark({
   type,
   slug,
+  articleId,
+  saveLocation,
   memberId,
   accessToken,
   enabled,
@@ -73,6 +80,8 @@ export function useToggleBookmark({
 }: {
   type: BookmarkType
   slug: string
+  articleId: string
+  saveLocation: SaveLocation
   memberId?: string
   accessToken?: string
   enabled: boolean
@@ -126,6 +135,11 @@ export function useToggleBookmark({
         }
         queryClient.setQueryData<BookmarkLookup | null>(queryKey, null)
         await deleteMutation.mutateAsync(current.id)
+        trackArticleUnsave({
+          articleId,
+          articleSlug: slug,
+          saveLocation,
+        })
         toast.success('已取消收藏', toastOptions)
       } else {
         queryClient.setQueryData<BookmarkLookup | null>(queryKey, {
@@ -148,6 +162,11 @@ export function useToggleBookmark({
           }
           throw error
         }
+        trackArticleSave({
+          articleId,
+          articleSlug: slug,
+          saveLocation,
+        })
         toast.success(bookmarkedToast, toastOptions)
       }
       await queryClient.invalidateQueries({
@@ -160,12 +179,14 @@ export function useToggleBookmark({
     }
   }, [
     accessToken,
+    articleId,
     bookmarkedToast,
     createMutation,
     deleteMutation,
     memberId,
     queryClient,
     queryKey,
+    saveLocation,
     toastOptions,
   ])
 
@@ -211,12 +232,16 @@ useMemberBookmarksQuery.listQueryKey = memberBookmarksListKey
 
 export function useTogglePostBookmark({
   postSlug,
+  postId,
+  saveLocation,
   memberId,
   accessToken,
   enabled,
   toastOptions,
 }: {
   postSlug: string
+  postId: string
+  saveLocation: SaveLocation
   memberId?: string
   accessToken?: string
   enabled: boolean
@@ -225,6 +250,8 @@ export function useTogglePostBookmark({
   return useToggleBookmark({
     type: 'post',
     slug: postSlug,
+    articleId: postId,
+    saveLocation,
     memberId,
     accessToken,
     enabled,
