@@ -45,26 +45,6 @@ const BOOKMARKED_TOAST = {
   project: '已收藏此專題',
 } as const
 
-const unsaveToastOptions = {
-  className: 'shadow-custom! gap-5!',
-  actionButtonStyle: {
-    background: 'transparent',
-    border: 'none',
-    borderRadius: 0,
-    color: 'inherit',
-    fontSize: 14,
-    fontWeight: 700,
-    height: 'auto',
-    marginLeft: 0,
-    padding: 0,
-    textDecoration: 'underline',
-  },
-  classNames: {
-    content: 'overflow-visible!',
-    title: 'overflow-visible! whitespace-nowrap!',
-  },
-} as const
-
 type HistoryItem = MemberBrowsingHistoriesResponse['browsingHistories'][number]
 
 function cardFields(item: HistoryItem) {
@@ -113,10 +93,8 @@ function HistoryCard({
 }) {
   const fields = cardFields(item)
   const queryClient = useQueryClient()
-  const [pending, setPending] = useState(false)
+  const [pending, setPending] = useState<'save' | 'unsave' | null>(null)
   const lockRef = useRef(false)
-  const confirmUnsaveRef = useRef<(() => void) | null>(null)
-  const unsaveToastIdRef = useRef<string | number | null>(null)
   const queryKey = bookmarkQueryKey(memberId ?? '', item.type, fields.slug)
   const bookmarkQuery = useBookmarkQuery({
     type: item.type,
@@ -126,20 +104,12 @@ function HistoryCard({
     enabled: !!memberId && !!accessToken,
   })
   const isBookmarked = !!bookmarkQuery.data?.id
-  const locked = pending || disabled || bookmarkQuery.isLoading
-
-  useEffect(() => {
-    return () => {
-      const toastId = unsaveToastIdRef.current
-      confirmUnsaveRef.current?.()
-      if (toastId != null) toast.dismiss(toastId)
-    }
-  }, [])
+  const locked = pending !== null || disabled || bookmarkQuery.isLoading
 
   const save = useCallback(async () => {
     if (!accessToken || !memberId || lockRef.current) return
     lockRef.current = true
-    setPending(true)
+    setPending('save')
     await queryClient.cancelQueries({ queryKey })
     const previous = queryClient.getQueryData<BookmarkLookup | null>(queryKey)
     queryClient.setQueryData<BookmarkLookup | null>(queryKey, {
@@ -169,71 +139,39 @@ function HistoryCard({
       queryClient.setQueryData(queryKey, rollbackBookmarkCache(previous))
     } finally {
       lockRef.current = false
-      setPending(false)
+      setPending(null)
     }
   }, [accessToken, fields.slug, item.type, memberId, queryClient, queryKey])
 
-  const unsave = useCallback(() => {
+  const unsave = useCallback(async () => {
     if (!accessToken || !memberId || lockRef.current) return
     const current = queryClient.getQueryData<BookmarkLookup | null>(queryKey)
     if (!current?.id || !isDeletableBookmarkId(current.id)) return
     const bookmarkId = current.id
     const previous = current
     lockRef.current = true
-    setPending(true)
-    void queryClient.cancelQueries({ queryKey })
+    setPending('unsave')
+    await queryClient.cancelQueries({ queryKey })
     queryClient.setQueryData<BookmarkLookup | null>(queryKey, null)
-
-    let undone = false
-    let settled = false
-    const release = () => {
+    try {
+      await deleteBookmarkContentApi(bookmarkId, accessToken)
+      toast.success('已取消收藏')
+      await queryClient.invalidateQueries({
+        queryKey: useMemberBookmarksQuery.listQueryKey(memberId),
+      })
+    } catch {
+      queryClient.setQueryData(queryKey, previous)
+      toast.error('取消收藏失敗')
+    } finally {
       lockRef.current = false
-      setPending(false)
-      confirmUnsaveRef.current = null
-      unsaveToastIdRef.current = null
+      setPending(null)
     }
-    const confirmDelete = () => {
-      if (undone || settled) return
-      settled = true
-      confirmUnsaveRef.current = null
-      void (async () => {
-        try {
-          await deleteBookmarkContentApi(bookmarkId, accessToken)
-          await queryClient.cancelQueries({ queryKey })
-          queryClient.setQueryData<BookmarkLookup | null>(queryKey, null)
-          await queryClient.invalidateQueries({
-            queryKey: useMemberBookmarksQuery.listQueryKey(memberId),
-          })
-        } catch {
-          queryClient.setQueryData(queryKey, previous)
-          toast.error('取消收藏失敗')
-        } finally {
-          release()
-        }
-      })()
-    }
-    confirmUnsaveRef.current = confirmDelete
-
-    unsaveToastIdRef.current = toast.success('已取消收藏', {
-      ...unsaveToastOptions,
-      action: {
-        label: '復原',
-        onClick: () => {
-          undone = true
-          settled = true
-          queryClient.setQueryData(queryKey, previous)
-          release()
-        },
-      },
-      onDismiss: confirmDelete,
-      onAutoClose: confirmDelete,
-    })
   }, [accessToken, memberId, queryClient, queryKey])
 
   return (
     <article
       className={cn('relative', pending && 'pointer-events-none')}
-      aria-busy={pending}
+      aria-busy={pending !== null}
     >
       <Link
         href={fields.href}
@@ -255,11 +193,11 @@ function HistoryCard({
             </span>
           </div>
           <div className="flex flex-col gap-1">
-            <h2 className="line-clamp-1 prose-h5-small text-neutral-900 transition-colors duration-200 group-hover:text-red-400 tablet:prose-h6-large">
+            <h2 className="line-clamp-2 prose-h5-small text-neutral-900 transition-colors duration-200 group-hover:text-red-400 tablet:prose-h6-large">
               {fields.title}
             </h2>
             {fields.description ? (
-              <p className="line-clamp-2 prose-p1 text-neutral-700">
+              <p className="line-clamp-4 prose-p1 text-neutral-700 tablet:line-clamp-2">
                 {fields.description}
               </p>
             ) : null}
@@ -269,7 +207,7 @@ function HistoryCard({
           <ImageWithFallback
             src={fields.image}
             alt=""
-            className="block size-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className="block size-full object-cover transition-transform duration-200 group-hover:scale-120"
           />
         </div>
       </Link>
@@ -287,13 +225,13 @@ function HistoryCard({
         }
         disabled={locked}
         onClick={() => {
-          if (isBookmarked) unsave()
+          if (isBookmarked) void unsave()
           else void save()
         }}
       >
         {isBookmarked ? <ToolbarBookmarkFilledIcon /> : <BookmarkOutlineIcon />}
       </Button>
-      {pending && (
+      {pending === 'save' && (
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/60" />
       )}
     </article>
@@ -359,7 +297,7 @@ function MyReadingHistory() {
 
   return (
     <div className="w-full bg-neutral-100 px-6 pt-6 pb-40 tablet:px-8 tablet:pt-8 desktop:px-12 desktop:pt-16 desktop:pb-50 hd:px-0">
-      <div className="mx-auto flex w-full flex-col desktop:max-w-[995px]">
+      <div className="mx-auto flex w-full flex-col desktop:max-w-[789px]">
         <HeaderMobileBackButtonHrefSetter href="/myreading" />
         <div className="mb-6 flex items-center gap-4 desktop:mb-8">
           <Button
@@ -394,7 +332,10 @@ function MyReadingHistory() {
             </Button>
           </div>
         ) : !data ? (
-          <div className="flex flex-col gap-6 desktop:gap-10" role="status">
+          <div
+            className="flex flex-col gap-6 tablet:gap-8 desktop:gap-10"
+            role="status"
+          >
             <span className="sr-only">載入中</span>
             {Array.from({ length: 4 }, (_, index) => (
               <HistoryCardSkeleton key={index} />
@@ -411,7 +352,7 @@ function MyReadingHistory() {
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-6 desktop:gap-10">
+          <div className="flex flex-col gap-6 tablet:gap-8 desktop:gap-10">
             {histories.map((item) => (
               <HistoryCard
                 key={item.id}

@@ -22,6 +22,7 @@ type DesktopHeaderProps = {
   isLoggedIn?: boolean
   loginUrl?: string
   joinUsUrl: string
+  backgroundClassName?: string
 }
 
 export function DesktopHeader({
@@ -36,6 +37,7 @@ export function DesktopHeader({
   isLoggedIn,
   loginUrl,
   joinUsUrl,
+  backgroundClassName,
 }: DesktopHeaderProps) {
   return (
     <>
@@ -43,7 +45,7 @@ export function DesktopHeader({
       <div
         className={cn(
           'top-0 ease-in-out fixed left-1/2 z-bar hidden w-full -translate-x-1/2 transform transition-all duration-500 desktop:block',
-          compactMode && 'bg-white',
+          compactMode ? 'bg-white' : backgroundClassName,
           hide
             ? 'pointer-events-none -translate-y-full opacity-0'
             : 'translate-y-0 pointer-events-auto opacity-100'

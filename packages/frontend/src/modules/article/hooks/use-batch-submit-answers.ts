@@ -3,7 +3,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import errors from '@twreporter/errors'
 import { useCallback } from 'react'
 
-import { DEFAULT_PAGE_ITEM_COUNT } from '@/api-utils/react-query/constants'
 import { useMemberPostsWithAnswersInfinityQuery } from '@/api-utils/react-query/hooks/extended'
 import {
   useCreatePostChoiceAnswerMutation,
@@ -36,10 +35,7 @@ function useBatchSubmitAnswers({
       queryKey: usePostChoiceAnswersQuery.getQueryKey({ memberId, postSlug }),
     })
     queryClient.invalidateQueries({
-      queryKey: useMemberPostsWithAnswersInfinityQuery.getQueryKey({
-        memberId,
-        take: DEFAULT_PAGE_ITEM_COUNT,
-      }),
+      queryKey: useMemberPostsWithAnswersInfinityQuery.listQueryKey(memberId),
     })
   }, [queryClient, memberId, postSlug])
 

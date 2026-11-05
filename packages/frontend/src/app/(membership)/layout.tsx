@@ -6,7 +6,7 @@ import AuthRouteGuard from '@/modules/membership/components/auth-route-guard'
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Header />
+      <Header desktopBackgroundClassName="bg-neutral-100" />
       <AuthHeaderLoggedInSetter />
       <AuthRouteGuard>
         <div className="flex w-full grow">{children}</div>

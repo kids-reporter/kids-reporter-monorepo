@@ -32,6 +32,7 @@ import {
   fetchEditorPicksSettings,
   fetchPopularKeywords,
 } from '../../queries/editor-picks.js'
+import { fetchHotTopics } from '../../queries/hot-topics.js'
 import { fetchCallBaodaozaiIntro } from '../../queries/intros.js'
 import {
   fetchPostDetailBySlug,
@@ -406,6 +407,15 @@ export function createV1Router() {
       const result = await fetchAuthorPostsCount(slug, new Date())
       if (!result) return sendNotFound(res)
       res.json(result)
+    })
+  )
+
+  router.get(
+    '/hot-topics',
+    asyncRoute(async (_req, res) => {
+      const rows = await fetchHotTopics(new Date())
+      res.set('Cache-Control', 'public, max-age=60')
+      res.json(rows)
     })
   )
 
