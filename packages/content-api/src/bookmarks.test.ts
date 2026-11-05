@@ -149,6 +149,7 @@ describe('listMemberBookmarks', () => {
     expect(result.bookmarks[0]).toMatchObject({
       type: 'post',
       post: {
+        id: '9',
         ogTitle: 'OG title',
         slug: 'post-slug',
         ogImage: {
@@ -159,6 +160,7 @@ describe('listMemberBookmarks', () => {
     expect(result.bookmarks[1]).toMatchObject({
       type: 'project',
       project: {
+        id: '5',
         ogTitle: 'Topic OG',
         slug: 'topic-slug',
         updatedAt: '2026-07-22T00:00:00.000Z',
