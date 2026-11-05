@@ -269,7 +269,7 @@ const ArticleModule = ({ post, slug }: { post: PostDetail; slug: string }) => {
             onImageModalClose,
           }}
         >
-          <Toolbar topicURL={topicURL} postSlug={slug} />
+          <Toolbar topicURL={topicURL} postSlug={slug} postId={post.id} />
           <div className="relative flex w-full max-w-256 flex-col items-center desktop:mx-auto desktop:px-12 hd:max-w-354.5">
             {isDesktop && (
               <ImageModal

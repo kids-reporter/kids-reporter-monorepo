@@ -135,6 +135,7 @@ export async function listMemberBookmarks(
         createdAt: row.createdAt ? row.createdAt.toISOString() : null,
         type: 'post',
         post: {
+          id: String(post.id),
           ...mapPostCard(post),
           ogTitle: post.ogTitle,
           ogImage: mapOgImage(post.ogImage),

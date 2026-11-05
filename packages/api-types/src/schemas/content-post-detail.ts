@@ -139,6 +139,7 @@ const PostDetailChoiceQuestionSchema = z.strictObject({
 
 export const V1PostDetailBodySchema = z
   .strictObject({
+    id: z.string(),
     opening: z.string().nullable().optional(),
     title: z.string(),
     showBaodaozai: z.boolean(),

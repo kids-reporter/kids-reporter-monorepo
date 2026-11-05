@@ -20,6 +20,7 @@ import {
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import type { MemberBookmarksResponse } from '@/types/api'
 import { getFormattedDate } from '@/utils'
+import { trackMyReadingArticleClick } from '@/utils/gtm'
 
 import { requestUnsaveBookmark } from './unsave-bookmark'
 
@@ -33,6 +34,7 @@ type BookmarkItem = MemberBookmarksResponse['bookmarks'][number]
 function cardFields(item: BookmarkItem) {
   if (item.type === 'post') {
     return {
+      id: item.post.id,
       href: `/article/${item.post.slug}`,
       slug: item.post.slug,
       image:
@@ -50,6 +52,7 @@ function cardFields(item: BookmarkItem) {
   )
   const countLabel = `共 ${item.project.relatedPostsCount} 篇`
   return {
+    id: item.project.id,
     href: `/topic/${item.project.slug}`,
     slug: item.project.slug,
     image:
@@ -65,11 +68,13 @@ function cardFields(item: BookmarkItem) {
 
 function SavedCard({
   item,
+  position,
   pending,
   disabled,
   onUnsave,
 }: {
   item: BookmarkItem
+  position: number
   pending: boolean
   disabled: boolean
   onUnsave: (item: BookmarkItem) => void
@@ -84,7 +89,18 @@ function SavedCard({
       )}
       aria-busy={pending}
     >
-      <Link href={fields.href} className="group block">
+      <Link
+        href={fields.href}
+        className="group block"
+        onClick={() =>
+          trackMyReadingArticleClick({
+            section: 'saved',
+            articleId: fields.id,
+            articleSlug: fields.slug,
+            position,
+          })
+        }
+      >
         <div className="aspect-[336/189] w-full overflow-hidden">
           <ImageWithFallback
             src={fields.image}
@@ -180,6 +196,10 @@ function MyReadingSaved() {
   const lastCountRef = useRef<number | null>(null)
   if (data) lastCountRef.current = data.bookmarksCount
 
+  // Placeholder rows are still the previous page. Position follows those rows.
+  const displayedSkipRef = useRef(0)
+  if (!isPlaceholderData) displayedSkipRef.current = skip
+
   const showLoadError = isError && !data
   const bookmarksCount =
     data?.bookmarksCount ?? (showLoadError ? lastCountRef.current : null)
@@ -205,13 +225,15 @@ function MyReadingSaved() {
       const accessToken = tokens?.accessToken
       const memberId = member?.id
       if (!accessToken || !memberId || pendingRef.current.has(item.id)) return
+      const fields = cardFields(item)
       pendingRef.current.add(item.id)
       setPendingIds(new Set(pendingRef.current))
       requestUnsaveBookmark({
         item: {
           id: item.id,
           type: item.type,
-          slug: cardFields(item).slug,
+          slug: fields.slug,
+          contentId: fields.id,
         },
         accessToken,
         memberId,
@@ -291,10 +313,11 @@ function MyReadingSaved() {
           </div>
         ) : (
           <div className={CARD_GRID_CLASS}>
-            {bookmarks.map((item) => (
+            {bookmarks.map((item, index) => (
               <SavedCard
                 key={item.id}
                 item={item}
+                position={displayedSkipRef.current + index + 1}
                 pending={pendingIds.has(item.id)}
                 disabled={isPlaceholderData}
                 onUnsave={unsave}

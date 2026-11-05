@@ -529,6 +529,7 @@ registry.registerPath({
 
 export const V1HotTopicSchema = z
   .object({
+    id: z.string(),
     slug: z.string(),
     title: z.string(),
     answeredAt: z.iso.datetime(),
