@@ -310,6 +310,10 @@ function MyReadingHistory() {
   const lastCountRef = useRef<number | null>(null)
   if (data) lastCountRef.current = data.browsingHistoriesCount
 
+  // Placeholder rows are still the previous page. Position follows those rows.
+  const displayedSkipRef = useRef(0)
+  if (!isPlaceholderData) displayedSkipRef.current = skip
+
   const showLoadError = isError && !data
   const historiesCount =
     data?.browsingHistoriesCount ??
@@ -392,7 +396,7 @@ function MyReadingHistory() {
               <HistoryCard
                 key={item.id}
                 item={item}
-                position={skip + index + 1}
+                position={displayedSkipRef.current + index + 1}
                 memberId={member?.id}
                 accessToken={tokens?.accessToken}
                 disabled={isPlaceholderData}

@@ -196,6 +196,10 @@ function MyReadingSaved() {
   const lastCountRef = useRef<number | null>(null)
   if (data) lastCountRef.current = data.bookmarksCount
 
+  // Placeholder rows are still the previous page. Position follows those rows.
+  const displayedSkipRef = useRef(0)
+  if (!isPlaceholderData) displayedSkipRef.current = skip
+
   const showLoadError = isError && !data
   const bookmarksCount =
     data?.bookmarksCount ?? (showLoadError ? lastCountRef.current : null)
@@ -313,7 +317,7 @@ function MyReadingSaved() {
               <SavedCard
                 key={item.id}
                 item={item}
-                position={skip + index + 1}
+                position={displayedSkipRef.current + index + 1}
                 pending={pendingIds.has(item.id)}
                 disabled={isPlaceholderData}
                 onUnsave={unsave}
