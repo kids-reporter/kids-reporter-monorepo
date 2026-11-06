@@ -108,8 +108,14 @@ const projectNestedPostSelect = {
   title: true,
   slug: true,
   ogDescription: true,
+  ogTitle: true,
+  externalUrl: true,
+  videoDuration: true,
   publishedDate: true,
   heroImage: {
+    select: { imageFile_id: true, imageFile_extension: true },
+  },
+  ogImage: {
     select: { imageFile_id: true, imageFile_extension: true },
   },
   subSubcategories: {
@@ -165,6 +171,12 @@ const mapRelatedPostOrdered = (p: RelatedPostRow) => {
     slug: p.slug,
     publishedDate: p.publishedDate ? p.publishedDate.toISOString() : undefined,
     ogDescription: p.ogDescription,
+    ogTitle: p.ogTitle,
+    externalUrl: p.externalUrl,
+    videoDuration: p.videoDuration,
+    ogImage: p.ogImage?.imageFile_id
+      ? { resized: { small: buildResizedSmall(p.ogImage) } }
+      : null,
     heroImage: p.heroImage
       ? {
           resized: {
@@ -486,6 +498,12 @@ export async function fetchPostDetailBySlug(
           title: rp.title,
           slug: rp.slug,
           ogDescription: rp.ogDescription,
+          ogTitle: rp.ogTitle,
+          externalUrl: rp.externalUrl,
+          videoDuration: rp.videoDuration,
+          ogImage: rp.ogImage?.imageFile_id
+            ? { resized: { small: buildResizedSmall(rp.ogImage) } }
+            : null,
           publishedDate: rp.publishedDate
             ? rp.publishedDate.toISOString()
             : undefined,

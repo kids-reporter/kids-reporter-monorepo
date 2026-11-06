@@ -58,8 +58,14 @@ export const postCardSelect = {
   title: true,
   slug: true,
   ogDescription: true,
+  ogTitle: true,
+  externalUrl: true,
+  videoDuration: true,
   publishedDate: true,
   heroImage: {
+    select: { imageFile_id: true, imageFile_extension: true },
+  },
+  ogImage: {
     select: { imageFile_id: true, imageFile_extension: true },
   },
   subSubcategories: {
@@ -87,8 +93,15 @@ export type PostCardRow = {
   title: string
   slug: string
   ogDescription: string | null
+  ogTitle: string
+  externalUrl: string
+  videoDuration: string
   publishedDate: Date | null
   heroImage: {
+    imageFile_id: string | null
+    imageFile_extension: string | null
+  } | null
+  ogImage: {
     imageFile_id: string | null
     imageFile_extension: string | null
   } | null
@@ -173,6 +186,12 @@ export const mapPostCard = (p: PostCardRow) => {
     title: p.title,
     slug: p.slug,
     ogDescription: p.ogDescription,
+    ogTitle: p.ogTitle,
+    externalUrl: p.externalUrl,
+    videoDuration: p.videoDuration,
+    ogImage: p.ogImage?.imageFile_id
+      ? { resized: { small: buildResizedSmall(p.ogImage) } }
+      : null,
     publishedDate: p.publishedDate ? p.publishedDate.toISOString() : null,
     heroImage: p.heroImage
       ? { resized: { small: buildResizedSmall(p.heroImage) } }

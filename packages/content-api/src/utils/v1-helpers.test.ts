@@ -1,5 +1,37 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+describe('mapPostCard', () => {
+  it('passes external url, duration, and og fields through', async () => {
+    const { mapPostCard } = await import('./v1-helpers.js')
+    const card = mapPostCard({
+      id: 1,
+      title: 'Title',
+      slug: 'slug',
+      ogDescription: 'desc',
+      ogTitle: 'OG title',
+      externalUrl: 'https://example.com/watch',
+      videoDuration: '00:01:30',
+      publishedDate: null,
+      heroImage: null,
+      ogImage: { imageFile_id: 'og-file', imageFile_extension: 'jpg' },
+      subSubcategories: [],
+      subSubcategoriesOrderJson: [],
+    })
+
+    expect(card).toMatchObject({
+      title: 'Title',
+      slug: 'slug',
+      externalUrl: 'https://example.com/watch',
+      videoDuration: '00:01:30',
+      ogTitle: 'OG title',
+      ogDescription: 'desc',
+      ogImage: {
+        resized: { small: expect.stringContaining('og-file-800.webp') },
+      },
+    })
+  })
+})
+
 describe('buildPostBySlugVisibilityWhere', () => {
   const now = new Date('2026-01-01T00:00:00.000Z')
 
