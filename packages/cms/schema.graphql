@@ -194,6 +194,8 @@ type Post {
   relatedPostsOrderJson: JSON
   relatedPostsOrdered(take: Int! = 12, skip: Int! = 0): [Post!]
   TWReporterRelatedPostsJSON: JSON
+  externalUrl: String
+  videoDuration: String
   ogTitle: String
   ogDescription: String
   ogImage: Photo
@@ -241,6 +243,8 @@ input PostWhereInput {
   projects: ProjectManyRelationFilter
   tags: TagManyRelationFilter
   relatedPosts: PostManyRelationFilter
+  externalUrl: StringFilter
+  videoDuration: StringFilter
   ogTitle: StringFilter
   ogDescription: StringFilter
   ogImage: PhotoWhereInput
@@ -304,6 +308,8 @@ input PostOrderByInput {
   status: OrderDirection
   publishedDate: OrderDirection
   heroCaption: OrderDirection
+  externalUrl: OrderDirection
+  videoDuration: OrderDirection
   ogTitle: OrderDirection
   ogDescription: OrderDirection
   opening: OrderDirection
@@ -334,6 +340,8 @@ input PostUpdateInput {
   relatedPosts: PostRelateToManyForUpdateInput
   relatedPostsOrderJson: JSON
   TWReporterRelatedPostsJSON: JSON
+  externalUrl: String
+  videoDuration: String
   ogTitle: String
   ogDescription: String
   ogImage: PhotoRelateToOneForUpdateInput
@@ -447,6 +455,8 @@ input PostCreateInput {
   relatedPosts: PostRelateToManyForCreateInput
   relatedPostsOrderJson: JSON
   TWReporterRelatedPostsJSON: JSON
+  externalUrl: String
+  videoDuration: String
   ogTitle: String
   ogDescription: String
   ogImage: PhotoRelateToOneForCreateInput

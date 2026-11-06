@@ -5,7 +5,7 @@ import {
 import { prisma } from '@kids-reporter/db'
 import type { z } from 'zod'
 
-import { buildPublicPostWhere } from '../utils/v1-helpers.js'
+import { buildArticleListWhere } from '../utils/v1-helpers.js'
 
 type V1SitemapPostsResponse = z.infer<typeof V1SitemapPostsResponseSchema>
 type V1SitemapProjectsResponse = z.infer<typeof V1SitemapProjectsResponseSchema>
@@ -35,7 +35,7 @@ export async function fetchPostsForSitemap(
   const gte = sitemapPublishedSinceUtc(now, sinceDays)
   const posts = await prisma.post.findMany({
     where: {
-      AND: [buildPublicPostWhere(now), { publishedDate: { gte } }],
+      AND: [buildArticleListWhere(now), { publishedDate: { gte } }],
     },
     select: { slug: true, publishedDate: true },
   })

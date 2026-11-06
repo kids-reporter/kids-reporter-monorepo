@@ -63,6 +63,10 @@ export const PostContentSchema = z
     title: z.string(),
     slug: z.string(),
     ogDescription: z.string().nullable().optional(),
+    ogTitle: z.string().default(''),
+    ogImage: PostHeroImageSchema.nullable().optional(),
+    externalUrl: z.string().default(''),
+    videoDuration: z.string().default(''),
     heroImage: PostHeroImageSchema.nullable().optional(),
     subSubcategoriesOrdered: z.array(PostSubSubcategorySchema).default([]),
     publishedDate: z.iso.datetime().nullable().optional(),
@@ -125,6 +129,35 @@ registry.registerPath({
   path: '/v1/posts',
   tags: ['Posts'],
   description: 'List latest published posts.',
+  request: {
+    query: V1PostsQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Success',
+      content: {
+        'application/json': {
+          schema: V1PostsResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request',
+      content: {
+        'application/json': {
+          schema: RestErrorBodySchema,
+        },
+      },
+    },
+  },
+})
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/posts/videos',
+  tags: ['Posts'],
+  description:
+    'List public video posts (published or scheduled with a past publishedDate). A video post has a non-empty externalUrl.',
   request: {
     query: V1PostsQuerySchema,
   },

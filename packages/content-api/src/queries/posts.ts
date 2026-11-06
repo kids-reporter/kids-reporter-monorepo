@@ -1,9 +1,9 @@
 import { V1PostsResponseSchema } from '@kids-reporter/api-types'
-import { prisma } from '@kids-reporter/db'
+import { type Prisma, prisma } from '@kids-reporter/db'
 import type { z } from 'zod'
 
 import {
-  buildPublicPostWhere,
+  buildArticleListWhere,
   mapPostCard,
   postCardSelect,
 } from '../utils/v1-helpers.js'
@@ -16,9 +16,10 @@ const POSTS_LIST_ORDER = { publishedDate: 'desc' } as const
 export type FetchPostsListOpts = {
   take: number
   skip: number
+  where?: Prisma.PostWhereInput
 }
 
-/** `GET /v1/posts` */
+/** `GET /v1/posts` and `GET /v1/posts/videos` */
 export async function fetchPostsList(
   opts: FetchPostsListOpts,
   now: Date
@@ -26,7 +27,7 @@ export async function fetchPostsList(
   const posts = await prisma.post.findMany({
     take: opts.take,
     skip: opts.skip,
-    where: buildPublicPostWhere(now),
+    where: opts.where ?? buildArticleListWhere(now),
     orderBy: POSTS_LIST_ORDER,
     select: postCardSelect,
   })

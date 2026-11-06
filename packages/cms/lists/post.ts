@@ -241,6 +241,30 @@ const listConfigurations: ListConfig<any> = list({
       },
     }),
     ...TWReporterRelatedPostsConfig,
+    externalUrl: text({
+      label: '外部連結',
+      hooks: {
+        validateInput: ({ resolvedData, addValidationError, fieldKey }) => {
+          const value = resolvedData[fieldKey]
+          if (typeof value !== 'string' || value === '') return
+          if (!isValidHttpUrl(value)) {
+            addValidationError('請輸入有效的 URL')
+          }
+        },
+      },
+    }),
+    videoDuration: text({
+      label: '影片長度 (hh:mm:ss)',
+      hooks: {
+        validateInput: ({ resolvedData, addValidationError, fieldKey }) => {
+          const value = resolvedData[fieldKey]
+          if (typeof value !== 'string' || value === '') return
+          if (!/^\d{2}:[0-5]\d:[0-5]\d$/.test(value)) {
+            addValidationError('請輸入 hh:mm:ss')
+          }
+        },
+      },
+    }),
     ogTitle: text({
       validation: { isRequired: false },
       label: 'og:title',
@@ -724,5 +748,14 @@ type RelationshipInput =
       connect?: { id: string }[]
     }
   | undefined
+
+function isValidHttpUrl(value: string) {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
 
 export default listConfigurations

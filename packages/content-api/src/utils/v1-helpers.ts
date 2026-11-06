@@ -31,6 +31,16 @@ export const buildPublicPostWhere = (now: Date) => ({
   ],
 })
 
+/** Article lists omit video posts (`externalUrl` set). */
+export const buildArticleListWhere = (now: Date): Prisma.PostWhereInput => ({
+  AND: [buildPublicPostWhere(now), { externalUrl: '' }],
+})
+
+/** Video list: same visibility as public posts, and a non-empty external URL. */
+export const buildVideoListWhere = (now: Date): Prisma.PostWhereInput => ({
+  AND: [buildPublicPostWhere(now), { NOT: { externalUrl: '' } }],
+})
+
 /** Post visibility for by-slug reads. Preview server matches CMS preview_headless (no status filter). */
 export const buildPostBySlugVisibilityWhere = (
   now: Date
@@ -51,6 +61,7 @@ export const buildProjectBySlugVisibilityWhere =
 export const buildCategoryFeedPostWhere = (subSubcategoryIds: number[]) => ({
   OR: [{ status: 'published' }, { status: 'archived' }],
   subSubcategories: { some: { id: { in: subSubcategoryIds } } },
+  externalUrl: '',
 })
 
 export const postCardSelect = {
@@ -58,8 +69,14 @@ export const postCardSelect = {
   title: true,
   slug: true,
   ogDescription: true,
+  ogTitle: true,
+  externalUrl: true,
+  videoDuration: true,
   publishedDate: true,
   heroImage: {
+    select: { imageFile_id: true, imageFile_extension: true },
+  },
+  ogImage: {
     select: { imageFile_id: true, imageFile_extension: true },
   },
   subSubcategories: {
@@ -87,8 +104,15 @@ export type PostCardRow = {
   title: string
   slug: string
   ogDescription: string | null
+  ogTitle: string
+  externalUrl: string
+  videoDuration: string
   publishedDate: Date | null
   heroImage: {
+    imageFile_id: string | null
+    imageFile_extension: string | null
+  } | null
+  ogImage: {
     imageFile_id: string | null
     imageFile_extension: string | null
   } | null
@@ -173,6 +197,12 @@ export const mapPostCard = (p: PostCardRow) => {
     title: p.title,
     slug: p.slug,
     ogDescription: p.ogDescription,
+    ogTitle: p.ogTitle,
+    externalUrl: p.externalUrl,
+    videoDuration: p.videoDuration,
+    ogImage: p.ogImage?.imageFile_id
+      ? { resized: { small: buildResizedSmall(p.ogImage) } }
+      : null,
     publishedDate: p.publishedDate ? p.publishedDate.toISOString() : null,
     heroImage: p.heroImage
       ? { resized: { small: buildResizedSmall(p.heroImage) } }
