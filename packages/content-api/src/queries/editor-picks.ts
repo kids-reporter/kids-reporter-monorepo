@@ -7,7 +7,7 @@ import type { z } from 'zod'
 
 import {
   asOrderJson,
-  buildPublicPostWhere,
+  buildArticleListWhere,
   mapPostCard,
   orderTargetsByOrderJson,
   postCardSelect,
@@ -23,7 +23,7 @@ export async function fetchEditorPicksSettings(
   take: number,
   now: Date
 ): Promise<V1EditorPicksSettingsResponse> {
-  const postWhere = buildPublicPostWhere(now)
+  const postWhere = buildArticleListWhere(now)
 
   const settings = await prisma.editorPicksSetting.findMany({
     take,

@@ -31,6 +31,16 @@ export const buildPublicPostWhere = (now: Date) => ({
   ],
 })
 
+/** Article lists omit video posts (`externalUrl` set). */
+export const buildArticleListWhere = (now: Date): Prisma.PostWhereInput => ({
+  AND: [buildPublicPostWhere(now), { externalUrl: '' }],
+})
+
+/** Video list: same visibility as public posts, and a non-empty external URL. */
+export const buildVideoListWhere = (now: Date): Prisma.PostWhereInput => ({
+  AND: [buildPublicPostWhere(now), { NOT: { externalUrl: '' } }],
+})
+
 /** Post visibility for by-slug reads. Preview server matches CMS preview_headless (no status filter). */
 export const buildPostBySlugVisibilityWhere = (
   now: Date
@@ -51,6 +61,7 @@ export const buildProjectBySlugVisibilityWhere =
 export const buildCategoryFeedPostWhere = (subSubcategoryIds: number[]) => ({
   OR: [{ status: 'published' }, { status: 'archived' }],
   subSubcategories: { some: { id: { in: subSubcategoryIds } } },
+  externalUrl: '',
 })
 
 export const postCardSelect = {

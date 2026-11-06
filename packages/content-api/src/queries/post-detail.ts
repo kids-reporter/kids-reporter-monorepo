@@ -16,9 +16,9 @@ import {
 } from '../utils/qna-utils.js'
 import {
   asOrderJson,
+  buildArticleListWhere,
   buildPostBySlugVisibilityWhere,
   buildProjectBySlugVisibilityWhere,
-  buildPublicPostWhere,
   buildResizedLarge,
   buildResizedMedium,
   buildResizedSmall,
@@ -238,7 +238,7 @@ export async function fetchPublishedProjectDetailBySlug(
       },
       relatedPostsOrderJson: true,
       relatedPosts: {
-        where: buildPostBySlugVisibilityWhere(now),
+        where: buildArticleListWhere(now),
         orderBy: [{ publishedDate: 'desc' }],
         select: relatedPostCardSelect,
       },
@@ -370,7 +370,7 @@ export async function fetchPostDetailBySlug(
       tags: { select: { name: true, slug: true, id: true } },
       tagsOrderJson: true,
       relatedPosts: {
-        where: { AND: [buildPublicPostWhere(now), relatedPostsWhere] },
+        where: { AND: [buildArticleListWhere(now), relatedPostsWhere] },
         take: opts.take,
         orderBy: [{ publishedDate: 'desc' }],
         select: relatedPostCardSelect,
@@ -391,7 +391,7 @@ export async function fetchPostDetailBySlug(
           slug: true,
           relatedPostsOrderJson: true,
           relatedPosts: {
-            where: { AND: [buildPublicPostWhere(now), relatedPostsWhere] },
+            where: { AND: [buildArticleListWhere(now), relatedPostsWhere] },
             take: opts.take,
             orderBy: [{ publishedDate: 'desc' }],
             select: projectNestedPostSelect,
@@ -639,7 +639,7 @@ export async function fetchPostsEssayAnswersWithLikes(
   now: Date
 ): Promise<V1PostsEssayAnswersWithLikesResponse> {
   const where: Prisma.PostWhereInput = {
-    AND: [buildPublicPostWhere(now), opts.where],
+    AND: [buildArticleListWhere(now), opts.where],
   }
   const posts = await prisma.post.findMany({
     where,

@@ -32,6 +32,28 @@ describe('mapPostCard', () => {
   })
 })
 
+describe('article and video list wheres', () => {
+  const now = new Date('2026-01-01T00:00:00.000Z')
+
+  it('article lists require an empty externalUrl', async () => {
+    const { buildArticleListWhere, buildPublicPostWhere } = await import(
+      './v1-helpers.js'
+    )
+    expect(buildArticleListWhere(now)).toEqual({
+      AND: [buildPublicPostWhere(now), { externalUrl: '' }],
+    })
+  })
+
+  it('video lists require a non-empty externalUrl', async () => {
+    const { buildPublicPostWhere, buildVideoListWhere } = await import(
+      './v1-helpers.js'
+    )
+    expect(buildVideoListWhere(now)).toEqual({
+      AND: [buildPublicPostWhere(now), { NOT: { externalUrl: '' } }],
+    })
+  })
+})
+
 describe('buildPostBySlugVisibilityWhere', () => {
   const now = new Date('2026-01-01T00:00:00.000Z')
 

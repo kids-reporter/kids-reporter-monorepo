@@ -9,7 +9,7 @@ import type { z } from 'zod'
 
 import envVar from '../environment-variables.js'
 import {
-  buildPublicPostWhere,
+  buildArticleListWhere,
   buildResizedSmall,
   mapPostCard,
   postCardSelect,
@@ -79,7 +79,7 @@ export async function fetchAuthorFeedPosts(
   if (!author) return null
 
   const where = {
-    AND: [buildPublicPostWhere(now), { authors: { some: { id: author.id } } }],
+    AND: [buildArticleListWhere(now), { authors: { some: { id: author.id } } }],
   }
   const [posts, postsCount] = await Promise.all([
     prisma.post.findMany({
@@ -117,7 +117,7 @@ export async function fetchAuthorPostsCount(
   const postsCount = await prisma.post.count({
     where: {
       AND: [
-        buildPublicPostWhere(now),
+        buildArticleListWhere(now),
         { authors: { some: { id: author.id } } },
       ],
     },

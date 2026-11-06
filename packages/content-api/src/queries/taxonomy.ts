@@ -10,8 +10,8 @@ import { prisma } from '@kids-reporter/db'
 import type { z } from 'zod'
 
 import {
+  buildArticleListWhere,
   buildCategoryFeedPostWhere,
-  buildPublicPostWhere,
   buildResizedMedium,
   mapPostCard,
   postCardSelect,
@@ -239,7 +239,7 @@ export async function fetchSubSubcategoryFeedPosts(
 
   const where = {
     AND: [
-      buildPublicPostWhere(now),
+      buildArticleListWhere(now),
       { subSubcategories: { some: { id: ss.id } } },
     ],
   }

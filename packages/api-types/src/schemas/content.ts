@@ -152,6 +152,35 @@ registry.registerPath({
   },
 })
 
+registry.registerPath({
+  method: 'get',
+  path: '/v1/posts/videos',
+  tags: ['Posts'],
+  description:
+    'List published video posts. A video post has a non-empty externalUrl.',
+  request: {
+    query: V1PostsQuerySchema,
+  },
+  responses: {
+    200: {
+      description: 'Success',
+      content: {
+        'application/json': {
+          schema: V1PostsResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Bad request',
+      content: {
+        'application/json': {
+          schema: RestErrorBodySchema,
+        },
+      },
+    },
+  },
+})
+
 export const V1SubcategoriesResponseSchema = z.array(SubcategoryItemSchema)
 
 registry.registerPath({
