@@ -11,6 +11,7 @@ import EditorRecommendation from './components/editor-recommendation'
 import FeaturedTagsMarquee from './components/featured-tags-marquee'
 import LatestArticles from './components/latest-articles'
 import TopicSlider from './components/topic-slider'
+import VideoPostCards from './components/video-post-cards'
 import { CATEGORY_CONFIG } from './constants'
 import { Tag } from './types'
 
@@ -63,6 +64,7 @@ function HomeModule({
             isLast={index === CATEGORY_CONFIG.length - 1}
           />
         ))}
+        <VideoPostCards />
       </div>
     </>
   )

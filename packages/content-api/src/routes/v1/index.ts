@@ -46,7 +46,7 @@ import {
   fetchPostEssayAnswersList,
   fetchPostEssayQuestionWithAnswers,
 } from '../../queries/post-essay-qna.js'
-import { fetchPostsList } from '../../queries/posts.js'
+import { fetchPostsList, fetchVideoPostsList } from '../../queries/posts.js'
 import {
   fetchPublishedProjectRelatedPostsCount,
   fetchPublishedProjects,
@@ -64,7 +64,6 @@ import {
   fetchSubcategoryFeedPosts,
   fetchSubSubcategoryFeedPosts,
 } from '../../queries/taxonomy.js'
-import { buildVideoListWhere } from '../../utils/v1-helpers.js'
 import { createV1BookmarksRouter } from './v1-bookmarks.js'
 import { createV1BrowsingHistoriesRouter } from './v1-browsing-histories.js'
 import { createV1MembersRouter } from './v1-members.js'
@@ -133,14 +132,9 @@ export function createV1Router() {
     '/posts/videos',
     asyncRoute(async (req, res) => {
       const q = V1PostsQuerySchema.parse(req.query)
-      const now = new Date()
-      const result = await fetchPostsList(
-        {
-          take: q.take ?? 12,
-          skip: q.skip ?? 0,
-          where: buildVideoListWhere(now),
-        },
-        now
+      const result = await fetchVideoPostsList(
+        { take: q.take ?? 12, skip: q.skip ?? 0 },
+        new Date()
       )
       res.json(result)
     })

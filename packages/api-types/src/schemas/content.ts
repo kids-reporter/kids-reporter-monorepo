@@ -124,6 +124,10 @@ export const V1PostsResponseSchema = z.object({
   }),
 })
 
+export const V1VideoPostsResponseSchema = V1PostsResponseSchema.extend({
+  total: z.number().int().min(0),
+})
+
 registry.registerPath({
   method: 'get',
   path: '/v1/posts',
@@ -166,7 +170,7 @@ registry.registerPath({
       description: 'Success',
       content: {
         'application/json': {
-          schema: V1PostsResponseSchema,
+          schema: V1VideoPostsResponseSchema,
         },
       },
     },

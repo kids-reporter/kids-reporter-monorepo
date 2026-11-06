@@ -4,6 +4,7 @@ import type { z } from 'zod'
 
 import {
   buildArticleListWhere,
+  buildVideoListWhere,
   mapPostCard,
   postCardSelect,
 } from '../utils/v1-helpers.js'
@@ -19,7 +20,7 @@ export type FetchPostsListOpts = {
   where?: Prisma.PostWhereInput
 }
 
-/** `GET /v1/posts` and `GET /v1/posts/videos` */
+/** `GET /v1/posts`. Video lists use `fetchVideoPostsList`. */
 export async function fetchPostsList(
   opts: FetchPostsListOpts,
   now: Date
@@ -40,4 +41,17 @@ export async function fetchPostsList(
     },
   }
   return result
+}
+
+/** `GET /v1/posts/videos` — same cards as the article list, plus a total for pagination. */
+export async function fetchVideoPostsList(
+  opts: { take: number; skip: number },
+  now: Date
+) {
+  const where = buildVideoListWhere(now)
+  const [list, total] = await Promise.all([
+    fetchPostsList({ ...opts, where }, now),
+    prisma.post.count({ where }),
+  ])
+  return { ...list, total }
 }
