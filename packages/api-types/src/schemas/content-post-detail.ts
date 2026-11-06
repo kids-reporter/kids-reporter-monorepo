@@ -83,6 +83,15 @@ export const V1ProjectDetailRelatedPostOrderedItemSchema = z
     slug: z.string(),
     publishedDate: z.iso.datetime().optional(),
     ogDescription: z.string().nullable().optional(),
+    ogTitle: z.string().default(''),
+    ogImage: z
+      .strictObject({
+        resized: z.strictObject({ small: z.string() }),
+      })
+      .nullable()
+      .optional(),
+    externalUrl: z.string().default(''),
+    videoDuration: z.string().default(''),
     heroImage: z
       .strictObject({
         resized: PostDetailHeroResizedSchema,
@@ -97,6 +106,15 @@ const PostDetailProjectNestedPostSchema = z
     title: z.string(),
     slug: z.string(),
     ogDescription: z.string().nullable(),
+    ogTitle: z.string().default(''),
+    ogImage: z
+      .strictObject({
+        resized: z.strictObject({ small: z.string() }),
+      })
+      .nullable()
+      .optional(),
+    externalUrl: z.string().default(''),
+    videoDuration: z.string().default(''),
     publishedDate: z.iso.datetime().optional(),
     heroImage: z
       .strictObject({
