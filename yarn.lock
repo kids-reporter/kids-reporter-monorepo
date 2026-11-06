@@ -4177,6 +4177,7 @@ __metadata:
     express: "npm:^4.17.1"
     http-proxy-middleware: "npm:^2.0.3"
     jsonwebtoken: "npm:^9.0.2"
+    next: "npm:14.2.35"
     otplib: "npm:^12.0.1"
     patch-package: "npm:^8.0.1"
     qrcode: "npm:^1.5.3"
