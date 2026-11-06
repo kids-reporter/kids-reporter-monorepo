@@ -1,6 +1,23 @@
 import { CategorySlug } from '@/types'
 import { CallBaodaozaiIntroPageType } from '@/types/api'
 
+export const STORYTELLING_VIDEO_SUBCATEGORY_SLUG = 'video'
+
+export const STORYTELLING_VIDEO_PATH = `/category/storytelling/${STORYTELLING_VIDEO_SUBCATEGORY_SLUG}`
+
+export const isStorytellingVideoSubcategory = ({
+  category,
+  subcategory,
+  subSubcategory,
+}: {
+  category?: string
+  subcategory?: string
+  subSubcategory?: string
+}) =>
+  category === 'storytelling' &&
+  subcategory === STORYTELLING_VIDEO_SUBCATEGORY_SLUG &&
+  !subSubcategory
+
 const isValidPageNumber = (pageNumber: string): boolean => {
   return Number.isInteger(Number(pageNumber)) && Number(pageNumber) > 0
 }
