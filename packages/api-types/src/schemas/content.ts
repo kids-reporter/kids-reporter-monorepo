@@ -157,7 +157,7 @@ registry.registerPath({
   path: '/v1/posts/videos',
   tags: ['Posts'],
   description:
-    'List published video posts. A video post has a non-empty externalUrl.',
+    'List public video posts (published or scheduled with a past publishedDate). A video post has a non-empty externalUrl.',
   request: {
     query: V1PostsQuerySchema,
   },
