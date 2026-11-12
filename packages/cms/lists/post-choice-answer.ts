@@ -122,7 +122,7 @@ export default list<ListType<'PostChoiceAnswer'>>({
   },
   access: {
     operation: {
-      query: allowRoles([RoleEnum.Admin, RoleEnum.Owner]),
+      query: allowRoles([RoleEnum.Admin, RoleEnum.Owner, RoleEnum.Editor]),
       create: () => false,
       update: () => false,
       delete: allowRoles([RoleEnum.Admin, RoleEnum.Owner]),
