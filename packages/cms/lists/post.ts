@@ -243,6 +243,9 @@ const listConfigurations: ListConfig<any> = list({
     ...TWReporterRelatedPostsConfig,
     externalUrl: text({
       label: '外部連結',
+      ui: {
+        description: '（若填入影片連結則視為影片文章）',
+      },
       hooks: {
         validateInput: ({ resolvedData, addValidationError, fieldKey }) => {
           const value = resolvedData[fieldKey]

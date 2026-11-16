@@ -28,7 +28,7 @@ function VideoPostCard({ post, className }: VideoPostCardProps) {
           alt={post.title}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-120"
         />
-        <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <span className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 [&_path]:first-of-type:opacity-60">
           <PlayIcon className="desktop:hidden" />
           <PlayIconLarge className="hidden desktop:block" />
         </span>

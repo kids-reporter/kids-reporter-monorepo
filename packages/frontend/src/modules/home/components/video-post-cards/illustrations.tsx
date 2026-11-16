@@ -3,7 +3,12 @@ import Image from 'next/image'
 
 function VideoPostCardsIllustrations() {
   return (
-    <div className={cn('absolute top-0 left-0 z-1 hd:left-[calc(50vw-650px)]')}>
+    <div
+      className={cn(
+        'pointer-events-none absolute top-0 z-1 -translate-x-[102px]',
+        'left-12 tablet:left-6 desktop:left-12 hd:left-14'
+      )}
+    >
       <Image
         src="/assets/images/home/category/video_illustration_s.svg"
         alt="影片 illustration"
