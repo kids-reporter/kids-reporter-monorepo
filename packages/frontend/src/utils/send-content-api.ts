@@ -78,6 +78,58 @@ const buildUrl = (path: string) => {
   return `${base}${normalizedPath}`
 }
 
+const SERVER_GET_RETRY_LIMIT = 2
+// full jitter up to 200ms then 400ms, and a 20s deadline so a hung
+// GET cannot stack three requestTimeoutMs attempts past Cloud Run's 30s limit.
+// Upgrade path: env-configured deadline, or Retry-After on 429.
+const SERVER_GET_RETRY_BASE_MS = 200
+const SERVER_GET_DEADLINE_MS = 20_000
+
+function isRetryableServerGet(err: unknown): boolean {
+  if (axios.isCancel(err) || !axios.isAxiosError(err)) return false
+  const status = err.response?.status
+  if (status === undefined) return true
+  if (status === 408 || status === 429) return true
+  return status >= 500
+}
+
+function maxRetryDelayMs(attempt: number): number {
+  return SERVER_GET_RETRY_BASE_MS * 2 ** attempt
+}
+
+function retryDelayMs(attempt: number): number {
+  return Math.floor(Math.random() * maxRetryDelayMs(attempt))
+}
+
+function canAffordRetry(
+  elapsedMs: number,
+  attempt: number,
+  requestTimeoutMs: number
+): boolean {
+  const remaining = SERVER_GET_DEADLINE_MS - elapsedMs
+  const nextAttemptMs = Math.min(requestTimeoutMs, SERVER_GET_DEADLINE_MS)
+  return remaining >= maxRetryDelayMs(attempt) + nextAttemptMs
+}
+
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const onAbort = () => {
+      clearTimeout(timer)
+      reject(new axios.CanceledError())
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort)
+      resolve()
+    }, ms)
+    if (!signal) return
+    if (signal.aborted) {
+      onAbort()
+      return
+    }
+    signal.addEventListener('abort', onAbort, { once: true })
+  })
+}
+
 function contentApiFailureLogSeverity(
   status?: number,
   isCancel?: boolean
@@ -125,6 +177,11 @@ function contentApiFailureLogMessage({
  * `GET` and `DELETE` never send a JSON body here, even if `body` is passed — content-api
  * callers today do not rely on DELETE bodies. If a future endpoint needs `DELETE` with a
  * body, extend the `sendsBody` condition explicitly rather than assuming `body` is sent.
+ *
+ * Server-side `GET` retries transient failures twice (no response, 408, 429, 5xx)
+ * with jittered backoff, and stops when another full attempt would pass a 20s
+ * deadline. Browser calls and other methods are not retried. Pass `signal` to
+ * abort a wait; server components that have no request signal rely on the deadline.
  */
 export async function sendContentApiRequest<TData = unknown>({
   path,
@@ -167,55 +224,104 @@ export async function sendContentApiRequest<TData = unknown>({
     config.data = body
   }
 
-  try {
-    const response = await axios.request<TData>(config)
-    return response.data
-  } catch (err) {
-    const annotatedErr = errors.helpers.annotateAxiosError(err)
-    const status = axios.isAxiosError(err) ? err.response?.status : undefined
-    const responseData = axios.isAxiosError(err)
-      ? err.response?.data
-      : undefined
-    const parsedError = RestErrorBodySchema.safeParse(responseData)
-    const errorCode = parsedError.success
-      ? parsedError.data.error.code
-      : undefined
-    const errorDetails = parsedError.success
-      ? parsedError.data.error.details
-      : undefined
-    const errorMessage = parsedError.success
-      ? parsedError.data.error.message
-      : annotatedErr instanceof Error
-        ? annotatedErr.message
-        : String(annotatedErr)
-    const isCancel = axios.isCancel(err)
-    emitStructured({
-      severity: contentApiFailureLogSeverity(status, isCancel),
-      message: contentApiFailureLogMessage({
-        method,
-        path,
-        status,
-        errorMessage,
-        annotatedErr,
-        isCancel,
-      }),
-      context: {
-        path,
-        url,
-        method,
-        status,
-      },
-    })
-    const cleanCause = new Error(errorMessage)
-    cleanCause.name =
-      annotatedErr instanceof Error ? annotatedErr.name : 'AxiosError'
-    if (annotatedErr instanceof Error && annotatedErr.stack) {
-      cleanCause.stack = annotatedErr.stack
+  const serverGet = typeof window === 'undefined' && method === 'GET'
+  const startedAt = Date.now()
+
+  for (let attempt = 0; ; attempt++) {
+    if (serverGet) {
+      const remaining = SERVER_GET_DEADLINE_MS - (Date.now() - startedAt)
+      if (remaining <= 0) {
+        throw new ContentApiRequestError(
+          path,
+          url,
+          'content-api retry deadline exceeded'
+        )
+      }
+      config.timeout = Math.min(envVars.requestTimeoutMs, remaining)
     }
-    throw new ContentApiRequestError(path, url, errorMessage, status, {
-      cause: cleanCause,
-      errorCode,
-      errorDetails,
-    })
+
+    try {
+      const response = await axios.request<TData>(config)
+      return response.data
+    } catch (err) {
+      let failure: unknown = err
+      const elapsedMs = Date.now() - startedAt
+      if (
+        serverGet &&
+        attempt < SERVER_GET_RETRY_LIMIT &&
+        isRetryableServerGet(err) &&
+        canAffordRetry(elapsedMs, attempt, envVars.requestTimeoutMs)
+      ) {
+        const status = axios.isAxiosError(err)
+          ? err.response?.status
+          : undefined
+        emitStructured({
+          severity: 'INFO',
+          message: `content-api retry ${attempt + 1}/${SERVER_GET_RETRY_LIMIT} ${method} ${path}`,
+          context: {
+            path,
+            url,
+            method,
+            status,
+            attempt: attempt + 1,
+          },
+        })
+        try {
+          await sleep(retryDelayMs(attempt), signal)
+          continue
+        } catch (sleepErr) {
+          failure = sleepErr
+        }
+      }
+
+      const annotatedErr = errors.helpers.annotateAxiosError(failure)
+      const status = axios.isAxiosError(failure)
+        ? failure.response?.status
+        : undefined
+      const responseData = axios.isAxiosError(failure)
+        ? failure.response?.data
+        : undefined
+      const parsedError = RestErrorBodySchema.safeParse(responseData)
+      const errorCode = parsedError.success
+        ? parsedError.data.error.code
+        : undefined
+      const errorDetails = parsedError.success
+        ? parsedError.data.error.details
+        : undefined
+      const errorMessage = parsedError.success
+        ? parsedError.data.error.message
+        : annotatedErr instanceof Error
+          ? annotatedErr.message
+          : String(annotatedErr)
+      const isCancel = axios.isCancel(failure)
+      emitStructured({
+        severity: contentApiFailureLogSeverity(status, isCancel),
+        message: contentApiFailureLogMessage({
+          method,
+          path,
+          status,
+          errorMessage,
+          annotatedErr,
+          isCancel,
+        }),
+        context: {
+          path,
+          url,
+          method,
+          status,
+        },
+      })
+      const cleanCause = new Error(errorMessage)
+      cleanCause.name =
+        annotatedErr instanceof Error ? annotatedErr.name : 'AxiosError'
+      if (annotatedErr instanceof Error && annotatedErr.stack) {
+        cleanCause.stack = annotatedErr.stack
+      }
+      throw new ContentApiRequestError(path, url, errorMessage, status, {
+        cause: cleanCause,
+        errorCode,
+        errorDetails,
+      })
+    }
   }
 }
