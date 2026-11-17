@@ -6,7 +6,7 @@ import { prisma } from '@kids-reporter/db'
 import type { z } from 'zod'
 
 import {
-  buildPublicPostWhere,
+  buildArticleListWhere,
   buildResizedSmall,
   mapPostCard,
   postCardSelect,
@@ -55,7 +55,7 @@ export async function fetchTagFeedPosts(
   if (!tag) return null
 
   const where = {
-    AND: [buildPublicPostWhere(now), { tags: { some: { id: tag.id } } }],
+    AND: [buildArticleListWhere(now), { tags: { some: { id: tag.id } } }],
   }
   const [posts, postsCount] = await Promise.all([
     prisma.post.findMany({

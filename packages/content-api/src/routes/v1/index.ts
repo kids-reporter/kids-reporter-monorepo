@@ -46,7 +46,7 @@ import {
   fetchPostEssayAnswersList,
   fetchPostEssayQuestionWithAnswers,
 } from '../../queries/post-essay-qna.js'
-import { fetchPostsList } from '../../queries/posts.js'
+import { fetchPostsList, fetchVideoPostsList } from '../../queries/posts.js'
 import {
   fetchPublishedProjectRelatedPostsCount,
   fetchPublishedProjects,
@@ -121,6 +121,18 @@ export function createV1Router() {
     asyncRoute(async (req, res) => {
       const q = V1PostsQuerySchema.parse(req.query)
       const result = await fetchPostsList(
+        { take: q.take ?? 12, skip: q.skip ?? 0 },
+        new Date()
+      )
+      res.json(result)
+    })
+  )
+
+  router.get(
+    '/posts/videos',
+    asyncRoute(async (req, res) => {
+      const q = V1PostsQuerySchema.parse(req.query)
+      const result = await fetchVideoPostsList(
         { take: q.take ?? 12, skip: q.skip ?? 0 },
         new Date()
       )

@@ -6,6 +6,8 @@ export type PostSummary = {
   category: string
   subSubcategory: string
   publishedDate: string
+  externalUrl?: string
+  videoDuration?: string
 }
 
 export enum Loading {

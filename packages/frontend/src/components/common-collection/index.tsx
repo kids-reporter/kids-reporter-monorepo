@@ -6,6 +6,7 @@ import type { ReactNode } from 'react'
 
 import Pagination from '../pagination'
 import { PostSummary } from '../types'
+import VideoPostCard from '../video-post-card'
 import CommonCollectionPostCard from './post-card'
 
 type CommonCollectionHero =
@@ -109,9 +110,13 @@ function CommonCollection(props: CommonCollectionProps) {
         )}
 
         <div className="grid w-full grid-cols-1 gap-y-6 tablet:grid-cols-2 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-3 desktop:gap-x-8 desktop:gap-y-10 hd:gap-y-14 hd:px-14">
-          {posts.map((post) => (
-            <CommonCollectionPostCard key={post.url} post={post} />
-          ))}
+          {posts.map((post) =>
+            post.externalUrl ? (
+              <VideoPostCard key={post.url} post={post} />
+            ) : (
+              <CommonCollectionPostCard key={post.url} post={post} />
+            )
+          )}
         </div>
 
         {morePostsMode === 'pagination' && props.totalPages > 0 && (

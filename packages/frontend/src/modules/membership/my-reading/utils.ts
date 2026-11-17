@@ -9,6 +9,7 @@ export function parseMemberPostsWithAnswersToPostQuestionAnswers(
     const answers = [...post.choiceAnswers, ...post.essayAnswers]
 
     return {
+      id: post.id,
       title: post.title,
       slug: post.slug,
       href: `/article/${post.slug}`,

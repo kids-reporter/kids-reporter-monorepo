@@ -113,6 +113,7 @@ export async function fetchHotTopics(now: Date): Promise<V1HotTopicsResponse> {
       },
     }))
   ).map((topic) => ({
+    id: String(topic.postId),
     slug: topic.slug,
     title: topic.title,
     answeredAt: topic.answeredAt.toISOString(),

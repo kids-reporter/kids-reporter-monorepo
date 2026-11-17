@@ -11,6 +11,7 @@ import {
   V1SitemapPostsResponseSchema,
   V1SitemapProjectsResponseSchema,
   V1SubcategoriesResponseSchema,
+  V1VideoPostsResponseSchema,
 } from '@kids-reporter/api-types'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
@@ -141,6 +142,13 @@ describe('content-api response contracts', () => {
   describeWithDb('with DATABASE_URL (response shape vs api-types)', () => {
     it('GET /v1/posts success body matches V1PostsResponseSchema', async () => {
       await expectRouteMatchesSchema('/v1/posts', V1PostsResponseSchema)
+    })
+
+    it('GET /v1/posts/videos success body matches V1VideoPostsResponseSchema', async () => {
+      await expectRouteMatchesSchema(
+        '/v1/posts/videos',
+        V1VideoPostsResponseSchema
+      )
     })
 
     it('GET /v1/post-essay-answers sets Cache-Control when 200', async () => {

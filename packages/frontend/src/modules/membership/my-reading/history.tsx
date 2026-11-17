@@ -36,6 +36,11 @@ import {
 import { useHydratedAuthStore } from '@/services/auth/use-hydrated-auth-store'
 import type { MemberBrowsingHistoriesResponse } from '@/types/api'
 import { getFormattedDate } from '@/utils'
+import {
+  trackArticleSave,
+  trackArticleUnsave,
+  trackMyReadingArticleClick,
+} from '@/utils/gtm'
 import { ContentApiRequestError } from '@/utils/send-content-api'
 
 const PAGE_SIZE = 12
@@ -50,6 +55,7 @@ type HistoryItem = MemberBrowsingHistoriesResponse['browsingHistories'][number]
 function cardFields(item: HistoryItem) {
   if (item.type === 'post') {
     return {
+      id: item.post.id,
       href: `/article/${item.post.slug}`,
       slug: item.post.slug,
       image:
@@ -67,6 +73,7 @@ function cardFields(item: HistoryItem) {
   )
   const countLabel = `共 ${item.project.relatedPostsCount} 篇`
   return {
+    id: item.project.id,
     href: `/topic/${item.project.slug}`,
     slug: item.project.slug,
     image:
@@ -82,11 +89,13 @@ function cardFields(item: HistoryItem) {
 
 function HistoryCard({
   item,
+  position,
   memberId,
   accessToken,
   disabled,
 }: {
   item: HistoryItem
+  position: number
   memberId?: string
   accessToken?: string
   disabled: boolean
@@ -123,6 +132,11 @@ function HistoryCard({
       queryClient.setQueryData<BookmarkLookup | null>(queryKey, {
         id: created.id,
       })
+      trackArticleSave({
+        articleId: fields.id,
+        articleSlug: fields.slug,
+        saveLocation: 'my_reading',
+      })
       toast.success(BOOKMARKED_TOAST[item.type])
       await queryClient.invalidateQueries({
         queryKey: useMemberBookmarksQuery.listQueryKey(memberId),
@@ -141,7 +155,15 @@ function HistoryCard({
       lockRef.current = false
       setPending(null)
     }
-  }, [accessToken, fields.slug, item.type, memberId, queryClient, queryKey])
+  }, [
+    accessToken,
+    fields.id,
+    fields.slug,
+    item.type,
+    memberId,
+    queryClient,
+    queryKey,
+  ])
 
   const unsave = useCallback(async () => {
     if (!accessToken || !memberId || lockRef.current) return
@@ -155,6 +177,11 @@ function HistoryCard({
     queryClient.setQueryData<BookmarkLookup | null>(queryKey, null)
     try {
       await deleteBookmarkContentApi(bookmarkId, accessToken)
+      trackArticleUnsave({
+        articleId: fields.id,
+        articleSlug: fields.slug,
+        saveLocation: 'my_reading',
+      })
       toast.success('已取消收藏')
       await queryClient.invalidateQueries({
         queryKey: useMemberBookmarksQuery.listQueryKey(memberId),
@@ -166,7 +193,7 @@ function HistoryCard({
       lockRef.current = false
       setPending(null)
     }
-  }, [accessToken, memberId, queryClient, queryKey])
+  }, [accessToken, fields.id, fields.slug, memberId, queryClient, queryKey])
 
   return (
     <article
@@ -176,6 +203,14 @@ function HistoryCard({
       <Link
         href={fields.href}
         className="group flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:gap-6"
+        onClick={() =>
+          trackMyReadingArticleClick({
+            section: 'history',
+            articleId: fields.id,
+            articleSlug: fields.slug,
+            position,
+          })
+        }
       >
         <div className="order-2 flex min-w-0 flex-1 flex-col gap-2 tablet:order-1">
           <div className="flex items-center justify-between gap-3 tablet:justify-start">
@@ -275,6 +310,10 @@ function MyReadingHistory() {
   const lastCountRef = useRef<number | null>(null)
   if (data) lastCountRef.current = data.browsingHistoriesCount
 
+  // Placeholder rows are still the previous page. Position follows those rows.
+  const displayedSkipRef = useRef(0)
+  if (!isPlaceholderData) displayedSkipRef.current = skip
+
   const showLoadError = isError && !data
   const historiesCount =
     data?.browsingHistoriesCount ??
@@ -353,10 +392,11 @@ function MyReadingHistory() {
           </div>
         ) : (
           <div className="flex flex-col gap-6 tablet:gap-8 desktop:gap-10">
-            {histories.map((item) => (
+            {histories.map((item, index) => (
               <HistoryCard
                 key={item.id}
                 item={item}
+                position={displayedSkipRef.current + index + 1}
                 memberId={member?.id}
                 accessToken={tokens?.accessToken}
                 disabled={isPlaceholderData}

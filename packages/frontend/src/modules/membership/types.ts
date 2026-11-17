@@ -6,6 +6,7 @@ import {
 } from '@/types/api'
 
 export type PostQuestionAnswers = {
+  id: string
   title: string
   slug: string
   href: string

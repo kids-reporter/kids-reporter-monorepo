@@ -20,6 +20,7 @@ import type {
   MemberBrowsingHistoriesResponse,
 } from '@/types/api'
 import { getFormattedDate } from '@/utils'
+import { trackMyReadingArticleClick } from '@/utils/gtm'
 
 import MembershipSideMenu from '../components/side-menu'
 import HotTopicsBanner from './hot-topics-banner'
@@ -38,6 +39,7 @@ type ReadingCardItem = BookmarkItem | HistoryItem
 function readingCardFields(item: ReadingCardItem) {
   if (item.type === 'post') {
     return {
+      id: item.post.id,
       href: `/article/${item.post.slug}`,
       slug: item.post.slug,
       image:
@@ -54,6 +56,7 @@ function readingCardFields(item: ReadingCardItem) {
   )
   const countLabel = `共 ${item.project.relatedPostsCount} 篇`
   return {
+    id: item.project.id,
     href: `/topic/${item.project.slug}`,
     slug: item.project.slug,
     image:
@@ -173,11 +176,13 @@ function HistoryCardSkeleton() {
 
 function SavedPreviewCard({
   item,
+  position,
   pending,
   disabled,
   onUnsave,
 }: {
   item: BookmarkItem
+  position: number
   pending: boolean
   disabled: boolean
   onUnsave: (item: BookmarkItem) => void
@@ -192,7 +197,18 @@ function SavedPreviewCard({
       )}
       aria-busy={pending}
     >
-      <Link href={fields.href} className="group block">
+      <Link
+        href={fields.href}
+        className="group block"
+        onClick={() =>
+          trackMyReadingArticleClick({
+            section: 'saved',
+            articleId: fields.id,
+            articleSlug: fields.slug,
+            position,
+          })
+        }
+      >
         <div className="aspect-[336/189] w-full overflow-hidden">
           <ImageWithFallback
             src={fields.image}
@@ -238,10 +254,27 @@ function SavedPreviewCard({
   )
 }
 
-function HistoryPreviewCard({ item }: { item: HistoryItem }) {
+function HistoryPreviewCard({
+  item,
+  position,
+}: {
+  item: HistoryItem
+  position: number
+}) {
   const fields = readingCardFields(item)
   return (
-    <Link href={fields.href} className="group flex items-start gap-3">
+    <Link
+      href={fields.href}
+      className="group flex items-start gap-3"
+      onClick={() =>
+        trackMyReadingArticleClick({
+          section: 'history',
+          articleId: fields.id,
+          articleSlug: fields.slug,
+          position,
+        })
+      }
+    >
       <div className="size-[84px] shrink-0 overflow-hidden rounded-xl tablet:size-[88px]">
         <ImageWithFallback
           src={fields.image}
@@ -303,13 +336,15 @@ function SavedPreview() {
       const accessToken = tokens?.accessToken
       const memberId = member?.id
       if (!accessToken || !memberId || pendingRef.current.has(item.id)) return
+      const fields = readingCardFields(item)
       pendingRef.current.add(item.id)
       setPendingIds(new Set(pendingRef.current))
       requestUnsaveBookmark({
         item: {
           id: item.id,
           type: item.type,
-          slug: readingCardFields(item).slug,
+          slug: fields.slug,
+          contentId: fields.id,
         },
         accessToken,
         memberId,
@@ -367,10 +402,11 @@ function SavedPreview() {
           </div>
         ) : (
           <div className="grid w-full grid-cols-1 gap-6 tablet:grid-cols-2 tablet:gap-8">
-            {bookmarks.map((item) => (
+            {bookmarks.map((item, index) => (
               <SavedPreviewCard
                 key={item.id}
                 item={item}
+                position={index + 1}
                 pending={pendingIds.has(item.id)}
                 disabled={isPlaceholderData}
                 onUnsave={unsave}
@@ -473,7 +509,9 @@ function HistoryPreview() {
   const showLoading = !canQuery || isLoading
   const histories = data?.browsingHistories ?? []
   const count = data?.browsingHistoriesCount ?? null
-  const columns = splitColumns(histories)
+  const columns = splitColumns(
+    histories.map((item, index) => ({ item, position: index + 1 }))
+  )
 
   return (
     <section className="flex w-full flex-col items-center">
@@ -517,11 +555,15 @@ function HistoryPreview() {
           <div className="flex w-full flex-col gap-6 tablet:flex-row tablet:gap-8">
             {columns.map((column, index) => (
               <div
-                key={column[0]?.id ?? index}
+                key={column[0]?.item.id ?? index}
                 className="flex min-w-0 flex-1 flex-col gap-6"
               >
-                {column.map((item) => (
-                  <HistoryPreviewCard key={item.id} item={item} />
+                {column.map(({ item, position }) => (
+                  <HistoryPreviewCard
+                    key={item.id}
+                    item={item}
+                    position={position}
+                  />
                 ))}
               </div>
             ))}

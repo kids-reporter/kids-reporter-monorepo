@@ -13,6 +13,7 @@ import { useHotTopics } from '@/api-utils/react-query/hooks/hot-topics'
 import { HotTopicsIcon } from '@/icons'
 import { getMemberDisplayName } from '@/modules/idea-hub/utils'
 import type { HotTopic } from '@/types/api'
+import { trackMyReadingArticleClick } from '@/utils/gtm'
 
 const AUTOPLAY_MS = 7000
 
@@ -48,13 +49,27 @@ function HotTopicsBannerSkeleton() {
   )
 }
 
-function HotTopicSlide({ topic }: { topic: HotTopic }) {
+function HotTopicSlide({
+  topic,
+  position,
+}: {
+  topic: HotTopic
+  position: number
+}) {
   const account = getMemberDisplayName(topic.member)
   const day = formatMonthDay(topic.answeredAt)
   return (
     <Link
       href={`/article/${topic.slug}`}
       className="flex h-full flex-col justify-center gap-2"
+      onClick={() =>
+        trackMyReadingArticleClick({
+          section: 'hot_topics',
+          articleId: topic.id,
+          articleSlug: topic.slug,
+          position,
+        })
+      }
     >
       <div className="flex min-w-0 items-center gap-1">
         <span className="flex shrink-0 items-center gap-1.5 text-yellow-600">
@@ -165,9 +180,9 @@ function HotTopicsCarousel({ topics }: { topics: HotTopic[] }) {
           syncInactiveSlides(swiper)
         }}
       >
-        {topics.map((topic) => (
+        {topics.map((topic, index) => (
           <SwiperSlide key={topic.slug} className="h-full">
-            <HotTopicSlide topic={topic} />
+            <HotTopicSlide topic={topic} position={index + 1} />
           </SwiperSlide>
         ))}
       </Swiper>

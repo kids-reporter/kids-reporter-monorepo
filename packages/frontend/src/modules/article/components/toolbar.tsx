@@ -367,9 +367,10 @@ function DesktopToolbar({
 type ToolbarProp = {
   topicURL?: string
   postSlug: string
+  postId: string
 }
 
-function Toolbar({ topicURL, postSlug }: ToolbarProp) {
+function Toolbar({ topicURL, postSlug, postId }: ToolbarProp) {
   const [isPostEssayQuestionsModalOpen, setIsPostEssayQuestionsModalOpen] =
     useState(false)
   const router = useRouter()
@@ -377,6 +378,8 @@ function Toolbar({ topicURL, postSlug }: ToolbarProp) {
   const isLogin = hydrated && !!member && !!tokens?.accessToken
   const { isBookmarked, isLoading, isPending, toggle } = useTogglePostBookmark({
     postSlug,
+    postId,
+    saveLocation: 'article_page',
     memberId: member?.id,
     accessToken: tokens?.accessToken,
     enabled: isLogin,

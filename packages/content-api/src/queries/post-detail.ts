@@ -16,9 +16,9 @@ import {
 } from '../utils/qna-utils.js'
 import {
   asOrderJson,
+  buildArticleListWhere,
   buildPostBySlugVisibilityWhere,
   buildProjectBySlugVisibilityWhere,
-  buildPublicPostWhere,
   buildResizedLarge,
   buildResizedMedium,
   buildResizedSmall,
@@ -108,8 +108,14 @@ const projectNestedPostSelect = {
   title: true,
   slug: true,
   ogDescription: true,
+  ogTitle: true,
+  externalUrl: true,
+  videoDuration: true,
   publishedDate: true,
   heroImage: {
+    select: { imageFile_id: true, imageFile_extension: true },
+  },
+  ogImage: {
     select: { imageFile_id: true, imageFile_extension: true },
   },
   subSubcategories: {
@@ -165,6 +171,12 @@ const mapRelatedPostOrdered = (p: RelatedPostRow) => {
     slug: p.slug,
     publishedDate: p.publishedDate ? p.publishedDate.toISOString() : undefined,
     ogDescription: p.ogDescription,
+    ogTitle: p.ogTitle,
+    externalUrl: p.externalUrl,
+    videoDuration: p.videoDuration,
+    ogImage: p.ogImage?.imageFile_id
+      ? { resized: { small: buildResizedSmall(p.ogImage) } }
+      : null,
     heroImage: p.heroImage
       ? {
           resized: {
@@ -211,6 +223,7 @@ export async function fetchPublishedProjectDetailBySlug(
   const project = await prisma.project.findFirst({
     where: { AND: [{ slug }, buildProjectBySlugVisibilityWhere()] },
     select: {
+      id: true,
       title: true,
       titlePosition: true,
       subtitle: true,
@@ -225,7 +238,7 @@ export async function fetchPublishedProjectDetailBySlug(
       },
       relatedPostsOrderJson: true,
       relatedPosts: {
-        where: buildPostBySlugVisibilityWhere(now),
+        where: buildArticleListWhere(now),
         orderBy: [{ publishedDate: 'desc' }],
         select: relatedPostCardSelect,
       },
@@ -237,6 +250,7 @@ export async function fetchPublishedProjectDetailBySlug(
     asOrderJson(project.relatedPostsOrderJson)
   ).map(mapRelatedPostOrdered)
   const result = {
+    id: String(project.id),
     title: project.title,
     titlePosition: project.titlePosition,
     subtitle: project.subtitle,
@@ -323,6 +337,7 @@ export async function fetchPostDetailBySlug(
   const post = await prisma.post.findFirst({
     where: { AND: [{ slug }, where] },
     select: {
+      id: true,
       opening: true,
       title: true,
       showBaodaozai: true,
@@ -355,7 +370,7 @@ export async function fetchPostDetailBySlug(
       tags: { select: { name: true, slug: true, id: true } },
       tagsOrderJson: true,
       relatedPosts: {
-        where: { AND: [buildPublicPostWhere(now), relatedPostsWhere] },
+        where: { AND: [buildArticleListWhere(now), relatedPostsWhere] },
         take: opts.take,
         orderBy: [{ publishedDate: 'desc' }],
         select: relatedPostCardSelect,
@@ -376,7 +391,7 @@ export async function fetchPostDetailBySlug(
           slug: true,
           relatedPostsOrderJson: true,
           relatedPosts: {
-            where: { AND: [buildPublicPostWhere(now), relatedPostsWhere] },
+            where: { AND: [buildArticleListWhere(now), relatedPostsWhere] },
             take: opts.take,
             orderBy: [{ publishedDate: 'desc' }],
             select: projectNestedPostSelect,
@@ -418,6 +433,7 @@ export async function fetchPostDetailBySlug(
   const hero = post.heroImage
   const brief = post.brief
   const result = {
+    id: String(post.id),
     opening: post.opening,
     title: post.title,
     showBaodaozai: post.showBaodaozai,
@@ -482,6 +498,12 @@ export async function fetchPostDetailBySlug(
           title: rp.title,
           slug: rp.slug,
           ogDescription: rp.ogDescription,
+          ogTitle: rp.ogTitle,
+          externalUrl: rp.externalUrl,
+          videoDuration: rp.videoDuration,
+          ogImage: rp.ogImage?.imageFile_id
+            ? { resized: { small: buildResizedSmall(rp.ogImage) } }
+            : null,
           publishedDate: rp.publishedDate
             ? rp.publishedDate.toISOString()
             : undefined,
@@ -617,7 +639,7 @@ export async function fetchPostsEssayAnswersWithLikes(
   now: Date
 ): Promise<V1PostsEssayAnswersWithLikesResponse> {
   const where: Prisma.PostWhereInput = {
-    AND: [buildPublicPostWhere(now), opts.where],
+    AND: [buildArticleListWhere(now), opts.where],
   }
   const posts = await prisma.post.findMany({
     where,

@@ -4,6 +4,7 @@ import { getCategoryPosts } from '@/api/category'
 import {
   getPostEssayQuestionsByPostSlug,
   getPostsEssayAnswersWithLikes,
+  getVideoPosts,
 } from '@/api/post'
 import { PostWithTwoTopLikesAnswersPerQuestion } from '@/modules/idea-hub/types'
 import type {
@@ -106,6 +107,29 @@ export function useCategoryPostsQuery({
     queryFn: () => getCategoryPosts({ slug, take, skip }),
   })
 }
+
+const VIDEO_POSTS_QUERY_KEY = 'video-posts'
+
+export function useVideoPostsQuery({
+  take,
+  skip,
+}: {
+  take: number
+  skip: number
+}) {
+  return useQuery({
+    queryKey: useVideoPostsQuery.getQueryKey({ take, skip }),
+    queryFn: () => getVideoPosts({ take, skip }),
+  })
+}
+
+useVideoPostsQuery.getQueryKey = ({
+  take,
+  skip,
+}: {
+  take: number
+  skip: number
+}) => [VIDEO_POSTS_QUERY_KEY, take, skip]
 
 useCategoryPostsQuery.getQueryKey = ({
   slug,

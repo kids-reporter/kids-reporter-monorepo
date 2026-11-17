@@ -4,6 +4,7 @@ import {
   V1PostMetaBodySchema,
   V1PostsEssayAnswersWithLikesResponseSchema,
   V1PostsResponseSchema,
+  V1VideoPostsResponseSchema,
 } from '@kids-reporter/api-types'
 
 import type {
@@ -15,11 +16,14 @@ import type {
   V1PostMetaBySlugRequest,
   V1PostsEssayAnswersWithLikesQuery,
 } from '@/types/api'
+import type { TraceHeaders } from '@/types/trace-headers'
 import {
   ContentApiRequestError,
   contentApiResponseParseError,
   sendContentApiRequest,
 } from '@/utils/send-content-api'
+
+import { normalizePostCardsForGql } from './normalize-post-for-gql'
 
 async function fetchPostsV1({
   take,
@@ -49,6 +53,38 @@ async function fetchPostsV1({
     )
   }
   return parsed.data.posts
+}
+
+export async function getVideoPostsContentApi({
+  take,
+  skip,
+  traceHeaders,
+}: {
+  take?: number
+  skip?: number
+  traceHeaders?: TraceHeaders
+}) {
+  const response = await sendContentApiRequest({
+    path: '/v1/posts/videos',
+    method: 'GET',
+    query: {
+      take,
+      skip,
+      orderBy: 'publishedDate:desc',
+    },
+    traceHeaders,
+  })
+  const parsed = V1VideoPostsResponseSchema.safeParse(response)
+  if (!parsed.success) {
+    throw contentApiResponseParseError(
+      'content-api response schema mismatch for /v1/posts/videos',
+      parsed.error
+    )
+  }
+  return {
+    posts: normalizePostCardsForGql(parsed.data.posts),
+    total: parsed.data.total,
+  }
 }
 
 export async function getLatestPostsContentApi({

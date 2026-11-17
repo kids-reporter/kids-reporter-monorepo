@@ -16,6 +16,7 @@ type PostQuestionAnswersListProps = {
   isLoading: boolean
   onBackToFirstPage: (slug: string) => void
   openedAccordionItemValue: string | undefined
+  positionOffset?: number
 }
 
 function PostQuestionAnswersList({
@@ -23,6 +24,7 @@ function PostQuestionAnswersList({
   isLoading,
   onBackToFirstPage,
   openedAccordionItemValue,
+  positionOffset = 0,
 }: PostQuestionAnswersListProps) {
   if (isLoading) {
     return (
@@ -52,7 +54,7 @@ function PostQuestionAnswersList({
         openedAccordionItemValue ? [openedAccordionItemValue] : undefined
       }
     >
-      {postQuestionAnswers.map((group) => {
+      {postQuestionAnswers.map((group, index) => {
         return (
           <AccordionItem
             key={group.slug}
@@ -89,7 +91,9 @@ function PostQuestionAnswersList({
               <QuestionAnswersListContent
                 href={group.href}
                 answers={group.answers}
+                articleId={group.id}
                 postSlug={group.slug}
+                position={positionOffset + index + 1}
                 onBackToFirstPage={onBackToFirstPage}
               />
             </AccordionContent>

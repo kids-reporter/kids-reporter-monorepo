@@ -2,6 +2,7 @@ import Link from 'next/link'
 
 import Divider from '@/components/divider'
 import { ArticleShortcutIcon, GroupIcon, LightbulbIcon } from '@/icons'
+import { trackMyReadingArticleClick } from '@/utils/gtm'
 
 import { PostQuestionAnswers } from '../../types'
 import ChoiceAnswerItem from './choice-answer-item'
@@ -10,14 +11,18 @@ import EssayAnswerItem from './essay-answer-item'
 type QuestionAnswersListContentProps = {
   answers: PostQuestionAnswers[number]['answers']
   href: string
+  articleId: string
   postSlug: string
+  position: number
   onBackToFirstPage: (slug: string) => void
 }
 
 function QuestionAnswersListContent({
   href,
   answers,
+  articleId,
   postSlug,
+  position,
   onBackToFirstPage,
 }: QuestionAnswersListContentProps) {
   if (answers.length === 0) {
@@ -65,6 +70,14 @@ function QuestionAnswersListContent({
         <Link
           href={href}
           className="flex items-center gap-1 text-neutral-900 transition-colors duration-200 hover:bg-neutral-white/50 hover:text-red-400 active:text-red-500"
+          onClick={() =>
+            trackMyReadingArticleClick({
+              section: 'answers',
+              articleId,
+              articleSlug: postSlug,
+              position,
+            })
+          }
         >
           <ArticleShortcutIcon />
           <span>閱讀完整文章</span>

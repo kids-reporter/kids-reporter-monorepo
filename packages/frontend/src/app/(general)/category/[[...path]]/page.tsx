@@ -9,8 +9,10 @@ import {
   getCategoryPosts,
   getCategorySubcategoriesAndThemeColor,
 } from '@/api/category'
+import { getVideoPosts } from '@/api/post'
 import { getSubSubcategoryPosts } from '@/api/sub-subcategory'
 import { getSubcategoryPosts } from '@/api/subcategory'
+import { PostSummary } from '@/components/types'
 import {
   CATEGORY_DISPLAY_NAME_FALLBACK,
   ERROR_PAGE,
@@ -28,8 +30,10 @@ import { DeepPartial } from '@/types/utils'
 import { getPostSummaries } from '@/utils'
 import { resolveCallBaodaozaiIntro } from '@/utils/call-baodaozai-intro'
 import {
+  isStorytellingVideoSubcategory,
   mapCategorySlugToIntroPageType,
   parseCategoryInfoFromPath,
+  STORYTELLING_VIDEO_PATH,
 } from '@/utils/category'
 import { getServerTraceHeaders } from '@/utils/trace-context'
 
@@ -209,60 +213,82 @@ export default async function Category(props: {
   const navigationItems = [
     { name: '所有文章', path: `/category/${category}` },
     ...subcategories,
+    ...(category === 'storytelling'
+      ? [{ name: '影片', path: STORYTELLING_VIDEO_PATH }]
+      : []),
   ].map((item) => ({
     name: item.name,
     path: item.path,
     active: item.path === activeCategoryPath,
   }))
 
-  // Fetch related posts of subSubcategory/subcategory/category
-  const postsRes = await getPosts(
-    {
-      category,
-      subcategory,
-      subSubcategory,
-      currentPage,
-    },
-    traceHeaders
-  )
+  const isVideoSubcategory = isStorytellingVideoSubcategory({
+    category,
+    subcategory,
+    subSubcategory,
+  })
 
-  if (!postsRes) {
-    emitStructured({
-      severity: 'WARNING',
-      message: `Category posts not found. URL path is: /${path?.join('/') ?? ''}`,
-    })
-    notFound()
-  }
+  let posts: PostSummary[]
+  let postsCount: number
 
-  if ('subcategory' in postsRes && postsRes.subcategory) {
-    const subcategoryCandidate = postsRes.subcategory.slug
-    const categoryCandidate = postsRes.subcategory.category.slug
-    if (
-      subcategory !== subcategoryCandidate ||
-      category !== categoryCandidate
-    ) {
+  if (isVideoSubcategory) {
+    const videoRes = await getVideoPosts(
+      {
+        take: POST_PER_PAGE,
+        skip: (currentPage - 1) * POST_PER_PAGE,
+      },
+      traceHeaders
+    )
+    posts = getPostSummaries(videoRes.posts)
+    postsCount = videoRes.total
+  } else {
+    // Fetch related posts of subSubcategory/subcategory/category
+    const postsRes = await getPosts(
+      {
+        category,
+        subcategory,
+        subSubcategory,
+        currentPage,
+      },
+      traceHeaders
+    )
+
+    if (!postsRes) {
       emitStructured({
         severity: 'WARNING',
-        message: `Parent category mismatch! subcategory=${subcategoryCandidate}, category=${categoryCandidate}`,
+        message: `Category posts not found. URL path is: /${path?.join('/') ?? ''}`,
       })
-      redirect(ERROR_PAGE)
+      notFound()
     }
-  } else if ('category' in postsRes && postsRes.category && subcategory) {
-    const categoryCandidate = postsRes.category.slug
-    if (category !== categoryCandidate) {
-      emitStructured({
-        severity: 'WARNING',
-        message: `Parent category mismatch! category=${categoryCandidate}`,
-      })
-      redirect(ERROR_PAGE)
+
+    if ('subcategory' in postsRes && postsRes.subcategory) {
+      const subcategoryCandidate = postsRes.subcategory.slug
+      const categoryCandidate = postsRes.subcategory.category.slug
+      if (
+        subcategory !== subcategoryCandidate ||
+        category !== categoryCandidate
+      ) {
+        emitStructured({
+          severity: 'WARNING',
+          message: `Parent category mismatch! subcategory=${subcategoryCandidate}, category=${categoryCandidate}`,
+        })
+        redirect(ERROR_PAGE)
+      }
+    } else if ('category' in postsRes && postsRes.category && subcategory) {
+      const categoryCandidate = postsRes.category.slug
+      if (category !== categoryCandidate) {
+        emitStructured({
+          severity: 'WARNING',
+          message: `Parent category mismatch! category=${categoryCandidate}`,
+        })
+        redirect(ERROR_PAGE)
+      }
     }
+
+    const relatedPostsRaw = postsRes.relatedPosts ?? []
+    posts = getPostSummaries(relatedPostsRaw.filter(isPost))
+    postsCount = postsRes.relatedPostsCount ?? 0
   }
-
-  const relatedPostsRaw = postsRes.relatedPosts ?? []
-  const relatedPosts = relatedPostsRaw.filter(isPost)
-
-  const posts = getPostSummaries(relatedPosts)
-  const postsCount = postsRes.relatedPostsCount ?? 0
 
   const totalPages = Math.ceil(postsCount / POST_PER_PAGE)
   if (totalPages > 0 && currentPage > totalPages) {

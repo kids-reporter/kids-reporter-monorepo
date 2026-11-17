@@ -88,6 +88,7 @@ function MyReadingResponse() {
           postQuestionAnswers={currentPostQuestionAnswers}
           isLoading={isGetMemberPostsWithAnswersLoading}
           key={currentPage}
+          positionOffset={(currentPage - 1) * DEFAULT_PAGE_ITEM_COUNT}
           onBackToFirstPage={handleBackToFirstPage}
           openedAccordionItemValue={openedAccordionItemValue}
         />

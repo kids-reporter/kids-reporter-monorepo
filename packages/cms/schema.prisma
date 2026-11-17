@@ -53,6 +53,8 @@ model Post {
   relatedPosts                               Post[]               @relation("Post_relatedPosts")
   relatedPostsOrderJson                      Json?                @default("[]")
   TWReporterRelatedPostsJSON                 Json?                @default("[]")
+  externalUrl                                String               @default("")
+  videoDuration                              String               @default("")
   ogTitle                                    String               @default("")
   ogDescription                              String               @default("")
   ogImage                                    Photo?               @relation("Post_ogImage", fields: [ogImageId], references: [id])

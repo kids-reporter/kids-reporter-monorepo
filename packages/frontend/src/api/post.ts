@@ -5,6 +5,7 @@ import {
   getPostMetaContentApi,
   getPostsEssayAnswersWithLikesContentApi,
   getPostsPagedContentApi,
+  getVideoPostsContentApi,
 } from '@/api/content-api/post'
 import type {
   PostContent,
@@ -17,6 +18,18 @@ import type {
   V1PostsEssayAnswersWithLikesQuery,
   V1PostsQuery,
 } from '@/types/api'
+import type { TraceHeaders } from '@/types/trace-headers'
+
+export const getVideoPosts = async (
+  variables: { take?: number | null; skip?: number | null },
+  traceHeaders?: TraceHeaders
+) => {
+  return getVideoPostsContentApi({
+    take: variables.take ?? undefined,
+    skip: variables.skip ?? undefined,
+    traceHeaders,
+  })
+}
 
 export const getLatestPosts = async (
   variables: { take?: number | null },

@@ -5,6 +5,7 @@ import { deleteBookmarkContentApi } from '@/api/content-api/bookmarks'
 import { useMemberBookmarksQuery } from '@/api-utils/react-query/hooks/bookmark'
 import { bookmarkQueryKey } from '@/api-utils/react-query/hooks/bookmark-cache'
 import type { MemberBookmarksResponse } from '@/types/api'
+import { trackArticleUnsave } from '@/utils/gtm'
 
 const unsaveToastOptions = {
   className: 'shadow-custom! gap-5!',
@@ -34,7 +35,12 @@ export function requestUnsaveBookmark({
   listQueryKey,
   onFinished,
 }: {
-  item: { id: string; type: 'post' | 'project'; slug: string }
+  item: {
+    id: string
+    type: 'post' | 'project'
+    slug: string
+    contentId: string
+  }
   accessToken: string
   memberId: string
   queryClient: QueryClient
@@ -49,6 +55,11 @@ export function requestUnsaveBookmark({
     void (async () => {
       try {
         await deleteBookmarkContentApi(item.id, accessToken)
+        trackArticleUnsave({
+          articleId: item.contentId,
+          articleSlug: item.slug,
+          saveLocation: 'my_reading',
+        })
         queryClient.setQueryData(
           bookmarkQueryKey(memberId, item.type, item.slug),
           null
