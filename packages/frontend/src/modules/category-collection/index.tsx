@@ -1,5 +1,7 @@
 'use client'
 
+import type { ReactNode } from 'react'
+
 import AllSiteBaodaozaiEventTrigger from '@/components/all-site-baodaozai-event-trigger'
 import CategoryPillNav from '@/components/category-pill-nav'
 import CommonCollection from '@/components/common-collection'
@@ -28,6 +30,7 @@ type CategoryCollectionModuleProps = {
   >
   showIntro: boolean
   posts: PostSummary[]
+  emptyState?: ReactNode
   navigationItems: CategoryCollectionNavItem[]
   totalPages: number
   currentPage: number
@@ -40,6 +43,7 @@ function CategoryCollectionModule({
   intro,
   showIntro,
   posts,
+  emptyState,
   navigationItems,
   totalPages,
   currentPage,
@@ -83,6 +87,7 @@ function CategoryCollectionModule({
         currentPage={currentPage}
         routingPrefix={routingPrefix}
         posts={posts}
+        emptyState={emptyState}
         subcategoryNav={
           showSubcategoryNav ? (
             <CategoryPillNav items={navigationItems} />

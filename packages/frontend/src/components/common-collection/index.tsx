@@ -25,6 +25,7 @@ type CommonCollectionProps = {
   hero: CommonCollectionHero
   posts: PostSummary[]
   subcategoryNav?: ReactNode
+  emptyState?: ReactNode
 } & (
   | {
       morePostsMode: 'pagination'
@@ -68,7 +69,7 @@ function CommonCollectionHeroShell({
 }
 
 function CommonCollection(props: CommonCollectionProps) {
-  const { hero, morePostsMode, posts, subcategoryNav } = props
+  const { hero, morePostsMode, posts, subcategoryNav, emptyState } = props
   return (
     <div className="w-screen bg-neutral-100 pb-14 tablet:pb-16 desktop:pb-24 hd:pb-30">
       <div className="mx-auto flex w-full flex-col items-center justify-center px-6 tablet:px-8 desktop:max-w-300 desktop:px-12 hd:px-0">
@@ -109,15 +110,19 @@ function CommonCollection(props: CommonCollectionProps) {
           </div>
         )}
 
-        <div className="grid w-full grid-cols-1 gap-y-6 tablet:grid-cols-2 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-3 desktop:gap-x-8 desktop:gap-y-10 hd:gap-y-14 hd:px-14">
-          {posts.map((post) =>
-            post.externalUrl ? (
-              <VideoPostCard key={post.url} post={post} />
-            ) : (
-              <CommonCollectionPostCard key={post.url} post={post} />
-            )
-          )}
-        </div>
+        {posts.length === 0 && emptyState != null ? (
+          emptyState
+        ) : (
+          <div className="grid w-full grid-cols-1 gap-y-6 tablet:grid-cols-2 tablet:gap-x-6 tablet:gap-y-8 desktop:grid-cols-3 desktop:gap-x-8 desktop:gap-y-10 hd:gap-y-14 hd:px-14">
+            {posts.map((post) =>
+              post.externalUrl ? (
+                <VideoPostCard key={post.url} post={post} />
+              ) : (
+                <CommonCollectionPostCard key={post.url} post={post} />
+              )
+            )}
+          </div>
+        )}
 
         {morePostsMode === 'pagination' && props.totalPages > 0 && (
           <Pagination
