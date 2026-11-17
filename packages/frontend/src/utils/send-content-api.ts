@@ -237,7 +237,12 @@ export async function sendContentApiRequest<TData = unknown>({
           'content-api retry deadline exceeded'
         )
       }
-      config.timeout = Math.min(envVars.requestTimeoutMs, remaining)
+      // Axios treats 0 as no timeout. Keep that for the configured per-attempt
+      // limit, but still stop a server GET at the deadline.
+      config.timeout =
+        envVars.requestTimeoutMs > 0
+          ? Math.min(envVars.requestTimeoutMs, remaining)
+          : remaining
     }
 
     try {

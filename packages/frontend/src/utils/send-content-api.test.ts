@@ -1,6 +1,8 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import envVars from '@/environment-variables'
+
 import {
   ContentApiRequestError,
   sendContentApiRequest,
@@ -43,6 +45,7 @@ function httpError(status?: number): AxiosError {
 describe('sendContentApiRequest server GET retries', () => {
   beforeEach(() => {
     vi.restoreAllMocks()
+    envVars.requestTimeoutMs = 10_000
     vi.spyOn(Math, 'random').mockReturnValue(0)
     vi.spyOn(axios, 'request')
     vi.unstubAllGlobals()
@@ -104,6 +107,22 @@ describe('sendContentApiRequest server GET retries', () => {
       sendContentApiRequest({ path: '/v1/posts' })
     ).rejects.toBeInstanceOf(ContentApiRequestError)
     expect(axios.request).toHaveBeenCalledTimes(1)
+  })
+
+  it('caps a zero request timeout at the server GET deadline', async () => {
+    envVars.requestTimeoutMs = 0
+    let now = 1_000_000
+    vi.spyOn(Date, 'now').mockImplementation(() => now)
+    vi.mocked(axios.request).mockImplementation(async () => {
+      now += 20_000
+      throw httpError()
+    })
+
+    await expect(
+      sendContentApiRequest({ path: '/v1/posts' })
+    ).rejects.toBeInstanceOf(ContentApiRequestError)
+    expect(axios.request).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(axios.request).mock.calls[0]?.[0]?.timeout).toBe(20_000)
   })
 
   it('does not start another attempt after a hung timeout uses the deadline', async () => {
