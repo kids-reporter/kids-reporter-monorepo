@@ -7,7 +7,7 @@
     "dev": "next dev --port ${PORT:-3000}",
     "build": "next build",
     "build:cloudbuild": "next build",
-    "start": "next start",
+    "start": "NEXT_MANUAL_SIG_HANDLE=true NODE_OPTIONS='--require ./graceful-shutdown.cjs' next start",
     "analyze": "ANALYZE=true yarn build",
     "lint:check": "eslint src --ext .ts,.tsx,.js,.jsx",
     "type-check": "tsc --noEmit",
