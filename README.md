@@ -34,7 +34,7 @@ We need `husky` and `lint-staged` installed first.
 
 - This repo uses Yarn v4 with node_modules (`.yarnrc.yml` sets `nodeLinker: node-modules`).
 - Yarn is pinned via `packageManager` in `package.json` and resolved by Corepack.
-- Subpackage Docker builds copy `.yarnrc.yml` and enable Corepack in the image.
+- Service images (frontend, cms, content-api, image-resizer, image-resizer-all) build from the repo root and compile workspace packages in the image.
 
 ### 如何在 workspaces 中新增 subpkg？
 

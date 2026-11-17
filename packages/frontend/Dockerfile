@@ -1,37 +1,36 @@
+# syntax=docker/dockerfile:1
+
 ARG NODE_VERSION=22.23.4
 
 FROM node:${NODE_VERSION} AS build
 
 ARG DEPLOYMENT_ID
 
+WORKDIR /repo
+
 RUN corepack enable
 
-WORKDIR /build
+COPY . .
 
-COPY package.json yarn.lock .yarnrc.yml Makefile /build/
+RUN HUSKY=0 YARN_ENABLE_IMMUTABLE_INSTALLS=true yarn install --mode=skip-build
 
-RUN SKIP_BUILD_DEPS=true yarn install --mode=skip-build
-
-RUN cp /build/yarn.lock /tmp/yarn.lock.bak
-COPY . /build/
-RUN mv /tmp/yarn.lock.bak /build/yarn.lock
-
-RUN DEPLOYMENT_ID=${DEPLOYMENT_ID} yarn build:cloudbuild
+RUN yarn workspace @kids-reporter/logger build \
+  && yarn workspace @kids-reporter/api-types build \
+  && yarn workspace @kids-reporter/routing-ui build \
+  && yarn workspace @kids-reporter/draft-renderer build \
+  && DEPLOYMENT_ID=${DEPLOYMENT_ID} yarn workspace @kids-reporter/frontend build
 
 FROM node:${NODE_VERSION}
-
-RUN corepack enable
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_MANUAL_SIG_HANDLE=true
 
-COPY --from=build /build/public ./public
+COPY --from=build /repo/packages/frontend/.next/standalone ./
+COPY --from=build /repo/packages/frontend/.next/static ./packages/frontend/.next/static
+COPY --from=build /repo/packages/frontend/public ./packages/frontend/public
 
-COPY --from=build /build/.next/standalone ./
-COPY --from=build /build/.next/static ./.next/static
+COPY --from=build /repo/packages/frontend/graceful-shutdown.cjs ./graceful-shutdown.cjs
 
-COPY graceful-shutdown.cjs ./graceful-shutdown.cjs
-
-CMD ["node", "--require", "./graceful-shutdown.cjs", "server.js"]
+CMD ["node", "--require", "./graceful-shutdown.cjs", "packages/frontend/server.js"]

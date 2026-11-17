@@ -2,7 +2,8 @@
   "type": "module",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/image-resizer/all"
   ],
   "scripts": {
     "prepare": "husky",

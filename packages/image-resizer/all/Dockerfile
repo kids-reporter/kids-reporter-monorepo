@@ -1,18 +1,20 @@
+# syntax=docker/dockerfile:1
+
 FROM node:22.23.4-alpine
 
-RUN corepack enable
+RUN corepack enable && corepack prepare yarn@4.9.4 --activate
 
-# Set the working directory in the container to /app
 WORKDIR /app
 
-# Copy package.json and .yarnrc.yml to the working directory
-COPY package*.json .yarnrc.yml ./
+COPY package.json yarn.lock .yarnrc.yml ./
+COPY --parents ./packages/*/package.json ./
+COPY packages/image-resizer/all/package.json packages/image-resizer/all/package.json
 
-# Install the application dependencies
-RUN yarn install --immutable
+RUN YARN_ENABLE_IMMUTABLE_INSTALLS=true \
+  yarn workspaces focus image-resizer-all
 
-# Copy the rest of the application code to the working directory
-COPY . .
+COPY packages/image-resizer/all packages/image-resizer/all
 
-# Define the command to run the application
-CMD [ "yarn", "start" ]
+WORKDIR /app/packages/image-resizer/all
+
+CMD ["yarn", "start"]
