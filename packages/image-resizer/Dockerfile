@@ -7,7 +7,7 @@ RUN corepack enable && corepack prepare yarn@4.9.4 --activate
 WORKDIR /app
 
 COPY package.json yarn.lock .yarnrc.yml ./
-COPY --parents ./packages/*/package.json ./
+COPY packages/image-resizer/package.json packages/image-resizer/package.json
 
 RUN YARN_ENABLE_IMMUTABLE_INSTALLS=true \
   yarn workspaces focus @kids-reporter/image-resizer
