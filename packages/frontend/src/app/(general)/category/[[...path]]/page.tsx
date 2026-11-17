@@ -316,6 +316,13 @@ export default async function Category(props: {
       intro={intro}
       showIntro={Boolean(pageEnum) && currentPage === 1}
       posts={posts}
+      emptyState={
+        isVideoSubcategory && posts.length === 0 ? (
+          <p className="flex min-h-50 w-full items-center justify-center text-center prose-p1 text-neutral-600">
+            目前還沒有影片，先去看看其他分類吧！
+          </p>
+        ) : undefined
+      }
       navigationItems={navigationItems}
       totalPages={totalPages}
       currentPage={currentPage}
