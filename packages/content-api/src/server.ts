@@ -4,6 +4,7 @@ import http from 'http'
 
 import { createApp } from './app.js'
 import envVar from './environment-variables.js'
+import { shutdownHttpServer } from './shutdown.js'
 
 const parsePort = (raw: string | undefined): number => {
   const n = Number(raw)
@@ -11,7 +12,6 @@ const parsePort = (raw: string | undefined): number => {
 }
 
 const port = parsePort(process.env.PORT)
-const SHUTDOWN_TIMEOUT_MS = 30_000
 
 async function start() {
   let server: http.Server | undefined
@@ -61,40 +61,10 @@ async function start() {
   const shutdown = (signal: string) => () => {
     if (shuttingDown || !server) return
     shuttingDown = true
-
-    const forceExitTimer = setTimeout(() => {
-      emitStructured({
-        severity: 'ALERT',
-        message: `Forced shutdown after ${SHUTDOWN_TIMEOUT_MS}ms (${signal})`,
-      })
-      process.exit(1)
-    }, SHUTDOWN_TIMEOUT_MS)
-    forceExitTimer.unref()
-
-    server.close(() => {
-      clearTimeout(forceExitTimer)
-      prisma
-        .$disconnect()
-        .catch((disconnectErr) => {
-          emitStructured({
-            severity: 'ERROR',
-            message:
-              disconnectErr instanceof Error
-                ? disconnectErr.message
-                : String(disconnectErr),
-            error:
-              disconnectErr instanceof Error
-                ? disconnectErr.stack
-                : String(disconnectErr),
-          })
-        })
-        .finally(() => {
-          emitStructured({
-            severity: 'INFO',
-            message: `HTTP server closed (${signal})`,
-          })
-          process.exit(0)
-        })
+    shutdownHttpServer({
+      server,
+      signal,
+      disconnect: () => prisma.$disconnect(),
     })
   }
 

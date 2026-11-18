@@ -15,6 +15,7 @@ import { createPreviewMiniApp } from './express-mini-apps/preview/app'
 import { twoFactorAuth } from './express-mini-apps/two-factor-auth'
 import { extendGraphqlSchema } from './graphql/extend-schema'
 import { listDefinition as lists } from './lists/index'
+import { shutdownHttpServer } from './shutdown'
 import type { Session } from './types/index'
 
 const sessionDataQuery = 'id name role email twoFactorAuth'
@@ -131,6 +132,21 @@ const authConfig = withAuth(
       playground: true,
     },
     server: {
+      extendHttpServer: (httpServer, context) => {
+        let shuttingDown = false
+        const shutdown = (signal: string) => () => {
+          if (shuttingDown) return
+          shuttingDown = true
+          shutdownHttpServer({
+            server: httpServer,
+            signal,
+            disconnect: () => context.prisma.$disconnect(),
+          })
+        }
+
+        process.on('SIGTERM', shutdown('SIGTERM'))
+        process.on('SIGINT', shutdown('SIGINT'))
+      },
       extendExpressApp: (app, commonContext) => {
         app.use((req, res, next) => {
           res.locals.traceLogFields = getTraceLogFields(req.headers)
