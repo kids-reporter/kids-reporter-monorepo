@@ -4186,6 +4186,7 @@ __metadata:
     react-dom: "npm:18.3.1"
     sanitize-html: "npm:^2.17.0"
     typescript: "npm:^5.9.2"
+    vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
 
@@ -4390,6 +4391,7 @@ __metadata:
     tailwindcss: "npm:^4.1.14"
     tw-animate-css: "npm:^1.4.0"
     typescript: "npm:5.9.2"
+    vitest: "npm:^3.2.4"
     zod: "npm:^4.1.12"
     zustand: "npm:^4.5.5"
   languageName: unknown

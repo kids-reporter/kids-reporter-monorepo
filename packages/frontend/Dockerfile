@@ -25,10 +25,13 @@ RUN corepack enable
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NEXT_MANUAL_SIG_HANDLE=true
 
 COPY --from=build /build/public ./public
 
 COPY --from=build /build/.next/standalone ./
 COPY --from=build /build/.next/static ./.next/static
 
-CMD ["node", "server.js"]
+COPY graceful-shutdown.cjs ./graceful-shutdown.cjs
+
+CMD ["node", "--require", "./graceful-shutdown.cjs", "server.js"]
