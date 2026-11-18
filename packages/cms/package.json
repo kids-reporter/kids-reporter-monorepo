@@ -10,6 +10,7 @@
     "db-migrate": "keystone prisma migrate deploy",
     "build": "keystone build",
     "lint:check": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "test": "vitest run",
     "postinstall": "make postinstall",
     "type-check": "tsc --noEmit"
   },
@@ -48,6 +49,7 @@
     "@types/sanitize-html": "^2.16.0",
     "dotenv-cli": "^10.0.0",
     "patch-package": "^8.0.1",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }
