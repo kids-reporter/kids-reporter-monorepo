@@ -7,7 +7,6 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "update": "yarn changeset && yarn changeset version",
     "dev:cms": "cd packages/cms && dotenv -e .env.local -- yarn dev",
     "dev:frontend": "cd packages/frontend && PORT=3001 yarn dev",
     "dev:content-api": "cd packages/content-api && dotenv -e .env.local -- yarn dev",
@@ -20,7 +19,6 @@
     "check:all": "yarn lint:check && yarn type-check"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
     "@eslint/eslintrc": "^3.3.1",
     "@types/babel__core": "^7.20.5",
     "@types/draft-js": "^0.11.10",

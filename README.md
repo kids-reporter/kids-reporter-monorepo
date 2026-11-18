@@ -62,18 +62,6 @@ We need `husky` and `lint-staged` installed first.
 
 如此一來，就可以在 local 端一次開發多個 subpkgs。
 
-### 如何update subpkg version
-
-使用@changeset/cli來update版號, ex:
-
-```
-yarn update
-
-or
-
-yarn changeset && yarn changeset version
-```
-
 ### Troubleshootings
 
 #### Q1: 我在 root 資料夾底下跑 `yarn install` 時，在 `yarn postinstall` 階段發生錯誤。
