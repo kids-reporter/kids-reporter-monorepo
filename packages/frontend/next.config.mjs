@@ -1,9 +1,18 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const repoRoot = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../..'
+)
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   basePath:
     process.env.NEXT_PUBLIC_IS_PREVIEW_MODE === 'true' ? '/preview-server' : '',
   deploymentId: process.env.DEPLOYMENT_ID || undefined,
   output: 'standalone',
+  outputFileTracingRoot: repoRoot,
   compiler: {
     styledComponents: true,
   },

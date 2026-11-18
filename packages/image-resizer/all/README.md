@@ -12,8 +12,10 @@ node index.js
 
 Build image
 
+From the repo root:
+
 ```bash
-docker build --platform linux/amd64 --no-cache --tag gcr.io/kids-reporter/image-resizer-all:v1.0 .
+docker build -f packages/image-resizer/all/Dockerfile --platform linux/amd64 --tag gcr.io/kids-reporter/image-resizer-all:v1.0 .
 ```
 
 Push image

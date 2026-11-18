@@ -4,20 +4,21 @@ help:
 	@echo "$(P) make build-deps - build core, draft-editor and draft-renderer"
 	@echo "$(p) make postinstall - run after dependencies installation"
 
+apply-patches:
+	@if [ "$(SKIP_PATCH_PACKAGE)" = "true" ]; then \
+		echo "Patch package skipped."; \
+	elif [ -d node_modules/@keystone-6/auth ]; then \
+		echo "$(P) patch package"; \
+		yarn exec patch-package --error-on-fail; \
+	else \
+		echo "$(P) patch package"; \
+		cd ../.. && ./node_modules/.bin/patch-package --patch-dir packages/cms/patches --error-on-fail; \
+	fi
+
 postinstall: build-deps
-	@if [ "$(SKIP_PATCH_PACKAGE)" = "true" ]; then \
-		echo "Patch package skipped."; \
-	else \
-		echo "$(P) patch package"; \
-		yarn patch-package; \
-	fi
+	@$(MAKE) apply-patches
 	@yarn keystone build --no-ui;
-	@if [ "$(SKIP_PATCH_PACKAGE)" = "true" ]; then \
-		echo "Patch package skipped."; \
-	else \
-		echo "$(P) patch package"; \
-		yarn patch-package; \
-	fi
+	@$(MAKE) apply-patches
 
 build-deps:
 	@if [ "$(SKIP_BUILD_DEPS)" = "true" ]; then \
@@ -29,4 +30,4 @@ build-deps:
 		cd ../draft-renderer; make build; \
 	fi
 
-.PHONY: build-deps
+.PHONY: build-deps apply-patches

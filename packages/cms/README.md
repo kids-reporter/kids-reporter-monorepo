@@ -19,8 +19,9 @@ cloud runs:
 - [staging-cms](https://console.cloud.google.com/run/detail/asia-east1/staging-cms?project=kids-reporter)
 - [prod-cms](https://console.cloud.google.com/run/detail/asia-east1/prod-cms?project=kids-reporter)
 
-Cloud Build 部署完整的 CMS 與 Admin UI。CMS 的 `/app/public` 由 Cloud Run
-直接掛載 Cloud Storage volume，container 不再自行啟動 gcsfuse。
+Cloud Build 部署完整的 CMS 與 Admin UI。CMS 的 `/app/packages/cms/public/files`
+與 `/app/packages/cms/public/images` 由 Cloud Run 直接掛載 Cloud Storage volume，
+container 不再自行啟動 gcsfuse。
 
 ## Environment Variables
 
