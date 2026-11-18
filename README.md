@@ -34,7 +34,7 @@ We need `husky` and `lint-staged` installed first.
 
 - This repo uses Yarn v4 with node_modules (`.yarnrc.yml` sets `nodeLinker: node-modules`).
 - Yarn is pinned via `packageManager` in `package.json` and resolved by Corepack.
-- Subpackage Docker builds copy `.yarnrc.yml` and enable Corepack in the image.
+- Service images (frontend, cms, content-api, image-resizer, image-resizer-all) build from the repo root and compile workspace packages in the image.
 
 ### 如何在 workspaces 中新增 subpkg？
 
@@ -61,18 +61,6 @@ We need `husky` and `lint-staged` installed first.
 當 `packages/core/package.json` 的 `name` 和 `version` 與 `packages/cms/package.json` 的 `dependencies`.`@kids-reporter/cms-core` 一樣時，yarn install 並不會額外從 npm registry 下載 `@kids-reporter/cms-core` pkg，反倒是會建立 soft link，讓 `${root}/node_modules/@kids-reporter/cms-core` 指到 `${root}/packages/core` 去。
 
 如此一來，就可以在 local 端一次開發多個 subpkgs。
-
-### 如何update subpkg version
-
-使用@changeset/cli來update版號, ex:
-
-```
-yarn update
-
-or
-
-yarn changeset && yarn changeset version
-```
 
 ### Troubleshootings
 
