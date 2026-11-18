@@ -27,8 +27,9 @@ file, and is intentionally not listed here. Passwords, connection strings,
 API keys, and session/2FA secrets must never be added to these files — see
 `## Secrets` below.
 
-The CMS storage bucket is attached by Cloud Run as a Cloud Storage volume at
-`/app/public`. The container does not install or start gcsfuse itself.
+The CMS storage bucket is attached by Cloud Run as Cloud Storage volumes at
+`/app/packages/cms/public/files` and `/app/packages/cms/public/images`. The
+container does not install or start gcsfuse itself.
 
 ## Secrets
 

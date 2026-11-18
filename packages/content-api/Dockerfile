@@ -1,34 +1,36 @@
+# syntax=docker/dockerfile:1
+
 ARG NODE_VERSION=22.23.4
 
 FROM node:${NODE_VERSION} AS build
 
+WORKDIR /app
+
 RUN corepack enable
 
-WORKDIR /build
+COPY . .
 
-# Cloud Build stages this package dir (lockfile copied from repo root; see cloudbuild.yaml).
-# Makefile must exist before install: postinstall runs `make postinstall` (db-generate, etc.).
-COPY package.json yarn.lock .yarnrc.yml Makefile /build/
+RUN HUSKY=0 YARN_ENABLE_IMMUTABLE_INSTALLS=true yarn install --mode=skip-build
 
-RUN SKIP_BUILD_DEPS=true DB_GENERATE_LOCAL=false yarn install
-
-# Preserve the post-install lockfile from being overwritten by the build context copy.
-RUN cp /build/yarn.lock /tmp/yarn.lock.bak
-COPY . /build/
-RUN mv /tmp/yarn.lock.bak /build/yarn.lock
-
-RUN yarn build
+RUN yarn workspace @kids-reporter/logger build \
+  && yarn workspace @kids-reporter/api-types build \
+  && yarn workspace @kids-reporter/db build \
+  && yarn workspace @kids-reporter/content-api-kit build \
+  && yarn workspace @kids-reporter/content-api build
 
 FROM node:${NODE_VERSION}
-
-RUN corepack enable
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=build /build/node_modules ./node_modules
-COPY --from=build /build/dist ./dist
-COPY --from=build /build/package.json ./package.json
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/packages/logger ./packages/logger
+COPY --from=build /app/packages/api-types ./packages/api-types
+COPY --from=build /app/packages/db ./packages/db
+COPY --from=build /app/packages/content-api-kit ./packages/content-api-kit
+COPY --from=build /app/packages/content-api ./packages/content-api
+
+WORKDIR /app/packages/content-api
 
 CMD ["node", "dist/server.js"]
