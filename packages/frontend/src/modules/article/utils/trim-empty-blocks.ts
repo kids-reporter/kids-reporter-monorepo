@@ -1,19 +1,24 @@
-import { RawDraftContentState } from 'draft-js'
+import type { RawDraftContentState } from 'draft-js'
+
+type Block = RawDraftContentState['blocks'][number]
+
+function isEmptyBlock(block: Block): boolean {
+  return (
+    block.type === 'unstyled' &&
+    block.text.trim() === '' &&
+    block.entityRanges.length === 0
+  )
+}
 
 function trimEmptyBlocks(raw: RawDraftContentState): RawDraftContentState {
   const { blocks, entityMap } = raw
-  if (blocks.length === 0) return raw
+  let start = 0
+  let end = blocks.length
+  while (start < end && isEmptyBlock(blocks[start])) start++
+  while (end > start && isEmptyBlock(blocks[end - 1])) end--
+  if (start === 0 && end === blocks.length) return raw
 
-  const filtered = blocks.filter((block) => {
-    return (
-      block.type !== 'unstyled' ||
-      block.text.trim() !== '' ||
-      block.entityRanges.length !== 0
-    )
-  })
-  if (filtered.length === blocks.length) return raw
-
-  return { blocks: filtered, entityMap }
+  return { blocks: blocks.slice(start, end), entityMap }
 }
 
 export default trimEmptyBlocks
