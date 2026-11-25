@@ -29,6 +29,7 @@ export default list<ListType<'PostEssayQuestion'>>({
       validation: {
         isRequired: true,
       },
+      ui: { displayMode: 'textarea' },
     }),
     answers: relationship({
       label: '答案',

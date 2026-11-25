@@ -35,6 +35,7 @@ export default list<ListType<'PostChoiceQuestion'>>({
     title: text({
       label: '題目標題',
       validation: { isRequired: true },
+      ui: { displayMode: 'textarea' },
     }),
     // Consolidated JSON: [{ content: string, isCorrectAnswer: boolean }]
     options: json({

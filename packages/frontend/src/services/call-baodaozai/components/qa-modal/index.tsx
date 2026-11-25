@@ -341,7 +341,7 @@ function QAModal({
         return (
           <div className="flex w-full flex-col p-6 pb-10 tablet:pb-6">
             <div className="mb-6 w-full">
-              <h2 className="prose-h6-large text-neutral-900">
+              <h2 className="prose-h6-large whitespace-pre-line text-neutral-900">
                 {currentModalStep.title}
               </h2>
             </div>
@@ -375,7 +375,7 @@ function QAModal({
         return (
           <div className="flex h-full w-full flex-col p-6 pb-10 tablet:pb-1">
             <div className="mb-6 w-full">
-              <h2 className="mb-3 prose-h6-large text-neutral-900">
+              <h2 className="mb-3 prose-h6-large whitespace-pre-line text-neutral-900">
                 {currentModalStep.title}
               </h2>
               <p className="prose-p1 text-neutral-700">
