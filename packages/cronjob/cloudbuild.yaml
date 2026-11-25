@@ -54,10 +54,14 @@ steps:
           dev|staging)
             SCHEDULER_STATE=paused
             SCHEDULER_SERVICE_ACCOUNT="sa-kids-nonprod-scheduler@${PROJECT_ID}.iam.gserviceaccount.com"
+            IDENTITY_ENVIRONMENT=nonprod
+            JOB_SUBNET=asia-east1-cloud-run-nonprod
             ;;
           prod)
             SCHEDULER_STATE=enabled
             SCHEDULER_SERVICE_ACCOUNT="sa-kids-prod-scheduler@${PROJECT_ID}.iam.gserviceaccount.com"
+            IDENTITY_ENVIRONMENT=prod
+            JOB_SUBNET=asia-east1-cloud-run-prod-jobs
             ;;
           *)
             echo "Unsupported _ENV: ${_ENV}" >&2
@@ -66,7 +70,7 @@ steps:
         esac
 
         IMAGE="asia-east1-docker.pkg.dev/${PROJECT_ID}/${_ARTIFACT_REGISTRY_REPO}/${_IMAGE_NAME}:${_BRANCH_NAME}_${SHORT_SHA}"
-        RUNTIME_SERVICE_ACCOUNT="sa-kids-cloud-run-runtime@${PROJECT_ID}.iam.gserviceaccount.com"
+        RUNTIME_SERVICE_ACCOUNT="sa-kids-$${IDENTITY_ENVIRONMENT}-runtime@${PROJECT_ID}.iam.gserviceaccount.com"
         SCHEDULE="0 1 * * *"
         TIME_ZONE="Asia/Taipei"
 
@@ -112,8 +116,8 @@ steps:
             --set-secrets="$${secrets}"
             --command=yarn
             --args="$${job_suffix}"
-            --network=default
-            --subnet=default
+            --network=kids-network
+            --subnet="$${JOB_SUBNET}"
             --clear-network-tags
             --vpc-egress=all-traffic
             --memory=512Mi
